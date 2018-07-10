@@ -1,0 +1,29 @@
+{
+  "name": "ClassroomAssistant",
+  "version": "1.0.0",
+  "dependencies": {
+    "alexa-sdk": "^1.0.25",
+    "aws-sdk": "^2.254.1",
+    "google-spreadsheet": "^2.0.5",
+    "hashmap": "^2.3.0",
+    "googleapis": "^32.0.0",
+  },
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "lambda-local": "^1.5.1"
+  },
+  "scripts": {
+    "test": "lambda-local -l index.js -h handler -e local-event.json",
+    "npm-update": "npm install",
+    "ask-deploy": "cd ../..;ask deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BCClassroomAI/ClassroomAssistant.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.com/BCClassroomAI/ClassroomAssistant#readme"
+}
