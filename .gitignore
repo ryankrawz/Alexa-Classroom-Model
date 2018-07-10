@@ -3,7 +3,6 @@ user-config.json
 *.js1
 config
 .ask
-RollCall.zip
 local-event.json
 .DS_Store
 node_modules
