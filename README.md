@@ -1,4 +1,4 @@
-# ClasssroomAssistant
+# ClassroomAssistant
 Master Skill
 
 Unifying all Alexa skills 
