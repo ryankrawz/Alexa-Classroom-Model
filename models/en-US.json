@@ -1,0 +1,869 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "eagle expert",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "bye bye",
+                        "bye",
+                        "no",
+                        "that's all for now",
+                        "nothing else",
+                        "That's it",
+                        "goodbye",
+                        "I'm done",
+                        "all done",
+                        "That's all",
+                        "I am all set",
+                        "I'm all set",
+                        "I'm all good",
+                        "nothing"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AnswerIntent",
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "for {courseNumber}",
+                                "{courseNumber}",
+                                "course {courseNumber}"
+                            ]
+                        },
+                        {
+                            "name": "tag",
+                            "type": "AMAZON.SearchQuery",
+                            "samples": [
+                                "{tag}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "provide an answer",
+                        "discuss something",
+                        "talk about something",
+                        "answer my question",
+                        "give an answer",
+                        "answer with the {tag}",
+                        "what is the {tag}",
+                        "talk about the {tag}",
+                        "what is {tag}",
+                        "read off {tag}",
+                        "answer with {tag}",
+                        "talk about {tag}",
+                        "respond to {tag}",
+                        "answer {tag}"
+                    ]
+                },
+                {
+                    "name": "ReadTags",
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "course {courseNumber}",
+                                "{courseNumber}",
+                                "for {courseNumber}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "read off my questions",
+                        "read off all my questions",
+                        "read off the questions",
+                        "read off all the questions",
+                        "read off my tags",
+                        "read off all my tags",
+                        "read off the tags",
+                        "read off all the tags",
+                        "what are my possible questions",
+                        "what are the possible questions",
+                        "what are the questions",
+                        "what are my questions",
+                        "read all my questions",
+                        "what are my possible tags",
+                        "what are the possible tags",
+                        "what are the tags",
+                        "what are my tags",
+                        "read all my tags"
+                    ]
+                },
+                {
+                    "name": "PlayBriefing",
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "course number {courseNumber}",
+                                "for course number {courseNumber}",
+                                "for number {courseNumber}",
+                                "number {courseNumber}",
+                                "course {courseNumber}",
+                                "for course {courseNumber}",
+                                "for {courseNumber}",
+                                "{courseNumber}"
+                            ]
+                        },
+                        {
+                            "name": "classDate",
+                            "type": "AMAZON.DATE",
+                            "samples": [
+                                "on {classDate}",
+                                "for the day {classDate}",
+                                "for day {classDate}",
+                                "for {classDate}",
+                                "{classDate}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "say note",
+                        "play note",
+                        "say a note",
+                        "play my note",
+                        "play a note",
+                        "say a briefing",
+                        "say my briefing",
+                        "say briefing",
+                        "play briefing",
+                        "play a briefing",
+                        "play my briefing",
+                        "play my briefing for course {courseNumber} on {classDate}"
+                    ]
+                },
+                {
+                    "name": "AddBriefingNote",
+                    "slots": [
+                        {
+                            "name": "noteContent",
+                            "type": "AMAZON.SearchQuery",
+                            "samples": [
+                                "{noteContent}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "add briefing note that says {noteContent}",
+                        "add briefing that says {noteContent}",
+                        "add note that says {noteContent}",
+                        "add this note {noteContent}",
+                        "add a briefing note that says {noteContent}",
+                        "add a briefing that says {noteContent}",
+                        "add a new briefing note",
+                        "add a new breifing",
+                        "add a new note",
+                        "add a briefing note",
+                        "add briefing",
+                        "add note",
+                        "add a briefing",
+                        "add a note",
+                        "add a note that says {noteContent}"
+                    ]
+                },
+                {
+                    "name": "SpecifyCourseNumber",
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "for course number {courseNumber}",
+                                "for course {courseNumber}",
+                                "for number {courseNumber}",
+                                "for {courseNumber}",
+                                "course number {courseNumber}",
+                                "number {courseNumber}",
+                                "course {courseNumber}",
+                                "{courseNumber}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "the course {courseNumber}",
+                        "the course number is {courseNumber}",
+                        "the course number {courseNumber}",
+                        "number {courseNumber}",
+                        "course number {courseNumber}",
+                        "course {courseNumber}",
+                        "for the course {courseNumber}",
+                        "for number {courseNumber}",
+                        "{courseNumber}",
+                        "for {courseNumber}",
+                        "for course number {courseNumber}"
+                    ]
+                },
+                {
+                    "name": "SpecifyClassDate",
+                    "slots": [
+                        {
+                            "name": "classDate",
+                            "type": "AMAZON.DATE",
+                            "samples": [
+                                "on the day {classDate}",
+                                "on the {classDate}",
+                                "on {classDate}",
+                                "for the day {classDate}",
+                                "for the {classDate}",
+                                "for {classDate}",
+                                "{classDate}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "for the class on {classDate}",
+                        "on the date {classDate}",
+                        "on the {classDate}",
+                        "on {classDate}",
+                        "for the date {classDate}",
+                        "for the date",
+                        "for class date",
+                        "for {classDate}",
+                        "{classDate}",
+                        "for class date {classDate}"
+                    ]
+                },
+                {
+                    "name": "ColdCall",
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "from the class number {courseNumber}",
+                                "from the course number {courseNumber}",
+                                "from course number {courseNumber}",
+                                "from class number {courseNumber}",
+                                "from the number {courseNumber}",
+                                "from number {courseNumber}",
+                                "for the class number {courseNumber}",
+                                "for the course number {courseNumber}",
+                                "for class number {courseNumber}",
+                                "for course number {courseNumber}",
+                                "for number {courseNumber}",
+                                "number {courseNumber}",
+                                "class {courseNumber}",
+                                "course {courseNumber}",
+                                "{courseNumber}",
+                                "from class {courseNumber}",
+                                "from course {courseNumber}",
+                                "from {courseNumber}",
+                                "for class {courseNumber}",
+                                "for {courseNumber}",
+                                "for course {courseNumber}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "choose a student from the class {courseNumber}",
+                        "I need one student name from {courseNumber}",
+                        "I need one student name ",
+                        "I need one name from {courseNumber}",
+                        "I need a name from {courseNumber}",
+                        "I need a name",
+                        "I need one name ",
+                        "I need a student to answer the question ",
+                        "pick someone to answer the question ",
+                        "select a student to answer",
+                        "select a student ",
+                        "select a name ",
+                        "choose one name from {courseNumber}",
+                        "pick one name from {courseNumber}",
+                        "choose a human from {courseNumber}",
+                        "pick a name from {courseNumber}",
+                        "give me a name from {courseNumber}",
+                        "choose a name from {courseNumber}",
+                        "choose a person from {courseNumber}",
+                        "choose someone to give an answer from {courseNumber}",
+                        "choose a person to answer from {courseNumber}",
+                        "choose a respondent from {courseNumber}",
+                        "choose a person to respond ",
+                        "choose a person to answer",
+                        "choose someone to give an answer",
+                        "choose a student to answer",
+                        "pick someone to give me an answer",
+                        "pick a person to answer the question ",
+                        "give me a student from {courseNumber}",
+                        "choose one name",
+                        "choose one person ",
+                        "give me one name in {courseNumber}",
+                        "say a student's name from {courseNumber}",
+                        "say a student's name in {courseNumber} ",
+                        "choose a student from the course {courseNumber}",
+                        "choose a respondent ",
+                        "choose someone to answer the question from {courseNumber}",
+                        "choose someone to answer the question ",
+                        "choose someone to answer ",
+                        "give me one student from {courseNumber}",
+                        "give me one student ",
+                        "randomly choose a student ",
+                        "choose a student from the class",
+                        "say a name from {courseNumber}",
+                        "give me one name from {courseNumber}",
+                        "give me one name ",
+                        "choose a student from {courseNumber}",
+                        "choose a student",
+                        "call on student from course {courseNumber}",
+                        "say a student",
+                        "call student",
+                        "tell roll call to say a name",
+                        "say a name",
+                        "tell roll call to call on a student",
+                        "call on a student",
+                        "cold call",
+                        "tell roll call to cold call"
+                    ]
+                },
+                {
+                    "name": "GroupPresent",
+                    "slots": [
+                        {
+                            "name": "groupNumber",
+                            "type": "AMAZON.NUMBER",
+                            "samples": [
+                                "{groupNumber}",
+                                "{groupNumber} people",
+                                "{groupNumber} people in each group",
+                                "Each group has {groupNumber} people"
+                            ]
+                        },
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "{courseNumber}",
+                                "course {courseNumber}",
+                                "the course number is {courseNumber}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "make groups of {groupNumber} people for the course {courseNumber}",
+                        "make groups of {groupNumber} people ",
+                        "create groups of {groupNumber} ",
+                        "crete groups of {groupNumber} for {courseNumber}",
+                        "select groups of {groupNumber} students for {courseNumber}",
+                        "select groups of {groupNumber} students for the class {courseNumber}",
+                        "select group of {groupNumber} students for the course {courseNumber}",
+                        "select groups of {groupNumber} people for the course {courseNumber}",
+                        "select groups of {groupNumber} people for {courseNumber}",
+                        "select groups of {groupNumber} people for course {courseNumber}",
+                        "select groups with {groupNumber} people ",
+                        "select groups of {groupNumber} people",
+                        "create groups of {groupNumber} people ",
+                        "create presentation groups of {groupNumber} people",
+                        "Make groups of {groupNumber}",
+                        "I need {groupNumber} people in each group for class {courseNumber}",
+                        "I need {groupNumber} people in each group ",
+                        "put {groupNumber} people in a group from course {courseNumber}",
+                        "put {groupNumber} people in a group",
+                        "make me groups of {groupNumber} for the course {courseNumber}",
+                        "make me groups of {groupNumber} for {courseNumber}",
+                        "give me groups of {groupNumber} for the course {courseNumber}",
+                        "give me groups of {groupNumber} for the class {courseNumber}",
+                        "please make groups of {groupNumber} for course {courseNumber}",
+                        "please make groups of {groupNumber} for the class {courseNumber}",
+                        "for the class {courseNumber} make groups of {groupNumber}",
+                        "in course {courseNumber} give me groups of {groupNumber}",
+                        "for {courseNumber} give me groups of {groupNumber}",
+                        "give me groups of {groupNumber} in class {courseNumber}",
+                        "give me groups of {groupNumber} for {courseNumber}",
+                        "give me groups of {groupNumber} for course {courseNumber}",
+                        "give me groups of {groupNumber} ",
+                        "make groups of {groupNumber} for {courseNumber}",
+                        "create a presentation order with {groupNumber} in each group for course {courseNumber}",
+                        "create a presentation order with {groupNumber} in each group",
+                        "create a presentation order",
+                        "make presentation groups of {groupNumber} for course {courseNumber}",
+                        "make presentation groups of {groupNumber}",
+                        "make presentation groups",
+                        "create a presentation order for course {courseNumber} with {groupNumber} in each group"
+                    ]
+                },
+                {
+                    "name": "QuizQuestion",
+                    "slots": [
+                        {
+                            "name": "questionSet",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "{questionSet}",
+                                "question set {questionSet}",
+                                "For question set {questionSet}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "please give me a question from the set {questionSet}",
+                        "please give me a question",
+                        "provide a question to me ",
+                        "would you ask a question ",
+                        "would you please ask a question ",
+                        "could you provide a question ",
+                        "can you give me a question from {questionSet}",
+                        "could you give me a question from {questionSet}",
+                        "could you give me a question ",
+                        "could you give a question ",
+                        "can you ask a question ",
+                        "could you ask a question",
+                        "I want you to ask a question ",
+                        "I want to hear a question",
+                        "I would like a queston ",
+                        "I want a question",
+                        "ask us some question from {questionSet}",
+                        "ask us some questions",
+                        "ask us some question",
+                        "ask these students a question",
+                        "ask them a question ",
+                        "ask the student a question ",
+                        "ask students a question ",
+                        "ask the students a question from set {questionSet}",
+                        "ask my class a question from the set {questionSet}",
+                        "ask my class one question from the set {questionSet}",
+                        "ask my class one question from {questionSet}",
+                        "ask my class one question ",
+                        "ask my class a question from {questionSet} ",
+                        "ask my class a question ",
+                        "ask the class some questions",
+                        "ask the class a question",
+                        "give me a question from question set {questionSet}",
+                        "give me a question from set {questionSet}",
+                        "give us some questions",
+                        "give me some questions",
+                        "ask me some questions",
+                        "ask me a question",
+                        "from the question set {questionSet} please ask a question ",
+                        "from the set {questionSet} ask a question ",
+                        "from {questionSet} ask a question",
+                        "ask the students a question from {questionSet}",
+                        "ask the students a question ",
+                        "ask us a question ",
+                        "please give me a question from {questionSet}",
+                        "give me a question from {questionSet} please ",
+                        "say some questions ",
+                        "ask some questions",
+                        "provide a question ",
+                        "give me a question from {questionSet}",
+                        "quiz question",
+                        "say a question",
+                        "give me a question ",
+                        "ask a question from {questionSet}",
+                        "ask a question"
+                    ]
+                },
+                {
+                    "name": "BonusPoints",
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "samples": [
+                                "{courseNumber} ",
+                                "course {courseNumber}",
+                                "for course {courseNumber}",
+                                "for the course {courseNumber}"
+                            ]
+                        },
+                        {
+                            "name": "Points",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "In course number {courseNumber} give {Points}",
+                        "give {Points}",
+                        "Give bonus points "
+                    ]
+                }
+            ],
+            "types": []
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "AnswerIntent",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.10171930131.884624945249"
+                            }
+                        },
+                        {
+                            "name": "tag",
+                            "type": "AMAZON.SearchQuery",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.1250222103105.593239190591"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ReadTags",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.693285471643.256993100672"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "PlayBriefing",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.361498969210.127450840526"
+                            }
+                        },
+                        {
+                            "name": "classDate",
+                            "type": "AMAZON.DATE",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.361498969210.1019633625842"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "AddBriefingNote",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "noteContent",
+                            "type": "AMAZON.SearchQuery",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.837975548421.642217154964"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "SpecifyCourseNumber",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.363868777635.676496036501"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "SpecifyClassDate",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "classDate",
+                            "type": "AMAZON.DATE",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.361202748602.1472876747511"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ColdCall",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.904927354859.28482745767"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "GroupPresent",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "groupNumber",
+                            "type": "AMAZON.NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.427601158270.166483079185"
+                            }
+                        },
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.427601158270.1491891020254"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "QuizQuestion",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "questionSet",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.926874369756.691347353441"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "BonusPoints",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.846177192224.1165093761864"
+                            }
+                        },
+                        {
+                            "name": "Points",
+                            "type": "AMAZON.NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        }
+                    ]
+                }
+            ]
+        },
+        "prompts": [
+            {
+                "id": "Elicit.Slot.1250222103105.593239190591",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What tag would you like me to talk about?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "What is your tag?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "What tag would you like to use?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.10171930131.884624945249",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "for what course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.693285471643.256993100672",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "for what course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.361498969210.1019633625842",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which date?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.361498969210.127450840526",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.837975548421.642217154964",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What do you want to say?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.745256274008.586545644482",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What's the four digit course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.58126902452.364784995296",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For what date?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.361202748602.1472876747511",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which date?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.363868777635.676496036501",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.904927354859.28482745767",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.1451265714234.1409822826068",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.1409083639520.289424935063",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.1038680690908.1307280279154",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.427601158270.166483079185",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "How many people are in each group?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.427601158270.1491891020254",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What is the course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.926874369756.691347353441",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which question set?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.846177192224.1165093761864",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    }
+                ]
+            }
+        ]
+    }
+}
