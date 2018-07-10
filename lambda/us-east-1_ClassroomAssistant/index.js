@@ -207,7 +207,7 @@ const handlers = {
         this.emit(':tell', speechOutput);
     },
 
-    'Unhandled': function () {
+    'AMAZON.FallbackIntent': function () {
         let speechOutput = 'I did not understand that command.';
         this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
