@@ -367,7 +367,7 @@ const handlers = {
             this.emit(':delegate');
         } else if (!allQuestions.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
             const slotToElicit = 'courseNumber';
-            const speechOutput = "We couldn't find that course number. Please try agian.";
+            const speechOutput = "We couldn't find that course number. Please try again.";
             this.emit(':elicitiSlot', slotToElicit, speechOutput, speechOutput);
         } else {
             let speechOutput = '';
