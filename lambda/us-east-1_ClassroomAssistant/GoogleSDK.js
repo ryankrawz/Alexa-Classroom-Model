@@ -195,3 +195,5 @@ function getData(auth, key, tabName) {
     //     console.log(err.toString());
     //   })
 }
+
+module.exports = readTab();
