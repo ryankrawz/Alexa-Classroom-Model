@@ -12,6 +12,8 @@ const fs = require('fs');
 const util = require("util");
 const readline = require('readline');
 const {google} = require('googleapis');
+var Peela = require( 'peela' );
+let stack = Peela();
 
 // If modifying these scopes, delete credentials.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
@@ -38,95 +40,50 @@ async function readTab(key, tabName) {
     let data = await getData(auth, key, tabName);
     console.log("Google Sheets Read - Success");
 
-    let values = data.values;
-    let headers = values[0];
-    let kinds = values[1];
+    let rows = data.data.sheets[0].data[0].rowData;
+    let headers = rows[0].values; //reference the property later, this isn't a plain list
+    let kinds = rows[1].values;
+    let scheduleObj = {};
+    let latestObj = scheduleObj;
 
-    for (let i = 2; i<values.length; i++) {
-        let currentPath = res;
-        for (let j = 0; j<values[i].length; j++) {
-            switch (kinds[j]) {
-                case 'key':
-                    if (currentPath.hasOwnProperty(values[i][j])) {
-                        currentPath = currentPath[values[i][j]];
+    try {
+        for (let row = 2; row < rows.length; row++) {
+            for (let col = 0; col < rows[row].values.length; col++) {
+                let kind = kinds[col].effectiveValue.stringValue;
+                let kval = headers[col].effectiveValue.stringValue;
+
+                if (kind == 'key') {
+                    if (rows[row].values[col].effectiveValue) {
+                        if (col == 0) {
+                            stack.flush();
+                            latestObj = scheduleObj;
+                        }
+                        //there is an effective value to the first cell
+                        let cellval = rows[row].values[col].effectiveValue.stringValue;
+                        let newObj = {};
+                        latestObj[cellval] = newObj;
+                        latestObj = newObj;
+                        stack.push(latestObj);
                     } else {
-                        currentPath = currentPath[values[i][j]];
-                        currentPath = {};
+                        stack.pop();
+                        latestObj = stack.head();
                     }
-                    break;
-                case 'string':
-                    currentPath[headers[i]] = values[i][j];
-                    break;
-                case 'time':
-                    currentPath[headers[i]] = convertTime(values[i][j]);
-                    break;
-                case 'number':
-                    currentPath[headers[i]] = parseInt(values[i][j]);
-                    break;
-                default:
+                } else if (kind == 'string') {
+                    let sval = rows[row].values[col].effectiveValue.stringValue;
+                    latestObj[kval] = sval;
+                } else if (kind == 'number') {
+                    let nval = rows[row].values[col].effectiveValue.numberValue;
+                    latestObj[kval] = nval;
+                } else {
                     console.log("Yikes that's a weird type");
+                }
             }
         }
+    } catch (err) {
+        console.log("ERROR: " + err);
     }
 
-
-    /*
-    let skillsSheets = data.data.sheets.slice(1);
-    skillsSheets.forEach(sheet => {
-
-        let courseNumber = sheet.properties.title;
-
-        res[courseNumber] = {
-            headers: [],
-            rowData: [],
-            colData: [],
-            nCol: 0,
-            nRow: 0
-        };
-
-        //index 0 is the headers
-        res[courseNumber].headers = sheet.data[0].rowData[0];
-
-        //omit index 0 because it's the header row
-        let rows = sheet.data[0].rowData.slice(1);
-
-        rows.forEach(row => {
-
-            let r = res[courseNumber].rowData.length;
-            let c = res[courseNumber].colData.length;
-
-            if (row.values) {
-                r.push([]);
-                c.push([]);
-
-                let values = row.values;
-
-                //writing rows
-                values.forEach(val => {
-                    if (val.effectiveValue) {
-                        res[courseNumber].rows.push(val.effectiveValue);
-                    }
-                });
-
-                if (row.values[0].effectiveValue && row.values[1].effectiveValue) {
-                    // Sets tag (first column) as key in empty object and sets question (second column) as value
-                    res[courseNumber][row.values[0].effectiveValue.stringValue] = row.values[1].effectiveValue.stringValue;
-                } else {
-                    console.log("That row didn't have both a tag and an answer");
-                }
-            } else {
-                console.log("Skipping empty row.");
-            }
-        });
-
-    });
-
-    let scheduleSheet = data.data.sheets[0];
-    let profSchedule = {};
-    profSchedule[scheduleSheet.properties.title] = {};
-    let rows = scheduleSheet.data[0].rowData.slice(1);
-    let headers = scheduleSheet.data[0].rowData[0];
-    */
+    return scheduleObj;
 }
 
 async function loadFromSheets() {
@@ -199,11 +156,11 @@ function getData(auth, key, tabName) {
 
     let readDataParams = {
         spreadsheetId: key,
-        range: tabName,
+        ranges: tabName,
         includeGridData: true
     };
 
-    let p = sheets.spreadsheets.values.get(readDataParams);
+    let p = sheets.spreadsheets.get(readDataParams);
     return p;
 
     //console.log(allQuestions["Sheet1"][0].tag);
