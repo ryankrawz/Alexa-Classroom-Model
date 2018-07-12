@@ -6,45 +6,6 @@ const AWS = require("aws-sdk");
 const googleSDK = require('./GoogleSdk.js');
 AWS.config.update({region: 'us-east-1'});
 
-
-const initializeCourses = (attributes) => {
-    console.log("We're in initializeCourses");
-    if (!attributes.hasOwnProperty('courses')) {
-        console.log('making a courses attribute');
-        attributes.courses = {
-            "1111": [
-                {name: "Ryan", beenCalled: 0},
-                {name: "Will", beenCalled: 0},
-                {name: "Andy", beenCalled: 0},
-                {name: "Daewoo", beenCalled: 0},
-                {name: "Jamie", beenCalled: 0},
-                {name: "Rebecca", beenCalled: 0},
-                {name: "Professor Wyner", beenCalled: 0}
-            ]
-        }
-    }
-};
-
-
-const initializeQuestions = (attributes) => {
-    console.log("We're in initializeQuestions");
-    if (!attributes.hasOwnProperty('allQuestions')) {
-        console.log('making an allQuestions attribute');
-        attributes.allQuestions = {
-            "1111": [
-                {question: "This is sample question 1 from course 1111", beenCalled: 0},
-                {question: "This is sample question 2 from course 1111", beenCalled: 0},
-                {question: "This is sample question 3 from course 1111", beenCalled: 0}
-            ],
-            "2222": [
-                {question: "This is sample question 1 from course 2222", beenCalled: 0},
-                {question: "This is sample question 2 from course 2222", beenCalled: 0},
-                {question: "This is sample question 3 from course 2222", beenCalled: 0}
-            ]
-        }
-    }
-};
-
 exports.handler = function (event, context, callback) {
     const alexa = Alexa.handler(event, context, callback);
     alexa.dynamoDBTableName = "ClassroomAssistant";
@@ -52,30 +13,6 @@ exports.handler = function (event, context, callback) {
     alexa.execute();
 
 };
-
-function initializeBriefingNotes(attributes) {
-    if (attributes.briefingNotes == undefined) {
-        attributes.briefingNotes = {
-            "1111": {
-                "2018-07-02": ["Hello. My name is Alexa and I will be your new class TA. We are in course 1111 and today is July 2nd. In today's lesson, we plan to demonstrate a couple of features" +
-                "such as cold call, quiz questions, forming groups, and bonus points in a mock classroom environment. We hope to provide a realistic portrayal of Alexa's functionality and role in a classroom."],
-                "2018-07-03": ["Hello. My name is Alexa and I will be your new class TA. We are in course 1111 and today is July 3rd. In today's lesson, we plan to demonstrate a couple of features" +
-                "such as cold call, quiz questions, forming groups, and bonus points in a mock classroom environment. We hope to provide a realistic portrayal of Alexa's functionality and role in a classroom."],
-                "2018-07-04": ["We are in course 1111 and today is July 4th"]
-            },
-            "2222": {
-                "2018-11-01": ["We are in course 2222 and today is November 1st"],
-                "2018-11-02": ["We are in course 2222 and today is November 2nd"],
-                "2018-11-03": ["We are in course 2222 and today is November 3rd"]
-            }
-        }
-    }
-}
-function search(list, target) {
-    if (list.length == 0) return false;
-    if (list[0] == target) return true;
-    return search(list.splice(1), target);
-}
 
 function getNames(students) {
     let names = [];
@@ -102,17 +39,100 @@ function orderedQuizQuestion(questionList) {
     return questionToAsk;
 }
 
-function initializesessionID(attributes) {
-    if (!attributes.sessionID) {
-        attributes.sessionID = 0;
-    }
+function convertDayOfWeek(day) {
+	let dayInitial;
+	switch (day) {
+		case 'Mon':
+			dayInitial = 'M';
+			break;
+		case 'Tue':
+			dayInitial = 'T';
+			break;
+		case 'Wed':
+			dayInitial = 'W';
+			break;
+		case 'Thu':
+			dayInitial = 'R';
+			break;
+		case 'Fri':
+			dayInitial = 'F';
+			break;
+		case 'Sat':
+			dayInitial = 'A';
+			break;
+		case 'Sun':
+			dayInitial = 'U';
+			break;
+		default:
+			break;
+	}
+	return dayInitial;
 }
 
-function idDoesMatch(oldID, newID) {
-    if (oldID == undefined) {
-        return true;
+function convertTimeStamp(timeStamp) {
+	let timeFraction;
+	let timeList = timeStamp.split(':').map(time => parseInt(time));
+	timeFraction = (timeList[0] * 3600 + timeList[1] * 60 + timeList[2]) / (3600 * 24);
+	return timeFraction;
+}
+
+function checkSchedule(scheduleObj) {
+    let dayOfWeek = convertDayOfWeek(getCurrentDay());
+    let timeStamp = convertTimeStamp(getCurrentTime());
+    let courseNumbers = Object.keys(scheduleObj);
+    let gracePeriod = 300/(3600 * 24);
+
+    for (let i = 0; i < courseNumbers.length; i++) {
+        let sectionNumbers = Object.keys(scheduleObj[courseNumbers[i]]);
+        for (let j = 0; j < sectionNumbers.length; j++) {
+            let sectionObj = scheduleObj[courseNumbers[i]][sectionNumbers[j]];
+            let DOWList = sectionObj[Object.keys(sectionObj)[0]].split("");
+            let start = sectionObj[Object.keys(sectionObj)[1]];
+            let end = sectionObj[Object.keys(sectionObj)[2]];
+            let dayDoesMatch = false;
+            let timeDoesMatch = false;
+
+            DOWList.forEach(day => {
+                if (day == dayOfWeek) {
+                    dayDoesMatch = true;
+                }
+            });
+            if (timeStamp >= (start - gracePeriod) && timeStamp <= (end + gracePeriod)) {
+                timeDoesMatch = true;
+            }
+            if (dayDoesMatch && timeDoesMatch) {
+                let returnObj = {};
+                returnObj[sectionNumbers[j]] = sectionObj;
+                returnObj[sectionNumbers[j]].gracePeriod = gracePeriod;
+                return returnObj;
+            }
+        }
     }
-    return oldID == newID;
+    return false;
+}
+
+function getCurrentDay() {
+    let dateTime = Date(Date.now());
+    let dateTimeList = dateTime.split(' ');
+    return dateTimeList[0];
+}
+
+function getCurrentTime() {
+    let dateTime = Date(Date.now());
+    let dateTimeList = dateTime.split(' ');
+    return dateTimeList[4];
+}
+
+function getCourseNumber(attributes, inSchedule) {
+    if (inSchedule) {
+        let sectionNumber = Object.keys(inSchedule)[0];
+        let sectionObj = inSchedule[sectionNumber];
+        attributes.course = sectionNumber.substr(0, 4);
+        attributes.expiration = sectionObj[Object.keys(sectionObj)[2]] + sectionObj.gracePeriod;
+    } else {
+        attributes.course = null;
+    }
+    return attributes.course;
 }
 
 const handlers = {
