@@ -9,7 +9,7 @@
     "hashmap": "^2.3.0",
     "peela": "^1.3.3"
   },
-  "description": "",
+  "description": "Single all encompassing skill for Alexa in classroom pilots",
   "main": "index.js",
   "devDependencies": {
     "lambda-local": "^1.5.1"
@@ -24,7 +24,7 @@
     "url": "git+https://github.com/BCClassroomAI/ClassroomAssistant.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "BC Classroom AI team",
   "license": "ISC",
   "homepage": "https://github.com/BCClassroomAI/ClassroomAssistant#readme"
 }
