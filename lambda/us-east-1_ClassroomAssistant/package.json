@@ -16,7 +16,7 @@
   },
   "scripts": {
     "test": "lambda-local -l index.js -h handler -e local-event.json",
-    "npm-update": "npm install",
+    "npm-update": "npm prune;npm install",
     "ask-deploy": "cd ../..;ask deploy"
   },
   "repository": {
