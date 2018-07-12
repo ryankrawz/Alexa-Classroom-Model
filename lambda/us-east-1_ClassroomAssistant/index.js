@@ -150,13 +150,11 @@ const handlers = {
 
     'AMAZON.CancelIntent': function () {
         const speechOutput = 'Goodbye!';
-        this.attributes.oldID = this.attributes.sessionID;
         this.emit(':tell', speechOutput);
     },
 
     'AMAZON.StopIntent': function () {
         const speechOutput = 'See you later!';
-        this.attributes.oldID = this.attributes.sessionID;
         this.emit(':tell', speechOutput);
     },
 
@@ -168,7 +166,6 @@ const handlers = {
 
     'SessionEndedRequest': function () {
         console.log('***session ended***');
-        this.attributes.oldID = this.attributes.sessionID;
         this.emit(':saveState', true);
     },
 
