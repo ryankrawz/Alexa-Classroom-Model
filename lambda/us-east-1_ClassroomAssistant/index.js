@@ -3,6 +3,7 @@
 
 const Alexa = require("alexa-sdk");
 const AWS = require("aws-sdk");
+const googleSDK = require('./GoogleSdk.js');
 AWS.config.update({region: 'us-east-1'});
 
 
@@ -44,8 +45,6 @@ const initializeQuestions = (attributes) => {
     }
 };
 
-
-
 exports.handler = function (event, context, callback) {
     const alexa = Alexa.handler(event, context, callback);
     alexa.dynamoDBTableName = "ClassroomAssistant";
@@ -53,73 +52,7 @@ exports.handler = function (event, context, callback) {
     alexa.execute();
 
 };
-const fs = require('fs');
-const util = require("util");
-const readline = require('readline');
-const {google} = require('googleapis');
 
-// If modifying these scopes, delete credentials.json.
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const TOKEN_PATH = 'credentials.json';
-
-const readFile = util.promisify(fs.readFile);
-
-async function loadFromSheets() {
-// Load client secrets from a local file.
-    let p = readFile('client_secret.json');
-    let res = await p;
-    let pAuth = authorize(JSON.parse(res));
-    return pAuth;
-}
-async function authorize(credentials) {
-    const {client_secret, client_id, redirect_uris} = credentials.installed;
-    const oAuth2Client = new google.auth.OAuth2(
-        client_id, client_secret, redirect_uris[0]);
-
-    // Check if we have previously stored a token.
-    let a = readFile(TOKEN_PATH);
-    let token = await a;
-    return new Promise((resolve, reject) => {
-        oAuth2Client.setCredentials(JSON.parse(token));
-        resolve(oAuth2Client);
-    });
-}
-function getNewToken(oAuth2Client, callback) {
-    const authUrl = oAuth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: SCOPES,
-    });
-    console.log('Authorize this app by visiting this url:', authUrl);
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-    });
-    rl.question('Enter the code from that page here: ', (code) => {
-        rl.close();
-        oAuth2Client.getToken(code, (err, token) => {
-            if (err) return callback(err);
-            oAuth2Client.setCredentials(token);
-            // Store the token to disk for later program executions
-            fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-                if (err) console.error(err);
-                console.log('Token stored to', TOKEN_PATH);
-            });
-            callback(oAuth2Client);
-        });
-    });
-}
-function getData(auth) {
-    const sheets = google.sheets({version: 'v4', auth});
-
-    let readDataParams = {
-        spreadsheetId: '1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0',
-        //range: sheetName,
-        includeGridData: true
-    };
-
-    let p = sheets.spreadsheets.get(readDataParams);
-    return p;
-}
 function initializeBriefingNotes(attributes) {
     if (attributes.briefingNotes == undefined) {
         attributes.briefingNotes = {
