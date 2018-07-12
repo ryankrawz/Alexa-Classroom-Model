@@ -29,11 +29,32 @@ function convertTime(time) {
     return (hours / 24.0);
 }
 
-readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule");
+exports.writeTab = function (key, tabName, values) {
 
-async function readTab(key, tabName) {
+    let body = {
+      values: values
+    };
 
-    let res = {};
+    let params1 = {
+      spreadsheetId: key,
+      range: tabName,
+      resource: body,
+      valueInputOption: "USER_ENTERED"
+    };
+
+    sheets.spreadsheets.values.update(params1)
+      .then(data => {
+        console.log("Success");
+        console.log(data.toString());
+      })
+
+      .catch(err => {
+        console.log("Error");
+        console.log(err.toString());
+      })
+};
+
+exports.readTab = async function (key, tabName) {
 
     let loadPromise = loadFromSheets();
     let auth = await loadPromise;
@@ -84,7 +105,7 @@ async function readTab(key, tabName) {
     }
 
     return scheduleObj;
-}
+};
 
 async function loadFromSheets() {
 // Load client secrets from a local file.
@@ -162,38 +183,6 @@ function getData(auth, key, tabName) {
 
     let p = sheets.spreadsheets.get(readDataParams);
     return p;
-
-    //console.log(allQuestions["Sheet1"][0].tag);
-
-    // let values = [
-    //   ["Item", "Cost", "Stocked", "Ship Date"],
-    //   ["Wheel", "$20.50", "4", "3/1/2016"],
-    //   ["Door", "$15", "2", "3/15/2016"],
-    //   ["Engine", "$100", "1", "30/20/2016"],
-    //   ["Totals", "=SUM(B2:B4)", "=SUM(C2:C4)", "=MAX(D2:D4)"]
-    // ];
-    //
-    // let body = {
-    //   values: values
-    // };
-    //
-    // let params1 = {
-    //   spreadsheetId: "11ZmOmNRSh00YaKDXl13-_MMbeX6uDY2gLD0exVxL-14",
-    //   range: sheetName,
-    //   resource: body,
-    //   valueInputOption: "USER_ENTERED"
-    // };
-    //
-    // sheets.spreadsheets.values.update(params1)
-    //   .then(data => {
-    //     console.log("Success");
-    //     console.log(data.toString());
-    //   })
-    //
-    //   .catch(err => {
-    //     console.log("Error");
-    //     console.log(err.toString());
-    //   })
 }
 
-module.exports = readTab();
+// exports.readTab = readTab;
