@@ -88,8 +88,15 @@ function convertDayOfWeek(day) {
 
 function convertTimeStamp(timeStamp) {
 	let timeList = timeStamp.split(':').map(time => parseInt(time));
-	let timeFraction = (timeList[0] * 3600 + timeList[1] * 60 + timeList[2]) / (3600 * 24);
-	return timeFraction;
+	let timeFraction;
+	if (timeList.length == 3) {
+	    timeFraction = (timeList[0] * 3600 + timeList[1] * 60 + timeList[2]) / (3600 * 24);
+    } else if (timeList.length == 2) {
+	    timeFraction = (timeList[0] * 3600 + timeList[1] * 60) / (3600 * 24);
+    } else {
+	    timeFraction = null;
+    }
+    return timeFraction;
 }
 
 function checkSchedule(scheduleObj) {
@@ -139,25 +146,48 @@ function getCurrentTime() {
     return dateTimeList[4];
 }
 
-function getCourseNumber(attributes, inSchedule) {
+function getContext(attributes, inSchedule) {
     if (inSchedule) {
         let sectionNumber = Object.keys(inSchedule)[0];
         let sectionObj = inSchedule[sectionNumber];
-        attributes.course = sectionNumber.substr(0, 4);
+        attributes.courseNumber = sectionNumber.substr(0, 4);
+        attributes.sectionNumber = sectionNumber;
         attributes.expiration = sectionObj[Object.keys(sectionObj)[2]] + sectionObj.gracePeriod;
     } else {
-        attributes.course = null;
+        attributes.courseNumber = null;
     }
-    return attributes.course;
+    return attributes.courseNumber;
 }
 
-async function readScheduleObj() {
+async function readSchedule() {
     let scheduleObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule");
     return scheduleObj;
 }
 
-console.log(readScheduleObj());
+async function readRoster() {
+    let readObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Roster");
+    return readObj;
+}
 
+function coldCallHelper(attributes, roster) {
+    const beenCalledList = [];
+    let speechOutput;
+    let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
+    let rosterList = Object.keys(sectionObj);
+    rosterList.forEach(student => beenCalledList.push(sectionObj[student][Object.keys(sectionObj[student])[2]]));
+    const minim = Math.min(...beenCalledList);
+    while (true) {
+        let randomIndex = Math.floor(Math.random() * rosterList.length);
+        let randomStudent = rosterList[randomIndex];
+        if (sectionObj[randomStudent][Object.keys(sectionObj[randomStudent])[2]] === minim) {
+            speechOutput = randomStudent;
+            sectionObj[randomStudent][Object.keys(sectionObj[randomStudent])[2]]++;
+            // todo: write updated beenCalled values to sheet
+            break;
+        }
+    }
+    return speechOutput;
+}
 
 const handlers = {
     'LaunchRequest': function () {
@@ -261,13 +291,13 @@ const handlers = {
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (this.attributes.lastIntent == 'AddBriefingNote') {
             console.log('*** I have the courseNumber: ' + courseNumber);
-            this.attributes.course = courseNumber;
+            this.attributes.courseNumber = courseNumber;
 
             let speechOutput = "And for which date should I add this note?";
             this.response.speak(speechOutput).listen("For which date should I add this note?");
             this.emit(':responseReady')
         } else {
-            this.attributes.course = courseNumber;
+            this.attributes.courseNumber = courseNumber;
 
             const speechOutput = `The course number has been set to ${courseNumber}. What can I do for you?`;
             this.response.speak(speechOutput).listen(speechOutput);
@@ -461,46 +491,50 @@ const handlers = {
     },
 
     'ColdCall': async function () {
+
         this.attributes.lastIntent = 'ColdCall';
+        let scheduleObj = await readSchedule();
+        let rosterObj =  await readRoster();
+        console.log(scheduleObj);
+        console.log(rosterObj);
+        let courseNumber = this.event.request.intent.slots.courseNumber.value;
+        let sectionTime = convertTimeStamp(this.event.request.intent.slots.sectionTime.value);
 
-        let scheduleObj = await googleSDK.readTab(this.attributes.spreadsheetID, 'Schedule');
-
-        if (this.event.request.intent.slots.courseNumber.value &&
-            !scheduleObj.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
-
-            let slotToElicit = 'courseNumber';
-            let speechOutput = "I'm sorry, I don't have that course number on record. For which course would you like me to cold call from?";
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-
-        } else {
-
-            if (this.event.request.intent.slots.courseNumber.value &&
-                scheduleObj.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
-
-                this.attributes.course = this.event.request.intent.slots.courseNumber.value;
-
+        if (courseNumber) {
+            if (scheduleObj.hasOwnProperty(courseNumber)) {
+                console.log('***valid course number provided manually');
+                this.attributes.courseNumber = courseNumber;
+                this.response.speak(coldCallHelper(this.attributes, rosterObj));
+                this.emit(':responseReady');
             } else {
-
-                getCourseNumber(this.attributes, checkSchedule(scheduleObj));
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number on record. For which course would you like me to cold call from?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             }
-
-            const courseNumber = this.attributes.course;
-            const beenCalledList = [];
-            this.attributes.courses[courseNumber].forEach(student => beenCalledList.push(student.beenCalled));
-            const minim = Math.min(...beenCalledList);
-            let loop = true;
-            while (loop) {
-                let randomIndex = Math.floor(Math.random() * this.attributes.courses[courseNumber].length);
-                let randomStudent = this.attributes.courses[courseNumber][randomIndex];
-                if (randomStudent.beenCalled === minim) {
-                    const speechOutput = randomStudent.name;
-                    randomStudent.beenCalled++;
-                    this.attributes.courses[courseNumber].forEach(student => console.log(`name: ${student.name}, beenCalled: ${student.beenCalled}`));
-                    loop = false;
-                    this.response.speak(speechOutput);
-                    this.emit(':responseReady');
+        } else if (sectionTime) {
+            let sectionNumber;
+            let timeDoesMatch = false;
+            Object.values(scheduleObj[this.attributes.courseNumber]).forEach(sectionObj => {
+                if (sectionObj[Object.keys(sectionObj)[1]] == sectionTime) {
+                    sectionNumber = Object.keys(scheduleObj[this.attributes.courseNumber])[Object.values(scheduleObj[this.attributes.courseNumber]).indexOf(sectionObj)];
+                    timeDoesMatch = true;
+                    console.log('***valid section time provided manually');
                 }
+            });
+            if (timeDoesMatch) {
+                this.attributes.sectionNumber = sectionNumber;
+                this.response.speak(coldCallHelper(this.attributes, rosterObj));
+                this.emit(':responseReady');
+            } else {
+                let slotToElicit = 'sectionTime';
+                let speechOutput = `I'm sorry, I don't have that section time on record for course ${this.attributes.courseNumber}. Which section time would you like me to cold call from?`;
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             }
+        } else {
+            getContext(this.attributes, checkSchedule(scheduleObj));
+            console.log('***schedule context retrieved');
+            this.response.speak(coldCallHelper(this.attributes, rosterObj));
+            this.emit(':responseReady');
         }
     },
 
