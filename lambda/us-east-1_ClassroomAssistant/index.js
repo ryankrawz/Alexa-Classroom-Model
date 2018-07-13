@@ -153,6 +153,7 @@ function getCourseNumber(attributes, inSchedule) {
 }
 
 function writeToSheets(key, tabName, scheduleObj) {
+    //TO DO: add first two rows for the headers and kinds
     let values = [];
 
     //this could be done recursively, but I'm going to use some conditionals and loops
