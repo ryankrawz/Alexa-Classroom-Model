@@ -1,9 +1,8 @@
     // This is the master skill for all Alexa Skills
 'use strict';
-
 const Alexa = require("alexa-sdk");
 const AWS = require("aws-sdk");
-const googleSDK = require('./GoogleSdk.js');
+const googleSDK = require('./GoogleSDK.js');
 AWS.config.update({region: 'us-east-1'});
 
 exports.handler = function (event, context, callback) {
@@ -70,9 +69,8 @@ function convertDayOfWeek(day) {
 }
 
 function convertTimeStamp(timeStamp) {
-	let timeFraction;
 	let timeList = timeStamp.split(':').map(time => parseInt(time));
-	timeFraction = (timeList[0] * 3600 + timeList[1] * 60 + timeList[2]) / (3600 * 24);
+	let timeFraction = (timeList[0] * 3600 + timeList[1] * 60 + timeList[2]) / (3600 * 24);
 	return timeFraction;
 }
 
@@ -134,6 +132,14 @@ function getCourseNumber(attributes, inSchedule) {
     }
     return attributes.course;
 }
+
+async function readScheduleObj() {
+    let scheduleObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule");
+    return scheduleObj;
+}
+
+console.log(readScheduleObj());
+
 
 const handlers = {
     'LaunchRequest': function () {
@@ -232,7 +238,7 @@ const handlers = {
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else {
             console.log('*** I have the courseNumber: ' + this.event.request.intent.slots.courseNumber.value);
-            this.attributes.courseNumber = this.event.request.intent.slots.courseNumber.value;
+            this.attributes.course = this.event.request.intent.slots.courseNumber.value;
             let speechOutput = "And for which date should I add this note?";
             this.response.speak(speechOutput).listen("For which date should I add this note?");
             this.emit(':responseReady')
@@ -421,15 +427,12 @@ const handlers = {
         }
     },
 
-    'ColdCall': function () {
+    'ColdCall': async function () {
 
-        initializeCourses(this.attributes);
+        let scheduleObj = await googleSDK.readTab(this.attributes.spreadsheetID, 'Schedule');
 
-        if (this.event.request.dialogState !== "COMPLETED") {
-
-            this.emit(':delegate');
-
-        } else if (!this.attributes.courses.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
+        if (this.event.request.intent.slots.courseNumber.value &&
+            !scheduleObj.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
 
             let slotToElicit = 'courseNumber';
             let speechOutput = "I'm sorry, I don't have that course number on record. For which course would you like me to cold call from?";
@@ -437,8 +440,17 @@ const handlers = {
 
         } else {
 
-            const courseNumber = this.event.request.intent.slots.courseNumber.value;
-            this.attributes.courseNumber = courseNumber;
+            if (this.event.request.intent.slots.courseNumber.value &&
+                scheduleObj.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
+
+                this.attributes.course = this.event.request.intent.slots.courseNumber.value;
+
+            } else {
+
+                getCourseNumber(this.attributes, checkSchedule(scheduleObj));
+            }
+
+            const courseNumber = this.attributes.course;
             const beenCalledList = [];
             this.attributes.courses[courseNumber].forEach(student => beenCalledList.push(student.beenCalled));
             const minim = Math.min(...beenCalledList);
