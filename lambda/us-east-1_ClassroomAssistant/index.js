@@ -1,5 +1,16 @@
-    // This is the master skill for all Alexa Skills
+// This is the master skill for all Alexa Skills
+
+/*
+TO DO:
+- Refactor intents to use data from Sheets
+- Streamline DynamoDB Cache
+- Implement Writing to Sheets
+- Course Number Override Intent
+
+*/
+
 'use strict';
+
 const Alexa = require("alexa-sdk");
 const AWS = require("aws-sdk");
 const googleSDK = require('./GoogleSDK.js');
@@ -10,8 +21,15 @@ exports.handler = function (event, context, callback) {
     alexa.dynamoDBTableName = "ClassroomAssistant";
     alexa.registerHandlers(handlers);
     alexa.execute();
-
 };
+
+function initSheetID(context) {
+    if (!context.attributes.spreadsheetID || context.attributes.spreadsheetID === "Not a Real ID") {
+        context.attributes.spreadsheetID = "Not a Real ID";
+    }
+    context.response.speak("Please wait for your administrator to set up Google Sheets.");
+    context.emit(':responseReady');
+}
 
 function getNames(students) {
     let names = [];
@@ -84,7 +102,7 @@ function checkSchedule(scheduleObj) {
         let sectionNumbers = Object.keys(scheduleObj[courseNumbers[i]]);
         for (let j = 0; j < sectionNumbers.length; j++) {
             let sectionObj = scheduleObj[courseNumbers[i]][sectionNumbers[j]];
-            let DOWList = sectionObj[Object.keys(sectionObj)[0]].split("");
+            let DOWList = sectionObj[Object.keys(sectionObj)[0]].split('');
             let start = sectionObj[Object.keys(sectionObj)[1]];
             let end = sectionObj[Object.keys(sectionObj)[2]];
             let dayDoesMatch = false;
@@ -177,7 +195,9 @@ const handlers = {
 
     //Custom Intents
     'PlayBriefing': function () {
-        initializeBriefingNotes(this.attributes);
+        initSheetID(this.attributes);
+        this.attributes.lastIntent = 'PlayBriefing';
+
         //we may need to adjust the else if conditions depending on how we choose to set up/retrieve the briefings -> from google sheets? hardcoded for the demo?
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
@@ -210,7 +230,8 @@ const handlers = {
     },
 
     'AddBriefingNote': function () {
-        initializeBriefingNotes(this.attributes);
+        this.attributes.lastIntent = 'AddBriefingNote';
+
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
         } else if (!this.event.request.intent.slots.noteContent.value) {
@@ -227,25 +248,36 @@ const handlers = {
     },
 
     'SpecifyCourseNumber': function () {
-        console.log('*** SpecifyCourseNumber');
+        this.attributes.lastIntent = 'SpecifyCourseNumber';
+        const courseNumber = this.event.request.intent.slots.courseNumber.value;
+
         if (this.event.request.dialogState !== 'COMPLETED') {
             console.log('*** Trying to obtain courseNumber');
             this.emit(':delegate');
-        } else if (!this.attributes.briefingNotes.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
+        } else if (!this.attributes.briefingNotes.hasOwnProperty(courseNumber)) {
             console.log('*** Invalid courseNumber');
             let speechOutput = "I'm sorry, I can't find that course number. Which course number should I add this note to?";
             let slotToElicit = 'courseNumber';
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-        } else {
-            console.log('*** I have the courseNumber: ' + this.event.request.intent.slots.courseNumber.value);
-            this.attributes.course = this.event.request.intent.slots.courseNumber.value;
+        } else if (this.attributes.lastIntent == 'AddBriefingNote') {
+            console.log('*** I have the courseNumber: ' + courseNumber);
+            this.attributes.course = courseNumber;
+
             let speechOutput = "And for which date should I add this note?";
             this.response.speak(speechOutput).listen("For which date should I add this note?");
             this.emit(':responseReady')
+        } else {
+            this.attributes.course = courseNumber;
+
+            const speechOutput = `The course number has been set to ${courseNumber}. What can I do for you?`;
+            this.response.speak(speechOutput).listen(speechOutput);
+            this.emit(':responseReady');
         }
     },
 
     'SpecifyClassDate': function () {
+        this.attributes.lastIntent = 'SpecifyClassDate';
+
         console.log('obtaining class date');
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
@@ -262,7 +294,9 @@ const handlers = {
         }
     },
 
-    'AnswerIntent': async function () {
+    'FastFacts': async function () {
+        this.attributes.lastIntent = 'FastFacts';
+
         console.log("*** AnswerIntent Started");
         let allQuestions = {};
         let loadPromise = loadFromSheets();
@@ -318,6 +352,7 @@ const handlers = {
     },
 
     'ReadTags': function () {
+        this.attributes.lastIntent = 'ReadTags';
 
         if (!this.event.request.intent.slots.courseNumber.value) {
             this.emit(':delegate');
@@ -339,10 +374,8 @@ const handlers = {
     },
 
     'GroupPresent': function () {
+        this.attributes.lastIntent = 'GroupPresent';
 
-        initializeCourses(this.attributes);
-        // presentList used throughout so declare here so in scope for
-        // both findStudent and main code
         let presentList = [];
 
         // Searches existing presentation list for the student's name, returns true if name is not in list
@@ -428,6 +461,7 @@ const handlers = {
     },
 
     'ColdCall': async function () {
+        this.attributes.lastIntent = 'ColdCall';
 
         let scheduleObj = await googleSDK.readTab(this.attributes.spreadsheetID, 'Schedule');
 
@@ -471,8 +505,9 @@ const handlers = {
     },
 
     'QuizQuestion': function () {
+        this.attributes.lastIntent = 'QuizQuestion';
+
         console.log("**** Quiz Question Intent Started");
-        initializeQuestions(this.attributes);
         let slotObj = this.event.request.intent.slots;
         let currentDialogState = this.event.request.dialogState;
         console.log("**** Dialog State: " + currentDialogState);
@@ -497,7 +532,8 @@ const handlers = {
     },
 
     'BonusPoints': function () {
-        initializeCourses(this.attributes);
+        this.attributes.lastIntent = 'BonusPoints';
+
         let currentDialogState = this.event.request.dialogState;
         console.log("**** Dialog State: " + currentDialogState);
         const slotsObj = this.event.request.intent.slots;
@@ -534,5 +570,9 @@ const handlers = {
 
             this.emit(":responseReady");
         }
+    },
+
+    'RepeatIntent': function () {
+        this.emitWithState(this.attributes.lastIntent);
     }
 };

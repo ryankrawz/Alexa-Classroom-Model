@@ -21,22 +21,45 @@ const TOKEN_PATH = 'credentials.json';
 
 const readFile = util.promisify(fs.readFile);
 
-function convertTime(time) {
-    time = time.split(":");
-    let hours = parseInt(time[0]);
-    let minutes = parseInt(time[1]);
-    hours += (minutes / 60.0);
-    return (hours / 24.0);
-}
-
-readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule");
-
-async function readTab(key, tabName) {
-
-    let res = {};
+exports.writeTab = async function (key, tabName, values) {
 
     let loadPromise = loadFromSheets();
     let auth = await loadPromise;
+    const sheets = google.sheets({version: 'v4', auth});
+
+    let body = {
+      values: values
+    };
+
+    let params1 = {
+      spreadsheetId: key,
+      range: tabName,
+      resource: body,
+      valueInputOption: "USER_ENTERED"
+    };
+
+    sheets.spreadsheets.values.update(params1)
+      .then(data => {
+        console.log("Success");
+        console.log(data.toString());
+      })
+
+      .catch(err => {
+        console.log("Error");
+        console.log(err.toString());
+      })
+};
+
+// readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule")
+//     .then(data => {
+//         console.log(data);
+//     });
+
+exports.readTab = async function (key, tabName) {
+
+    let loadPromise = loadFromSheets();
+    let auth = await loadPromise;
+
     let data = await getData(auth, key, tabName);
     console.log("Google Sheets Read - Success");
 
@@ -84,7 +107,7 @@ async function readTab(key, tabName) {
     }
 
     return scheduleObj;
-}
+};
 
 async function loadFromSheets() {
 // Load client secrets from a local file.
@@ -145,12 +168,6 @@ function getNewToken(oAuth2Client, callback) {
     });
 }
 
-/**
- * https://docs.google.com/spreadsheets/d/11ZmOmNRSh00YaKDXl13-_MMbeX6uDY2gLD0exVxL-14/edit#gid=0
- * Prints the names and majors of students in a sample spreadsheet:
- * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
- * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
- */
 function getData(auth, key, tabName) {
     const sheets = google.sheets({version: 'v4', auth});
 
@@ -162,38 +179,4 @@ function getData(auth, key, tabName) {
 
     let p = sheets.spreadsheets.get(readDataParams);
     return p;
-
-    //console.log(allQuestions["Sheet1"][0].tag);
-
-    // let values = [
-    //   ["Item", "Cost", "Stocked", "Ship Date"],
-    //   ["Wheel", "$20.50", "4", "3/1/2016"],
-    //   ["Door", "$15", "2", "3/15/2016"],
-    //   ["Engine", "$100", "1", "30/20/2016"],
-    //   ["Totals", "=SUM(B2:B4)", "=SUM(C2:C4)", "=MAX(D2:D4)"]
-    // ];
-    //
-    // let body = {
-    //   values: values
-    // };
-    //
-    // let params1 = {
-    //   spreadsheetId: "11ZmOmNRSh00YaKDXl13-_MMbeX6uDY2gLD0exVxL-14",
-    //   range: sheetName,
-    //   resource: body,
-    //   valueInputOption: "USER_ENTERED"
-    // };
-    //
-    // sheets.spreadsheets.values.update(params1)
-    //   .then(data => {
-    //     console.log("Success");
-    //     console.log(data.toString());
-    //   })
-    //
-    //   .catch(err => {
-    //     console.log("Error");
-    //     console.log(err.toString());
-    //   })
 }
-
-module.exports = readTab();
