@@ -498,7 +498,7 @@
         "dialog": {
             "intents": [
                 {
-                    "name": "AnswerIntent",
+                    "name": "FastFacts",
                     "confirmationRequired": false,
                     "prompts": {},
                     "slots": [
