@@ -220,6 +220,7 @@ const handlers = {
     //Custom Intents
     'PlayBriefing': function () {
         initSheetID(this.attributes);
+        this.attributes.lastIntent = 'PlayBriefing';
 
         //we may need to adjust the else if conditions depending on how we choose to set up/retrieve the briefings -> from google sheets? hardcoded for the demo?
         if (this.event.request.dialogState !== 'COMPLETED') {
@@ -253,6 +254,8 @@ const handlers = {
     },
 
     'AddBriefingNote': function () {
+        this.attributes.lastIntent = 'AddBriefingNote';
+
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
         } else if (!this.event.request.intent.slots.noteContent.value) {
@@ -270,25 +273,36 @@ const handlers = {
 
     // This is rendered obsolete by schedule context and the SetCourseNumber intent
     'SpecifyCourseNumber': function () {
-        console.log('*** SpecifyCourseNumber');
+        this.attributes.lastIntent = 'SpecifyCourseNumber';
+        const courseNumber = this.event.request.intent.slots.courseNumber.value;
+
         if (this.event.request.dialogState !== 'COMPLETED') {
             console.log('*** Trying to obtain courseNumber');
             this.emit(':delegate');
-        } else if (!this.attributes.briefingNotes.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
+        } else if (!this.attributes.briefingNotes.hasOwnProperty(courseNumber)) {
             console.log('*** Invalid courseNumber');
             let speechOutput = "I'm sorry, I can't find that course number. Which course number should I add this note to?";
             let slotToElicit = 'courseNumber';
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-        } else {
-            console.log('*** I have the courseNumber: ' + this.event.request.intent.slots.courseNumber.value);
-            this.attributes.courseNumber = this.event.request.intent.slots.courseNumber.value;
+        } else if (this.attributes.lastIntent == 'AddBriefingNote') {
+            console.log('*** I have the courseNumber: ' + courseNumber);
+            this.attributes.course = courseNumber;
+
             let speechOutput = "And for which date should I add this note?";
             this.response.speak(speechOutput).listen("For which date should I add this note?");
             this.emit(':responseReady')
+        } else {
+            this.attributes.course = courseNumber;
+
+            const speechOutput = `The course number has been set to ${courseNumber}. What can I do for you?`;
+            this.response.speak(speechOutput).listen(speechOutput);
+            this.emit(':responseReady');
         }
     },
 
     'SpecifyClassDate': function () {
+        this.attributes.lastIntent = 'SpecifyClassDate';
+
         console.log('obtaining class date');
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
@@ -306,6 +320,8 @@ const handlers = {
     },
 
     'FastFacts': async function () {
+        this.attributes.lastIntent = 'FastFacts';
+
         console.log("*** AnswerIntent Started");
         let allQuestions = {};
         let loadPromise = loadFromSheets();
@@ -361,6 +377,7 @@ const handlers = {
     },
 
     'ReadTags': function () {
+        this.attributes.lastIntent = 'ReadTags';
 
         if (!this.event.request.intent.slots.courseNumber.value) {
             this.emit(':delegate');
@@ -382,10 +399,8 @@ const handlers = {
     },
 
     'GroupPresent': function () {
+        this.attributes.lastIntent = 'GroupPresent';
 
-        initializeCourses(this.attributes);
-        // presentList used throughout so declare here so in scope for
-        // both findStudent and main code
         let presentList = [];
 
         // Searches existing presentation list for the student's name, returns true if name is not in list
@@ -471,8 +486,7 @@ const handlers = {
     },
 
     'ColdCall': function () {
-
-        initializeCourses(this.attributes);
+        this.attributes.lastIntent = 'ColdCall';
 
         if (this.event.request.dialogState !== "COMPLETED") {
 
@@ -508,8 +522,9 @@ const handlers = {
     },
 
     'QuizQuestion': function () {
+        this.attributes.lastIntent = 'QuizQuestion';
+
         console.log("**** Quiz Question Intent Started");
-        initializeQuestions(this.attributes);
         let slotObj = this.event.request.intent.slots;
         let currentDialogState = this.event.request.dialogState;
         console.log("**** Dialog State: " + currentDialogState);
@@ -534,7 +549,8 @@ const handlers = {
     },
 
     'BonusPoints': function () {
-        initializeCourses(this.attributes);
+        this.attributes.lastIntent = 'BonusPoints';
+
         let currentDialogState = this.event.request.dialogState;
         console.log("**** Dialog State: " + currentDialogState);
         const slotsObj = this.event.request.intent.slots;
@@ -573,19 +589,7 @@ const handlers = {
         }
     },
 
-    'SetCourseNumber': function () {
-        const newCourseNumber = this.event.request.intent.slots.newCourseNumber.value;
-
-        if (!newCourseNumber) {
-            const slotToElicit = 'newCourseNumber';
-            const speechOutput = 'What is the course number?';
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-        } else {
-            this.attributes.course = newCourseNumber;
-
-            const speechOutput = `Course number has been set to ${newCourseNumber}. What can I do for you?`;
-            this.response.speak(speechOutput).listen(speechOutput);
-            this.emit(':responseReady');
-        }
+    'RepeatIntent': function () {
+        this.emitWithState(this.attributes.lastIntent);
     }
 };

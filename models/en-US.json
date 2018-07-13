@@ -12,10 +12,9 @@
                     "samples": [
                         "bye bye",
                         "bye",
-                        "no",
                         "that's all for now",
                         "nothing else",
-                        "That's it",
+                        "that's it",
                         "goodbye",
                         "I'm done",
                         "all done",
@@ -39,7 +38,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "samples": [
                                 "for {courseNumber}",
                                 "{courseNumber}",
@@ -76,7 +75,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "samples": [
                                 "course {courseNumber}",
                                 "{courseNumber}",
@@ -110,7 +109,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "samples": [
                                 "course number {courseNumber}",
                                 "for course number {courseNumber}",
@@ -183,7 +182,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "samples": [
                                 "for course number {courseNumber}",
                                 "for course {courseNumber}",
@@ -192,7 +191,18 @@
                                 "course number {courseNumber}",
                                 "number {courseNumber}",
                                 "course {courseNumber}",
-                                "{courseNumber}"
+                                "{courseNumber}",
+                                "set course number to {courseNumber}",
+                                "set course to {courseNumber}",
+                                "the course is {courseNumber}",
+                                "the new course is {courseNumber}",
+                                "my course is {courseNumber}",
+                                "my new course is {courseNumber}",
+                                "set my course to {courseNumber}",
+                                "set the course number",
+                                "change the course number",
+                                "set my course number",
+                                "change my course number"
                             ]
                         }
                     ],
@@ -207,7 +217,18 @@
                         "for number {courseNumber}",
                         "{courseNumber}",
                         "for {courseNumber}",
-                        "for course number {courseNumber}"
+                        "for course number {courseNumber}",
+                        "set course number to {courseNumber}",
+                        "set course to {courseNumber}",
+                        "the course is {courseNumber}",
+                        "the new course is {courseNumber}",
+                        "my course is {courseNumber}",
+                        "my new course is {courseNumber}",
+                        "set my course to {courseNumber}",
+                        "set the course number",
+                        "change the course number",
+                        "set my course number",
+                        "change my course number"
                     ]
                 },
                 {
@@ -245,7 +266,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "samples": [
                                 "from the class number {courseNumber}",
                                 "from the course number {courseNumber}",
@@ -346,7 +367,7 @@
                         },
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "samples": [
                                 "{courseNumber}",
                                 "course {courseNumber}",
@@ -401,70 +422,39 @@
                     "name": "QuizQuestion",
                     "slots": [
                         {
-                            "name": "questionSet",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "name": "courseNumber",
+                            "type": "AMAZON.NUMBER",
                             "samples": [
-                                "{questionSet}",
-                                "question set {questionSet}",
-                                "For question set {questionSet}"
+                                "For course {courseNumber}",
+                                "{courseNumber}",
+                                "For {courseNumber}"
                             ]
                         }
                     ],
                     "samples": [
-                        "please give me a question from the set {questionSet}",
+                        "please give me a question from the set {courseNumber}",
                         "please give me a question",
                         "provide a question to me ",
                         "would you ask a question ",
                         "would you please ask a question ",
-                        "could you provide a question ",
-                        "can you give me a question from {questionSet}",
-                        "could you give me a question from {questionSet}",
-                        "could you give me a question ",
-                        "could you give a question ",
-                        "can you ask a question ",
                         "could you ask a question",
                         "I want you to ask a question ",
                         "I want to hear a question",
                         "I would like a question ",
                         "I want a question",
-                        "ask us some question from {questionSet}",
                         "ask us some questions",
                         "ask us some question",
                         "ask these students a question",
                         "ask them a question ",
                         "ask the student a question ",
                         "ask students a question ",
-                        "ask the students a question from set {questionSet}",
-                        "ask my class a question from the set {questionSet}",
-                        "ask my class one question from the set {questionSet}",
-                        "ask my class one question from {questionSet}",
-                        "ask my class one question ",
-                        "ask my class a question from {questionSet} ",
                         "ask my class a question ",
                         "ask the class some questions",
                         "ask the class a question",
-                        "give me a question from question set {questionSet}",
-                        "give me a question from set {questionSet}",
                         "give us some questions",
                         "give me some questions",
                         "ask me some questions",
                         "ask me a question",
-                        "from the question set {questionSet} please ask a question ",
-                        "from the set {questionSet} ask a question ",
-                        "from {questionSet} ask a question",
-                        "ask the students a question from {questionSet}",
-                        "ask the students a question ",
-                        "ask us a question ",
-                        "please give me a question from {questionSet}",
-                        "give me a question from {questionSet} please ",
-                        "say some questions ",
-                        "ask some questions",
-                        "provide a question ",
-                        "give me a question from {questionSet}",
-                        "quiz question",
-                        "say a question",
-                        "give me a question ",
-                        "ask a question from {questionSet}",
                         "ask a question"
                     ]
                 },
@@ -473,7 +463,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "samples": [
                                 "{courseNumber} ",
                                 "course {courseNumber}",
@@ -491,6 +481,23 @@
                         "give {Points}",
                         "Give bonus points "
                     ]
+                },
+                {
+                    "name": "RepeatIntent",
+                    "slots": [],
+                    "samples": [
+                        "can you ask me again",
+                        "ask me again",
+                        "what did you say",
+                        "say again",
+                        "say that again",
+                        "repeat what you just said",
+                        "repeat what you said",
+                        "can you repeat that",
+                        "repeat that",
+                        "please repeat",
+                        "repeat"
+                    ]
                 }
             ],
             "types": []
@@ -504,7 +511,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
@@ -529,7 +536,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
@@ -545,7 +552,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
@@ -586,7 +593,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
@@ -618,7 +625,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
@@ -643,7 +650,7 @@
                         },
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
@@ -658,12 +665,12 @@
                     "prompts": {},
                     "slots": [
                         {
-                            "name": "questionSet",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "name": "courseNumber",
+                            "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
-                                "elicitation": "Elicit.Slot.926874369756.691347353441"
+                                "elicitation": "Elicit.Slot.622400587991.542034962152"
                             }
                         }
                     ]
@@ -675,7 +682,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.FOUR_DIGIT_NUMBER",
+                            "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
@@ -842,7 +849,7 @@
                 "variations": [
                     {
                         "type": "PlainText",
-                        "value": "What is the course number?"
+                        "value": "For which course number?"
                     }
                 ]
             },
@@ -861,6 +868,19 @@
                     {
                         "type": "PlainText",
                         "value": "For which course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.622400587991.542034962152",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "What course number?"
                     }
                 ]
             }
