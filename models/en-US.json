@@ -217,7 +217,18 @@
                         "for number {courseNumber}",
                         "{courseNumber}",
                         "for {courseNumber}",
-                        "for course number {courseNumber}"
+                        "for course number {courseNumber}",
+                        "set course number to {courseNumber}",
+                        "set course to {courseNumber}",
+                        "the course is {courseNumber}",
+                        "the new course is {courseNumber}",
+                        "my course is {courseNumber}",
+                        "my new course is {courseNumber}",
+                        "set my course to {courseNumber}",
+                        "set the course number",
+                        "change the course number",
+                        "set my course number",
+                        "change my course number"
                     ]
                 },
                 {
