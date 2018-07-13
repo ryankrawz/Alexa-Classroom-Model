@@ -520,7 +520,6 @@ const handlers = {
     'BonusPoints': function () {
         this.attributes.lastIntent = 'BonusPoints';
 
-
         let currentDialogState = this.event.request.dialogState;
         console.log("**** Dialog State: " + currentDialogState);
         const slotsObj = this.event.request.intent.slots;
@@ -558,4 +557,8 @@ const handlers = {
             this.emit(":responseReady");
         }
     },
+
+    'RepeatIntent': function () {
+        this.emitWithState(this.attributes.lastIntent);
+    }
 };
