@@ -86,7 +86,7 @@ function checkSchedule(scheduleObj) {
         let sectionNumbers = Object.keys(scheduleObj[courseNumbers[i]]);
         for (let j = 0; j < sectionNumbers.length; j++) {
             let sectionObj = scheduleObj[courseNumbers[i]][sectionNumbers[j]];
-            let DOWList = sectionObj[Object.keys(sectionObj)[0]].split("");
+            let DOWList = sectionObj[Object.keys(sectionObj)[0]].split('');
             let start = sectionObj[Object.keys(sectionObj)[1]];
             let end = sectionObj[Object.keys(sectionObj)[2]];
             let dayDoesMatch = false;
@@ -171,7 +171,6 @@ const handlers = {
 
     //Custom Intents
     'PlayBriefing': function () {
-        initializeBriefingNotes(this.attributes);
         //we may need to adjust the else if conditions depending on how we choose to set up/retrieve the briefings -> from google sheets? hardcoded for the demo?
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
@@ -204,7 +203,6 @@ const handlers = {
     },
 
     'AddBriefingNote': function () {
-        initializeBriefingNotes(this.attributes);
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
         } else if (!this.event.request.intent.slots.noteContent.value) {

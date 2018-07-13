@@ -21,14 +21,6 @@ const TOKEN_PATH = 'credentials.json';
 
 const readFile = util.promisify(fs.readFile);
 
-function convertTime(time) {
-    time = time.split(":");
-    let hours = parseInt(time[0]);
-    let minutes = parseInt(time[1]);
-    hours += (minutes / 60.0);
-    return (hours / 24.0);
-}
-
 exports.writeTab = function (key, tabName, values) {
 
     let body = {
