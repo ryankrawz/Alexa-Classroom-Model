@@ -218,6 +218,7 @@ const handlers = {
         }
     },
 
+    // This is rendered obsolete by schedule context and the SetCourseNumber intent
     'SpecifyCourseNumber': function () {
         console.log('*** SpecifyCourseNumber');
         if (this.event.request.dialogState !== 'COMPLETED') {
