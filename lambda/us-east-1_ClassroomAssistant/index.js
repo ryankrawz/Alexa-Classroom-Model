@@ -1,4 +1,14 @@
-    // This is the master skill for all Alexa Skills
+// This is the master skill for all Alexa Skills
+
+/*
+TO DO:
+- Refactor intents to use data from Sheets
+- Streamline DynamoDB Cache
+- Implement Writing to Sheets
+- Course Number Override Intent
+
+*/
+
 'use strict';
 
 const Alexa = require("alexa-sdk");
@@ -11,8 +21,15 @@ exports.handler = function (event, context, callback) {
     alexa.dynamoDBTableName = "ClassroomAssistant";
     alexa.registerHandlers(handlers);
     alexa.execute();
-
 };
+
+function initSheetID(context) {
+    if (!context.attributes.spreadsheetID || context.attributes.spreadsheetID === "Not a Real ID") {
+        context.attributes.spreadsheetID = "Not a Real ID";
+    }
+    context.response.speak("Please wait for your administrator to set up Google Sheets.");
+    context.emit(':responseReady');
+}
 
 function getNames(students) {
     let names = [];
@@ -171,6 +188,8 @@ const handlers = {
 
     //Custom Intents
     'PlayBriefing': function () {
+        initSheetID(this.attributes);
+
         //we may need to adjust the else if conditions depending on how we choose to set up/retrieve the briefings -> from google sheets? hardcoded for the demo?
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
