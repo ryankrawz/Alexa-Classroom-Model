@@ -513,7 +513,7 @@
                         },
                         {
                             "name": "sectionTime",
-                            "type": "AMAZON.DATE",
+                            "type": "AMAZON.TIME",
                             "samples": [
                                 "For my {sectionTime}",
                                 "{sectionTime}"
@@ -534,7 +534,7 @@
                     "slots": [
                         {
                             "name": "sectionTime",
-                            "type": "AMAZON.DATE",
+                            "type": "AMAZON.TIME",
                             "samples": [
                                 "{sectionTime}",
                                 "For my {sectionTime}"
@@ -760,7 +760,7 @@
                         },
                         {
                             "name": "sectionTime",
-                            "type": "AMAZON.DATE",
+                            "type": "AMAZON.TIME",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
@@ -776,7 +776,7 @@
                     "slots": [
                         {
                             "name": "sectionTime",
-                            "type": "AMAZON.DATE",
+                            "type": "AMAZON.TIME",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {

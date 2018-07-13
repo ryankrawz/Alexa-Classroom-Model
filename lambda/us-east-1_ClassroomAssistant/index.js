@@ -530,7 +530,6 @@ const handlers = {
         console.log(scheduleObj);
         console.log(rosterObj);
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
-        let sectionTime = convertTimeStamp(this.event.request.intent.slots.sectionTime.value);
 
         if (courseNumber) {
             if (scheduleObj.hasOwnProperty(courseNumber)) {
@@ -543,7 +542,8 @@ const handlers = {
                 let speechOutput = "I'm sorry, I don't have that course number on record. For which course would you like me to cold call from?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             }
-        } else if (sectionTime) {
+        } else if (this.event.request.intent.slots.sectionTime.value) {
+            let sectionTime = convertTimeStamp(this.event.request.intent.slots.sectionTime.value);
             let sectionNumber;
             let timeDoesMatch = false;
             Object.values(scheduleObj[this.attributes.courseNumber]).forEach(sectionObj => {
