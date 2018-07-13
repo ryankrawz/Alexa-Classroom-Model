@@ -533,7 +533,9 @@ const handlers = {
         } else {
             this.attributes.course = newCourseNumber;
 
-
+            const speechOutput = `Course number has been set to ${newCourseNumber}. What can I do for you?`;
+            this.response.speak(speechOutput).listen(speechOutput);
+            this.emit(':responseReady');
         }
     }
 };
