@@ -189,6 +189,38 @@ function coldCallHelper(attributes, roster) {
     return speechOutput;
 }
 
+function writeToSheets(key, tabName, scheduleObj) {
+    //TO DO: add first two rows for the headers and kinds
+    let values = [];
+
+    //this could be done recursively, but I'm going to use some conditionals and loops
+    let keys = Object.keys(scheduleObj);
+    keys.forEach(key => {
+        let seckeys = Object.keys(scheduleObj[key]);
+        if (typeof scheduleObj[key][seckeys[0]] === "object") {
+            seckeys.forEach(seckey => {
+                let tertkeys = Object.keys(scheduleObj[key][seckey]);
+                if (typeof scheduleObj[key][seckey][tertkeys[0]] === "object") {
+                    tertkeys.forEach(tertkey => {
+                        let row = [key, seckey, tertkey];
+                        row = row.concat(Object.keys(scheduleObj[key][seckey][tertkey]));
+                        values.push(row);
+                    });
+                } else {
+                    let row = [key, seckey];
+                    row = row.concat(Object.values(scheduleObj[key][seckey]));
+                    values.push(row);
+                }
+            });
+        } else {
+            let row = Object.values(scheduleObj[key]);
+            values.push(row)
+        }
+    });
+
+    googleSDK.writeTab(key, tabName, values);
+}
+
 const handlers = {
     'LaunchRequest': function () {
         const speechOutput = 'This is the Classroom Assistant skill.';
