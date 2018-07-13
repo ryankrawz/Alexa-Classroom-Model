@@ -189,6 +189,7 @@ const handlers = {
     //Custom Intents
     'PlayBriefing': function () {
         initSheetID(this.attributes);
+        this.attributes.lastIntent = 'PlayBriefing';
 
         //we may need to adjust the else if conditions depending on how we choose to set up/retrieve the briefings -> from google sheets? hardcoded for the demo?
         if (this.event.request.dialogState !== 'COMPLETED') {
@@ -222,6 +223,8 @@ const handlers = {
     },
 
     'AddBriefingNote': function () {
+        this.attributes.lastIntent = 'AddBriefingNote';
+
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
         } else if (!this.event.request.intent.slots.noteContent.value) {
@@ -231,7 +234,6 @@ const handlers = {
         } else {
             console.log('*** noteContent: ' + this.event.request.intent.slots.noteContent.value);
             this.attributes.noteContent = this.event.request.intent.slots.noteContent.value;
-            this.attributes.lastIntent = 'AddBriefingNote';
             let speechOutput = "Which course number should I add this note to?";
             this.response.speak(speechOutput).listen(speechOutput);
             this.emit(':responseReady');
@@ -240,6 +242,7 @@ const handlers = {
 
     // This is rendered obsolete by schedule context and the SetCourseNumber intent
     'SpecifyCourseNumber': function () {
+        this.attributes.lastIntent = 'SpecifyCourseNumber';
         const courseNumber = this.event.request.intent.slots.courseNumber.value;
 
         if (this.event.request.dialogState !== 'COMPLETED') {
@@ -267,6 +270,8 @@ const handlers = {
     },
 
     'SpecifyClassDate': function () {
+        this.attributes.lastIntent = 'SpecifyClassDate';
+
         console.log('obtaining class date');
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
@@ -284,6 +289,8 @@ const handlers = {
     },
 
     'FastFacts': async function () {
+        this.attributes.lastIntent = 'FastFacts';
+
         console.log("*** AnswerIntent Started");
         let allQuestions = {};
         let loadPromise = loadFromSheets();
@@ -339,6 +346,7 @@ const handlers = {
     },
 
     'ReadTags': function () {
+        this.attributes.lastIntent = 'ReadTags';
 
         if (!this.event.request.intent.slots.courseNumber.value) {
             this.emit(':delegate');
@@ -360,10 +368,8 @@ const handlers = {
     },
 
     'GroupPresent': function () {
+        this.attributes.lastIntent = 'GroupPresent';
 
-        initializeCourses(this.attributes);
-        // presentList used throughout so declare here so in scope for
-        // both findStudent and main code
         let presentList = [];
 
         // Searches existing presentation list for the student's name, returns true if name is not in list
@@ -449,8 +455,7 @@ const handlers = {
     },
 
     'ColdCall': function () {
-
-        initializeCourses(this.attributes);
+        this.attributes.lastIntent = 'ColdCall';
 
         if (this.event.request.dialogState !== "COMPLETED") {
 
@@ -486,8 +491,9 @@ const handlers = {
     },
 
     'QuizQuestion': function () {
+        this.attributes.lastIntent = 'QuizQuestion';
+
         console.log("**** Quiz Question Intent Started");
-        initializeQuestions(this.attributes);
         let slotObj = this.event.request.intent.slots;
         let currentDialogState = this.event.request.dialogState;
         console.log("**** Dialog State: " + currentDialogState);
@@ -512,7 +518,9 @@ const handlers = {
     },
 
     'BonusPoints': function () {
-        initializeCourses(this.attributes);
+        this.attributes.lastIntent = 'BonusPoints';
+
+
         let currentDialogState = this.event.request.dialogState;
         console.log("**** Dialog State: " + currentDialogState);
         const slotsObj = this.event.request.intent.slots;
