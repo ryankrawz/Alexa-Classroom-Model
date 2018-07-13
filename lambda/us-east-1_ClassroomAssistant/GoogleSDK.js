@@ -29,7 +29,11 @@ function convertTime(time) {
     return (hours / 24.0);
 }
 
-exports.writeTab = function (key, tabName, values) {
+exports.writeTab = async function (key, tabName, values) {
+
+    let loadPromise = loadFromSheets();
+    let auth = await loadPromise;
+    const sheets = google.sheets({version: 'v4', auth});
 
     let body = {
       values: values
@@ -54,10 +58,16 @@ exports.writeTab = function (key, tabName, values) {
       })
 };
 
+// readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule")
+//     .then(data => {
+//         console.log(data);
+//     });
+
 exports.readTab = async function (key, tabName) {
 
     let loadPromise = loadFromSheets();
     let auth = await loadPromise;
+
     let data = await getData(auth, key, tabName);
     console.log("Google Sheets Read - Success");
 
@@ -166,12 +176,6 @@ function getNewToken(oAuth2Client, callback) {
     });
 }
 
-/**
- * https://docs.google.com/spreadsheets/d/11ZmOmNRSh00YaKDXl13-_MMbeX6uDY2gLD0exVxL-14/edit#gid=0
- * Prints the names and majors of students in a sample spreadsheet:
- * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
- * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
- */
 function getData(auth, key, tabName) {
     const sheets = google.sheets({version: 'v4', auth});
 
@@ -184,5 +188,3 @@ function getData(auth, key, tabName) {
     let p = sheets.spreadsheets.get(readDataParams);
     return p;
 }
-
-// exports.readTab = readTab;
