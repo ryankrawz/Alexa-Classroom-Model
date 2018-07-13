@@ -21,23 +21,11 @@ const TOKEN_PATH = 'credentials.json';
 
 const readFile = util.promisify(fs.readFile);
 
-<<<<<<< HEAD
-function convertTime(time) {
-    time = time.split(":");
-    let hours = parseInt(time[0]);
-    let minutes = parseInt(time[1]);
-    hours += (minutes / 60.0);
-    return (hours / 24.0);
-}
-
 exports.writeTab = async function (key, tabName, values) {
 
     let loadPromise = loadFromSheets();
     let auth = await loadPromise;
     const sheets = google.sheets({version: 'v4', auth});
-=======
-exports.writeTab = function (key, tabName, values) {
->>>>>>> refs/remotes/origin/master
 
     let body = {
       values: values
