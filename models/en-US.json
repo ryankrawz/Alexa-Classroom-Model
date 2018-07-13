@@ -217,18 +217,7 @@
                         "for number {courseNumber}",
                         "{courseNumber}",
                         "for {courseNumber}",
-                        "for course number {courseNumber}",
-                        "set course number to {courseNumber}",
-                        "set course to {courseNumber}",
-                        "the course is {courseNumber}",
-                        "the new course is {courseNumber}",
-                        "my course is {courseNumber}",
-                        "my new course is {courseNumber}",
-                        "set my course to {courseNumber}",
-                        "set the course number",
-                        "change the course number",
-                        "set my course number",
-                        "change my course number"
+                        "for course number {courseNumber}"
                     ]
                 },
                 {
@@ -290,9 +279,26 @@
                                 "for {courseNumber}",
                                 "for course {courseNumber}"
                             ]
+                        },
+                        {
+                            "name": "sectionTime",
+                            "type": "AMAZON.TIME",
+                            "samples": [
+                                "For my {sectionTime}",
+                                "My {sectionTime}",
+                                "{sectionTime}",
+                                "For {sectionTime}"
+                            ]
                         }
                     ],
                     "samples": [
+                        "say a student name from {sectionTime}",
+                        "cold call from my {sectionTime}",
+                        "call on a student from my {sectionTime}",
+                        "call on a student",
+                        "call on a student from my {sectionTime} in course {courseNumber} ",
+                        "cold call in my {sectionTime} for {courseNumber}",
+                        "cold call from {courseNumber} in my {sectionTime}",
                         "choose a student from the class {courseNumber}",
                         "I need one student name from {courseNumber}",
                         "I need one student name ",
@@ -346,10 +352,7 @@
                         "call student",
                         "tell roll call to say a name",
                         "say a name",
-                        "tell roll call to call on a student",
-                        "call on a student",
-                        "cold call",
-                        "tell roll call to cold call"
+                        "cold call"
                     ]
                 },
                 {
@@ -373,9 +376,25 @@
                                 "course {courseNumber}",
                                 "the course number is {courseNumber}"
                             ]
+                        },
+                        {
+                            "name": "sectionTime",
+                            "type": "AMAZON.TIME",
+                            "samples": [
+                                "For my {sectionTime}",
+                                "{sectionTime}",
+                                "My {sectionTime}",
+                                "For {sectionTime}"
+                            ]
                         }
                     ],
                     "samples": [
+                        "make groups of {groupNumber} for my {sectionTime}",
+                        "For my {sectionTime} make groups of {groupNumber}",
+                        "For my {sectionTime} make groups",
+                        "for my {sectionTime} course {courseNumber} make groups ",
+                        "For my {sectionTime} course {courseNumber} make groups of {groupNumber}",
+                        "make groups of {groupNumber} for course {courseNumber} in my {sectionTime}",
                         "make groups of {groupNumber} people for the course {courseNumber}",
                         "make groups of {groupNumber} people ",
                         "create groups of {groupNumber} ",
@@ -459,30 +478,6 @@
                     ]
                 },
                 {
-                    "name": "BonusPoints",
-                    "slots": [
-                        {
-                            "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "{courseNumber} ",
-                                "course {courseNumber}",
-                                "for course {courseNumber}",
-                                "for the course {courseNumber}"
-                            ]
-                        },
-                        {
-                            "name": "Points",
-                            "type": "AMAZON.NUMBER"
-                        }
-                    ],
-                    "samples": [
-                        "In course number {courseNumber} give {Points}",
-                        "give {Points}",
-                        "Give bonus points "
-                    ]
-                },
-                {
                     "name": "RepeatIntent",
                     "slots": [],
                     "samples": [
@@ -498,6 +493,55 @@
                         "please repeat",
                         "repeat"
                     ]
+                },
+                {
+                    "name": "ParticipationTracker",
+                    "slots": [
+                        {
+                            "name": "firstNames",
+                            "type": "AMAZON.SearchQuery"
+                        },
+                        {
+                            "name": "courseNumber",
+                            "type": "AMAZON.NUMBER",
+                            "samples": [
+                                "Course number {courseNumber}",
+                                "For course number {courseNumber}",
+                                "{courseNumber}",
+                                "For {courseNumber}"
+                            ]
+                        },
+                        {
+                            "name": "sectionTime",
+                            "type": "AMAZON.DATE",
+                            "samples": [
+                                "For my {sectionTime}",
+                                "{sectionTime}"
+                            ]
+                        }
+                    ],
+                    "samples": [
+                        "tally participation for {firstNames}",
+                        "points for {firstNames}",
+                        "points to {firstNames}",
+                        "give {firstNames} points",
+                        "award {firstNames}",
+                        "count participation for {firstNames}"
+                    ]
+                },
+                {
+                    "name": "SpecifySectionTime",
+                    "slots": [
+                        {
+                            "name": "sectionTime",
+                            "type": "AMAZON.DATE",
+                            "samples": [
+                                "{sectionTime}",
+                                "For my {sectionTime}"
+                            ]
+                        }
+                    ],
+                    "samples": []
                 }
             ],
             "types": []
@@ -631,6 +675,15 @@
                             "prompts": {
                                 "elicitation": "Elicit.Slot.904927354859.28482745767"
                             }
+                        },
+                        {
+                            "name": "sectionTime",
+                            "type": "AMAZON.TIME",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.561976454685.716631315359"
+                            }
                         }
                     ]
                 },
@@ -656,6 +709,15 @@
                             "prompts": {
                                 "elicitation": "Elicit.Slot.427601158270.1491891020254"
                             }
+                        },
+                        {
+                            "name": "sectionTime",
+                            "type": "AMAZON.TIME",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.1381026918808.521774804790"
+                            }
                         }
                     ]
                 },
@@ -676,25 +738,50 @@
                     ]
                 },
                 {
-                    "name": "BonusPoints",
+                    "name": "ParticipationTracker",
                     "confirmationRequired": false,
                     "prompts": {},
                     "slots": [
+                        {
+                            "name": "firstNames",
+                            "type": "AMAZON.SearchQuery",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        },
                         {
                             "name": "courseNumber",
                             "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
-                                "elicitation": "Elicit.Slot.846177192224.1165093761864"
+                                "elicitation": "Elicit.Slot.66549855550.595679585616"
                             }
                         },
                         {
-                            "name": "Points",
-                            "type": "AMAZON.NUMBER",
+                            "name": "sectionTime",
+                            "type": "AMAZON.DATE",
                             "confirmationRequired": false,
-                            "elicitationRequired": false,
-                            "prompts": {}
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.66549855550.1113266563882"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "SpecifySectionTime",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "sectionTime",
+                            "type": "AMAZON.DATE",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.933907384832.201407344531"
+                            }
                         }
                     ]
                 }
@@ -881,6 +968,71 @@
                     {
                         "type": "PlainText",
                         "value": "What course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.1381026918808.521774804790",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What time?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "For which time?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.561976454685.716631315359",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What time?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "For which time?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.66549855550.595679585616",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which course number?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "What course number?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.66549855550.1113266563882",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "For which time?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "What time?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.933907384832.201407344531",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "What time?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "For which time?"
                     }
                 ]
             }
