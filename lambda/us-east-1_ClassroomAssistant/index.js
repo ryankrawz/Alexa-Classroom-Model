@@ -212,6 +212,7 @@ const handlers = {
         } else {
             console.log('*** noteContent: ' + this.event.request.intent.slots.noteContent.value);
             this.attributes.noteContent = this.event.request.intent.slots.noteContent.value;
+            this.attributes.lastIntent = 'AddBriefingNote';
             let speechOutput = "Which course number should I add this note to?";
             this.response.speak(speechOutput).listen(speechOutput);
             this.emit(':responseReady');
@@ -220,21 +221,29 @@ const handlers = {
 
     // This is rendered obsolete by schedule context and the SetCourseNumber intent
     'SpecifyCourseNumber': function () {
-        console.log('*** SpecifyCourseNumber');
+        const courseNumber = this.event.request.intent.slots.courseNumber.value;
+
         if (this.event.request.dialogState !== 'COMPLETED') {
             console.log('*** Trying to obtain courseNumber');
             this.emit(':delegate');
-        } else if (!this.attributes.briefingNotes.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
+        } else if (!this.attributes.briefingNotes.hasOwnProperty(courseNumber)) {
             console.log('*** Invalid courseNumber');
             let speechOutput = "I'm sorry, I can't find that course number. Which course number should I add this note to?";
             let slotToElicit = 'courseNumber';
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-        } else {
-            console.log('*** I have the courseNumber: ' + this.event.request.intent.slots.courseNumber.value);
-            this.attributes.courseNumber = this.event.request.intent.slots.courseNumber.value;
+        } else if (this.attributes.lastIntent == 'AddBriefingNote') {
+            console.log('*** I have the courseNumber: ' + courseNumber);
+            this.attributes.course = courseNumber;
+
             let speechOutput = "And for which date should I add this note?";
             this.response.speak(speechOutput).listen("For which date should I add this note?");
             this.emit(':responseReady')
+        } else {
+            this.attributes.course = courseNumber;
+
+            const speechOutput = `The course number has been set to ${courseNumber}. What can I do for you?`;
+            this.response.speak(speechOutput).listen(speechOutput);
+            this.emit(':responseReady');
         }
     },
 
@@ -522,20 +531,4 @@ const handlers = {
             this.emit(":responseReady");
         }
     },
-
-    'SetCourseNumber': function () {
-        const newCourseNumber = this.event.request.intent.slots.newCourseNumber.value;
-
-        if (!newCourseNumber) {
-            const slotToElicit = 'newCourseNumber';
-            const speechOutput = 'What is the course number?';
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-        } else {
-            this.attributes.course = newCourseNumber;
-
-            const speechOutput = `Course number has been set to ${newCourseNumber}. What can I do for you?`;
-            this.response.speak(speechOutput).listen(speechOutput);
-            this.emit(':responseReady');
-        }
-    }
 };
