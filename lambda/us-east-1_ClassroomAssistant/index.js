@@ -103,7 +103,7 @@ function checkSchedule(scheduleObj) {
         let sectionNumbers = Object.keys(scheduleObj[courseNumbers[i]]);
         for (let j = 0; j < sectionNumbers.length; j++) {
             let sectionObj = scheduleObj[courseNumbers[i]][sectionNumbers[j]];
-            let DOWList = sectionObj[Object.keys(sectionObj)[0]].split("");
+            let DOWList = sectionObj[Object.keys(sectionObj)[0]].split('');
             let start = sectionObj[Object.keys(sectionObj)[1]];
             let end = sectionObj[Object.keys(sectionObj)[2]];
             let dayDoesMatch = false;
@@ -222,7 +222,6 @@ const handlers = {
     },
 
     'AddBriefingNote': function () {
-        initializeBriefingNotes(this.attributes);
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
         } else if (!this.event.request.intent.slots.noteContent.value) {
@@ -238,6 +237,7 @@ const handlers = {
         }
     },
 
+    // This is rendered obsolete by schedule context and the SetCourseNumber intent
     'SpecifyCourseNumber': function () {
         console.log('*** SpecifyCourseNumber');
         if (this.event.request.dialogState !== 'COMPLETED') {
@@ -274,7 +274,7 @@ const handlers = {
         }
     },
 
-    'AnswerIntent': async function () {
+    'FastFacts': async function () {
         console.log("*** AnswerIntent Started");
         let allQuestions = {};
         let loadPromise = loadFromSheets();
@@ -539,6 +539,22 @@ const handlers = {
             }
 
             this.emit(":responseReady");
+        }
+    },
+
+    'SetCourseNumber': function () {
+        const newCourseNumber = this.event.request.intent.slots.newCourseNumber.value;
+
+        if (!newCourseNumber) {
+            const slotToElicit = 'newCourseNumber';
+            const speechOutput = 'What is the course number?';
+            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+        } else {
+            this.attributes.course = newCourseNumber;
+
+            const speechOutput = `Course number has been set to ${newCourseNumber}. What can I do for you?`;
+            this.response.speak(speechOutput).listen(speechOutput);
+            this.emit(':responseReady');
         }
     }
 };
