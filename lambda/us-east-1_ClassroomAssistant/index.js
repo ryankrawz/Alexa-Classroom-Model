@@ -254,7 +254,7 @@ const handlers = {
         }
     },
 
-    'AnswerIntent': async function () {
+    'FastFacts': async function () {
         console.log("*** AnswerIntent Started");
         let allQuestions = {};
         let loadPromise = loadFromSheets();
@@ -519,6 +519,20 @@ const handlers = {
             }
 
             this.emit(":responseReady");
+        }
+    },
+
+    'SetCourseNumber': function () {
+        const newCourseNumber = this.event.request.intent.slots.newCourseNumber.value;
+
+        if (!newCourseNumber) {
+            const slotToElicit = 'newCourseNumber';
+            const speechOutput = 'What is the course number?';
+            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+        } else {
+            this.attributes.course = newCourseNumber;
+
+
         }
     }
 };

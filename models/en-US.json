@@ -35,7 +35,7 @@
                     "samples": []
                 },
                 {
-                    "name": "AnswerIntent",
+                    "name": "FastFacts",
                     "slots": [
                         {
                             "name": "courseNumber",
