@@ -12,10 +12,9 @@
                     "samples": [
                         "bye bye",
                         "bye",
-                        "no",
                         "that's all for now",
                         "nothing else",
-                        "That's it",
+                        "that's it",
                         "goodbye",
                         "I'm done",
                         "all done",
@@ -501,6 +500,23 @@
                         "In course number {courseNumber} give {Points}",
                         "give {Points}",
                         "Give bonus points "
+                    ]
+                },
+                {
+                    "name": "RepeatIntent",
+                    "slots": [],
+                    "samples": [
+                        "can you ask me again",
+                        "ask me again",
+                        "what did you say",
+                        "say again",
+                        "say that again",
+                        "repeat what you just said",
+                        "repeat what you said",
+                        "can you repeat that",
+                        "repeat that",
+                        "please repeat",
+                        "repeat"
                     ]
                 }
             ],
