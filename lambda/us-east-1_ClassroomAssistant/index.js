@@ -57,33 +57,8 @@ function orderedQuizQuestion(questionList) {
 }
 
 function convertDayOfWeek(day) {
-	let dayInitial;
-	switch (day) {
-		case 'Mon':
-			dayInitial = 'M';
-			break;
-		case 'Tue':
-			dayInitial = 'T';
-			break;
-		case 'Wed':
-			dayInitial = 'W';
-			break;
-		case 'Thu':
-			dayInitial = 'R';
-			break;
-		case 'Fri':
-			dayInitial = 'F';
-			break;
-		case 'Sat':
-			dayInitial = 'A';
-			break;
-		case 'Sun':
-			dayInitial = 'U';
-			break;
-		default:
-			break;
-	}
-	return dayInitial;
+	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
+	return dayInitials[day];
 }
 
 function convertTimeStamp(timeStamp) {
@@ -101,19 +76,24 @@ function convertTimeStamp(timeStamp) {
 
 function checkSchedule(scheduleObj) {
     let dayOfWeek = convertDayOfWeek(getCurrentDay());
+    console.log(dayOfWeek);
     let timeStamp = convertTimeStamp(getCurrentTime());
+    console.log(timeStamp);
     let courseNumbers = Object.keys(scheduleObj);
     let gracePeriod = 300/(3600 * 24);
+    let dayDoesMatch = false;
+    let timeDoesMatch = false;
 
     for (let i = 0; i < courseNumbers.length; i++) {
         let sectionNumbers = Object.keys(scheduleObj[courseNumbers[i]]);
         for (let j = 0; j < sectionNumbers.length; j++) {
             let sectionObj = scheduleObj[courseNumbers[i]][sectionNumbers[j]];
             let DOWList = sectionObj[Object.keys(sectionObj)[0]].split('');
+            console.log(DOWList);
             let start = sectionObj[Object.keys(sectionObj)[1]];
+            console.log(start);
             let end = sectionObj[Object.keys(sectionObj)[2]];
-            let dayDoesMatch = false;
-            let timeDoesMatch = false;
+            console.log(end);
 
             DOWList.forEach(day => {
                 if (day == dayOfWeek) {
@@ -123,6 +103,8 @@ function checkSchedule(scheduleObj) {
             if (timeStamp >= (start - gracePeriod) && timeStamp <= (end + gracePeriod)) {
                 timeDoesMatch = true;
             }
+            console.log(dayDoesMatch);
+            console.log(timeDoesMatch);
             if (dayDoesMatch && timeDoesMatch) {
                 let returnObj = {};
                 returnObj[sectionNumbers[j]] = sectionObj;
@@ -135,18 +117,22 @@ function checkSchedule(scheduleObj) {
 }
 
 function getCurrentDay() {
-    let dateTime = Date(Date.now());
-    let dateTimeList = dateTime.split(' ');
-    return dateTimeList[0];
+    let localDateTime = new Date(getCurrentTime());
+    console.log(localDateTime);
+    console.log(localDateTime.getDay());
+    console.log(typeof localDateTime.getDay());
+    return localDateTime.getDay();
 }
 
 function getCurrentTime() {
-    let dateTime = Date(Date.now());
-    let dateTimeList = dateTime.split(' ');
-    return dateTimeList[4];
+    let currentTime = new Date(Date.now()).toLocaleTimeString('en-US', {timeZone: 'America/New_York', hour12: false});
+    console.log(currentTime);
+    console.log(typeof currentTime);
+    return currentTime;
 }
 
 function getContext(attributes, inSchedule) {
+    console.log(inSchedule);
     if (inSchedule) {
         let sectionNumber = Object.keys(inSchedule)[0];
         let sectionObj = inSchedule[sectionNumber];
@@ -154,9 +140,21 @@ function getContext(attributes, inSchedule) {
         attributes.sectionNumber = sectionNumber;
         attributes.expiration = sectionObj[Object.keys(sectionObj)[2]] + sectionObj.gracePeriod;
     } else {
-        attributes.courseNumber = null;
+        console.log('*** looks like we\'re not in the schedule');
     }
-    return attributes.courseNumber;
+}
+
+function isValidSectionTime(attributes, scheduleObj, courseNumberSlot, sectionTimeSlot) {
+    let sectionTime = convertTimeStamp(sectionTimeSlot);
+    let timeDoesMatch = false;
+    Object.values(scheduleObj[courseNumberSlot]).forEach(sectionObj => {
+        if (sectionObj[Object.keys(sectionObj)[1]] == sectionTime) {
+            attributes.sectionNumber = Object.keys(scheduleObj[courseNumberSlot])[Object.values(scheduleObj[courseNumberSlot]).indexOf(sectionObj)];
+            timeDoesMatch = true;
+            console.log('***valid section time provided manually');
+        }
+    });
+    return timeDoesMatch;
 }
 
 async function readSchedule() {
@@ -173,6 +171,7 @@ function coldCallHelper(attributes, roster) {
     const beenCalledList = [];
     let speechOutput;
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
+    console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
     rosterList.forEach(student => beenCalledList.push(sectionObj[student][Object.keys(sectionObj[student])[2]]));
     const minim = Math.min(...beenCalledList);
@@ -219,6 +218,47 @@ function writeToSheets(key, tabName, scheduleObj) {
     });
 
     googleSDK.writeTab(key, tabName, values);
+}
+
+let fakeRosterObj = {
+    '1111': {
+        '111101': {
+            'Andy': {
+                'LastName': 'Greenwell',
+                'FirstName': 'Andrew',
+                'BeenCalled': 0,
+                'ParticipationPoints': 0,
+                'Group-2018-07': 1,
+                'Group-2018-08': 1
+                },
+            'RyGuy': {
+                'LastName': 'Krawczyk',
+                'FirstName': 'Ryan',
+                'BeenCalled': 0,
+                'ParticipationPoints': 0,
+                'Group-2018-07': 1,
+                'Group-2018-08': 1
+                }
+            },
+        '111102': {
+            'Becca': {
+                'LastName': 'Redfield',
+                'FirstName': 'Rebecca',
+                'BeenCalled': 0,
+                'ParticipationPoints': 0,
+                'Group-2018-07': 2,
+                'Group-2018-08': 2
+                },
+            'DaeBae': {
+                'LastName': 'Jeong',
+                'FirstName': 'Daewoo',
+                'BeenCalled': 0,
+                'ParticipationPoints': 0,
+                'Group-2018-07': 2,
+                'Group-2018-08': 2
+                }
+        }
+    }
 }
 
 const handlers = {
@@ -358,7 +398,6 @@ const handlers = {
 
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
-
         console.log("*** AnswerIntent Started");
         let allQuestions = {};
         let loadPromise = loadFromSheets();
@@ -526,47 +565,56 @@ const handlers = {
 
         this.attributes.lastIntent = 'ColdCall';
         let scheduleObj = await readSchedule();
-        let rosterObj =  await readRoster();
+        let rosterObj =  fakeRosterObj;
         console.log(scheduleObj);
         console.log(rosterObj);
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
+        let sectionTime = this.event.request.intent.slots.sectionTime.value;
 
-        if (courseNumber) {
-            if (scheduleObj.hasOwnProperty(courseNumber)) {
-                console.log('***valid course number provided manually');
+        if (courseNumber || sectionTime) {
+            if (!courseNumber) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "From which course would you like me to cold call?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to cold call?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!sectionTime) {
+                let slotToElicit = 'sectionTime';
+                let speechOutput = "From which section time?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
+                let slotToElicit = 'sectionTime';
+                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to cold call from?`;
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.response.speak(coldCallHelper(this.attributes, rosterObj));
                 this.emit(':responseReady');
-            } else {
-                let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. For which course would you like me to cold call from?";
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            }
-        } else if (this.event.request.intent.slots.sectionTime.value) {
-            let sectionTime = convertTimeStamp(this.event.request.intent.slots.sectionTime.value);
-            let sectionNumber;
-            let timeDoesMatch = false;
-            Object.values(scheduleObj[this.attributes.courseNumber]).forEach(sectionObj => {
-                if (sectionObj[Object.keys(sectionObj)[1]] == sectionTime) {
-                    sectionNumber = Object.keys(scheduleObj[this.attributes.courseNumber])[Object.values(scheduleObj[this.attributes.courseNumber]).indexOf(sectionObj)];
-                    timeDoesMatch = true;
-                    console.log('***valid section time provided manually');
-                }
-            });
-            if (timeDoesMatch) {
-                this.attributes.sectionNumber = sectionNumber;
-                this.response.speak(coldCallHelper(this.attributes, rosterObj));
-                this.emit(':responseReady');
-            } else {
-                let slotToElicit = 'sectionTime';
-                let speechOutput = `I'm sorry, I don't have that section time on record for course ${this.attributes.courseNumber}. Which section time would you like me to cold call from?`;
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            console.log('***schedule context retrieved');
-            this.response.speak(coldCallHelper(this.attributes, rosterObj));
-            this.emit(':responseReady');
+            if (checkSchedule(scheduleObj) == false) {
+                console.log('*** not in a class');
+                if (!this.attributes.courseNumber || !this.attributes.sectionNumber) {
+                    console.log('*** nothing in the cache');
+                    let slotToElicit = 'courseNumber';
+                    let speechOutput = "For which course number?";
+                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+                } else {
+                    console.log('*** something in the cache');
+                    coldCallHelper(this.attributes, rosterObj);
+                    this.response.speak(coldCallHelper(this.attributes, rosterObj));
+                    this.emit(':responseReady');
+                }
+            } else {
+                console.log('*** we\'re in a class');
+                coldCallHelper(this.attributes, rosterObj);
+                this.response.speak(coldCallHelper(this.attributes, rosterObj));
+                this.emit(':responseReady');
+            }
         }
     },
 
@@ -599,28 +647,28 @@ const handlers = {
 
     'ParticipationTracker': function () {
         let slotobj = this.event.request.intent.slots;
-    if (!slotobj.firstNames.value || !slotobj.courseNumber.value || !slotobj.sectionTime.value) {
-        this.emit(':delegate');
-    } else if (slotobj.firstNames.confirmationStatus !== 'CONFIRMED') {
-        this.emit(':delegate');
-    } else {
-        const firstNames = slotobj.firstNames.value;
-        const courseNumber = slotobj.courseNumber.value;
-        const sectionTime = slotobj.sectionTime.value;
-        const nameList = firstNames.split(' ');
-        const roster = this.attributes.courses[courseNumber];
-        for (let i = 0; i < nameList.length; i++) {
-            for (let j = 0; j < roster.length; j++) {
-                if (nameList[i] === roster[j].name) {
-                    this.attributes.courses[courseNumber][i].ParticipationPoints++;
+        if (!slotobj.firstNames.value || !slotobj.courseNumber.value || !slotobj.sectionTime.value) {
+            this.emit(':delegate');
+        } else if (slotobj.firstNames.confirmationStatus !== 'CONFIRMED') {
+            this.emit(':delegate');
+        } else {
+            const firstNames = slotobj.firstNames.value;
+            const courseNumber = slotobj.courseNumber.value;
+            const sectionTime = slotobj.sectionTime.value;
+            const nameList = firstNames.split(' ');
+            const roster = this.attributes.courses[courseNumber];
+            for (let i = 0; i < nameList.length; i++) {
+                for (let j = 0; j < roster.length; j++) {
+                    if (nameList[i] === roster[j].name) {
+                        this.attributes.courses[courseNumber][i].ParticipationPoints++;
+                    }
                 }
             }
+            const speechOutput = 'Okay';
+            this.response.speak(speechOutput);
+            this.emit(':responseReady');
         }
-        const speechOutput = 'Okay';
-        this.response.speak(speechOutput);
-        this.emit(':responseReady');
-    }
-}
+    },
 
     'RepeatIntent': function () {
         this.emitWithState(this.attributes.lastIntent);
