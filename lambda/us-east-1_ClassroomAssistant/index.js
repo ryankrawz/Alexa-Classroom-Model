@@ -275,11 +275,13 @@ const handlers = {
     },
 
     'AMAZON.CancelIntent': function () {
+        this.attributes.lastIntent = null;
         const speechOutput = 'Goodbye!';
         this.emit(':tell', speechOutput);
     },
 
     'AMAZON.StopIntent': function () {
+        this.attributes.lastIntent = null;
         const speechOutput = 'See you later!';
         this.emit(':tell', speechOutput);
     },
@@ -291,7 +293,7 @@ const handlers = {
     },
 
     'SessionEndedRequest': function () {
-        console.log('***session ended***');
+        this.attributes.lastIntent = null;
         this.emit(':saveState', true);
     },
 
@@ -350,24 +352,31 @@ const handlers = {
     },
 
     'SpecifyCourseNumber': function () {
-        this.attributes.lastIntent = 'SpecifyCourseNumber';
         const courseNumber = this.event.request.intent.slots.courseNumber.value;
 
         if (this.event.request.dialogState !== 'COMPLETED') {
             console.log('*** Trying to obtain courseNumber');
             this.emit(':delegate');
-        } else if (!this.attributes.briefingNotes.hasOwnProperty(courseNumber)) {
-            console.log('*** Invalid courseNumber');
-            let speechOutput = "I'm sorry, I can't find that course number. Which course number should I add this note to?";
-            let slotToElicit = 'courseNumber';
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (this.attributes.lastIntent == 'AddBriefingNote') {
-            console.log('*** I have the courseNumber: ' + courseNumber);
+            if (this.attributes.briefingNotes.hasOwnProperty(courseNumber)) {
+                console.log('*** Invalid courseNumber');
+                let speechOutput = "I'm sorry, I can't find that course number. Which course number should I add this note to?";
+                let slotToElicit = 'courseNumber';
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                console.log('*** I have the courseNumber: ' + courseNumber);
+                this.attributes.courseNumber = courseNumber;
+
+                let speechOutput = "And for which date should I add this note?";
+                this.response.speak(speechOutput).listen("For which date should I add this note?");
+                this.emit(':responseReady')
+            }
+        } else if (this.attributes.lastIntent == 'ParticipationTracker') {
             this.attributes.courseNumber = courseNumber;
 
-            let speechOutput = "And for which date should I add this note?";
-            this.response.speak(speechOutput).listen("For which date should I add this note?");
-            this.emit(':responseReady')
+            const speechOutput = `I have course ${courseNumber}. What section time?`;
+            this.response.speak(speechOutput).listen(speechOutput);
+            this.emit(':responseReady');
         } else {
             this.attributes.courseNumber = courseNumber;
 
@@ -378,8 +387,6 @@ const handlers = {
     },
 
     'SpecifyClassDate': function () {
-        this.attributes.lastIntent = 'SpecifyClassDate';
-
         console.log('obtaining class date');
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
@@ -394,6 +401,10 @@ const handlers = {
             this.response.speak(speechOutput).listen("If you'd like me to add another note or play a briefing for you, just let me know.");
             this.emit(':responseReady');
         }
+    },
+
+    'SpecifySectionTime': function () {
+
     },
 
     'FastFacts': async function () {
