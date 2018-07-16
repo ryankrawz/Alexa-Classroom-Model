@@ -597,46 +597,30 @@ const handlers = {
         }
     },
 
-    'BonusPoints': function () {
-        this.attributes.lastIntent = 'BonusPoints';
-
-        let currentDialogState = this.event.request.dialogState;
-        console.log("**** Dialog State: " + currentDialogState);
-        const slotsObj = this.event.request.intent.slots;
-
-        if (currentDialogState !== 'COMPLETED') {
-            this.emit(':delegate');
-
-        } else if (!this.attributes.courses.hasOwnProperty(slotsObj.CourseNumber.value)) {
-            let slotToElicit = 'CourseNumber';
-            let speechOutput = "I'm sorry, I don't recognize that ";
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-
-        } else if (getNames(this.attributes.courses[slotsObj.CourseNumber.value]).indexOf(slotsObj.Student.value) == -1) {
-            let slotToElicit = 'Student';
-            let speechOutput = "I'm sorry, I don't recognize that student name. For which student should I add points?";
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-
-        } else {
-            const courseNumber = slotsObj.CourseNumber.value;
-            const student = slotsObj.Student.value;
-            const index = getNames(this.attributes.courses[courseNumber]).indexOf(student);
-
-            // initialize points if needed
-            if (!this.attributes.courses[courseNumber][index].hasOwnProperty("points")) {
-                this.attributes.courses[courseNumber][index].points = 0;
+    'ParticipationTracker': function () {
+        let slotobj = this.event.request.intent.slots;
+    if (!slotobj.firstNames.value || !slotobj.courseNumber.value || !slotobj.sectionTime.value) {
+        this.emit(':delegate');
+    } else if (slotobj.firstNames.confirmationStatus !== 'CONFIRMED') {
+        this.emit(':delegate');
+    } else {
+        const firstNames = slotobj.firstNames.value;
+        const courseNumber = slotobj.courseNumber.value;
+        const sectionTime = slotobj.sectionTime.value;
+        const nameList = firstNames.split(' ');
+        const roster = this.attributes.courses[courseNumber];
+        for (let i = 0; i < nameList.length; i++) {
+            for (let j = 0; j < roster.length; j++) {
+                if (nameList[i] === roster[j].name) {
+                    this.attributes.courses[courseNumber][i].ParticipationPoints++;
+                }
             }
-            if (slotsObj.Points.value) {
-                this.attributes.courses[courseNumber][index].points += slotsObj.Points.value;
-                this.response.speak(slotsObj.Points.value.toString() + " points have been assigned to " + student);
-            } else {
-                this.attributes.courses[courseNumber][index].points++;
-                this.response.speak("A point has been assigned to " + student);
-            }
-
-            this.emit(":responseReady");
         }
-    },
+        const speechOutput = 'Okay';
+        this.response.speak(speechOutput);
+        this.emit(':responseReady');
+    }
+}
 
     'RepeatIntent': function () {
         this.emitWithState(this.attributes.lastIntent);
