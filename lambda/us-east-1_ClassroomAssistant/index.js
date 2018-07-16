@@ -127,11 +127,11 @@ function checkSchedule(scheduleObj) {
 }
 
 function getCurrentDay() {
-    let localDateTime = new Date(getCurrentTime());
-    console.log(localDateTime);
-    console.log(localDateTime.getDay());
-    console.log(typeof localDateTime.getDay());
-    return localDateTime.getDay();
+    let localDateTime = new Date(Date.now()).toLocaleDateString('en-US', {timeZone: 'America/New_York', hour12: false});
+    let currentDay = new Date(localDateTime).getDay();
+    console.log(currentDay);
+    console.log(typeof currentDay);
+    return currentDay;
 }
 
 function getCurrentTime() {
