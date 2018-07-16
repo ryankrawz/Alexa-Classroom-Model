@@ -235,11 +235,13 @@ const handlers = {
     },
 
     'AMAZON.CancelIntent': function () {
+        this.attributes.lastIntent = null;
         const speechOutput = 'Goodbye!';
         this.emit(':tell', speechOutput);
     },
 
     'AMAZON.StopIntent': function () {
+        this.attributes.lastIntent = null;
         const speechOutput = 'See you later!';
         this.emit(':tell', speechOutput);
     },
@@ -251,7 +253,7 @@ const handlers = {
     },
 
     'SessionEndedRequest': function () {
-        console.log('***session ended***');
+        this.attributes.lastIntent = null;
         this.emit(':saveState', true);
     },
 
@@ -599,28 +601,28 @@ const handlers = {
 
     'ParticipationTracker': function () {
         let slotobj = this.event.request.intent.slots;
-    if (!slotobj.firstNames.value || !slotobj.courseNumber.value || !slotobj.sectionTime.value) {
-        this.emit(':delegate');
-    } else if (slotobj.firstNames.confirmationStatus !== 'CONFIRMED') {
-        this.emit(':delegate');
-    } else {
-        const firstNames = slotobj.firstNames.value;
-        const courseNumber = slotobj.courseNumber.value;
-        const sectionTime = slotobj.sectionTime.value;
-        const nameList = firstNames.split(' ');
-        const roster = this.attributes.courses[courseNumber];
-        for (let i = 0; i < nameList.length; i++) {
-            for (let j = 0; j < roster.length; j++) {
-                if (nameList[i] === roster[j].name) {
-                    this.attributes.courses[courseNumber][i].ParticipationPoints++;
+        if (!slotobj.firstNames.value || !slotobj.courseNumber.value || !slotobj.sectionTime.value) {
+            this.emit(':delegate');
+        } else if (slotobj.firstNames.confirmationStatus !== 'CONFIRMED') {
+            this.emit(':delegate');
+        } else {
+            const firstNames = slotobj.firstNames.value;
+            const courseNumber = slotobj.courseNumber.value;
+            const sectionTime = slotobj.sectionTime.value;
+            const nameList = firstNames.split(' ');
+            const roster = this.attributes.courses[courseNumber];
+            for (let i = 0; i < nameList.length; i++) {
+                for (let j = 0; j < roster.length; j++) {
+                    if (nameList[i] === roster[j].name) {
+                        this.attributes.courses[courseNumber][i].ParticipationPoints++;
+                    }
                 }
             }
+            const speechOutput = 'Okay';
+            this.response.speak(speechOutput);
+            this.emit(':responseReady');
         }
-        const speechOutput = 'Okay';
-        this.response.speak(speechOutput);
-        this.emit(':responseReady');
-    }
-}
+    },
 
     'RepeatIntent': function () {
         this.emitWithState(this.attributes.lastIntent);
