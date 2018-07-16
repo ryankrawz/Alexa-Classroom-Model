@@ -620,8 +620,7 @@ const handlers = {
         this.response.speak(speechOutput);
         this.emit(':responseReady');
     }
-}
-
+},
     'RepeatIntent': function () {
         this.emitWithState(this.attributes.lastIntent);
     }
