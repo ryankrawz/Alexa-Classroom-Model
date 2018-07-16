@@ -500,24 +500,6 @@
                         {
                             "name": "firstNames",
                             "type": "AMAZON.SearchQuery"
-                        },
-                        {
-                            "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "Course number {courseNumber}",
-                                "For course number {courseNumber}",
-                                "{courseNumber}",
-                                "For {courseNumber}"
-                            ]
-                        },
-                        {
-                            "name": "sectionTime",
-                            "type": "AMAZON.TIME",
-                            "samples": [
-                                "For my {sectionTime}",
-                                "{sectionTime}"
-                            ]
                         }
                     ],
                     "samples": [
@@ -748,24 +730,6 @@
                             "confirmationRequired": false,
                             "elicitationRequired": false,
                             "prompts": {}
-                        },
-                        {
-                            "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.66549855550.595679585616"
-                            }
-                        },
-                        {
-                            "name": "sectionTime",
-                            "type": "AMAZON.TIME",
-                            "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.66549855550.1113266563882"
-                            }
                         }
                     ]
                 },
