@@ -500,6 +500,7 @@
                         {
                             "name": "firstNames",
                             "type": "AMAZON.SearchQuery"
+<<<<<<< HEAD
                         },
                         {
                             "name": "courseNumber",
@@ -534,7 +535,11 @@
                     "slots": [
                         {
                             "name": "sectionTime",
+
                             "type": "AMAZON.DATE",
+
+                            "type": "AMAZON.TIME",
+
                             "samples": [
                                 "{sectionTime}",
                                 "For my {sectionTime}"
@@ -777,6 +782,22 @@
                         {
                             "name": "sectionTime",
                             "type": "AMAZON.DATE",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.933907384832.201407344531"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "SpecifySectionTime",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "sectionTime",
+                            "type": "AMAZON.TIME",
                             "confirmationRequired": false,
                             "elicitationRequired": true,
                             "prompts": {
