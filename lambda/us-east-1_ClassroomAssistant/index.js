@@ -597,8 +597,23 @@ const handlers = {
         }
     },
 
-    'ParticipationTracker': function () {
+    'ParticipationTracker': async function () {
+        this.attributes.lastIntent = 'ParticipationTracker'
+        let scheduleObj = await readSchedule();
+        let rosterObj =  await readRoster();
         let slotobj = this.event.request.intent.slots;
+        let courseNumber = slotobj.courseNumber.value;
+
+        if (courseNumber) {
+            if (scheduleObj.hasOwnProperty(courseNumber)) {
+                this.attributes.courseNumber = courseNumber;
+                this.emit(':responseReady');
+            } else {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number. For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            }
+        }
     if (!slotobj.firstNames.value || !slotobj.courseNumber.value || !slotobj.sectionTime.value) {
         this.emit(':delegate');
     } else if (slotobj.firstNames.confirmationStatus !== 'CONFIRMED') {
