@@ -317,18 +317,20 @@ const handlers = {
         if (this.event.request.dialogState !== 'COMPLETED') {
             console.log('*** Trying to obtain courseNumber');
             this.emit(':delegate');
-        } else if (!this.attributes.briefingNotes.hasOwnProperty(courseNumber)) {
-            console.log('*** Invalid courseNumber');
-            let speechOutput = "I'm sorry, I can't find that course number. Which course number should I add this note to?";
-            let slotToElicit = 'courseNumber';
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (this.attributes.lastIntent == 'AddBriefingNote') {
-            console.log('*** I have the courseNumber: ' + courseNumber);
-            this.attributes.courseNumber = courseNumber;
+            if (this.attributes.briefingNotes.hasOwnProperty(courseNumber)) {
+                console.log('*** Invalid courseNumber');
+                let speechOutput = "I'm sorry, I can't find that course number. Which course number should I add this note to?";
+                let slotToElicit = 'courseNumber';
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                console.log('*** I have the courseNumber: ' + courseNumber);
+                this.attributes.courseNumber = courseNumber;
 
-            let speechOutput = "And for which date should I add this note?";
-            this.response.speak(speechOutput).listen("For which date should I add this note?");
-            this.emit(':responseReady')
+                let speechOutput = "And for which date should I add this note?";
+                this.response.speak(speechOutput).listen("For which date should I add this note?");
+                this.emit(':responseReady')
+            }
         } else if (this.attributes.lastIntent == 'ParticipationTracker') {
             this.attributes.courseNumber = courseNumber;
 
@@ -362,7 +364,7 @@ const handlers = {
     },
 
     'SpecifySectionTime': function () {
-        
+
     },
 
     'FastFacts': async function () {
