@@ -77,19 +77,24 @@ exports.readTab = async function (key, tabName) {
 
                 if (kind == 'key') {
                     if (rows[row].values[col].effectiveValue) {
-                        if (col == 0) {
-                            stack.flush();
+                        // Unwind stack until stack depth == col
+                        while(stack.size() > col) {
+                            stack.pop();
+                        }
+
+                        if (stack.size() == 0) {
                             latestObj = scheduleObj;
                         }
-                        //there is an effective value to the first cell
-                        let cellval = rows[row].values[col].effectiveValue.stringValue;
+                        else {
+                            latestObj = stack.head();
+                        }
+
+                        let effval = rows[row].values[col].effectiveValue;
+                        let cellval = effval.stringValue || effval.numberValue.toString();
                         let newObj = {};
                         latestObj[cellval] = newObj;
                         latestObj = newObj;
                         stack.push(latestObj);
-                    } else {
-                        stack.pop();
-                        latestObj = stack.head();
                     }
                 } else if (kind == 'string') {
                     let sval = rows[row].values[col].effectiveValue.stringValue;
