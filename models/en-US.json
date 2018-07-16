@@ -500,7 +500,6 @@
                         {
                             "name": "firstNames",
                             "type": "AMAZON.SearchQuery"
-<<<<<<< HEAD
                         },
                         {
                             "name": "courseNumber",
