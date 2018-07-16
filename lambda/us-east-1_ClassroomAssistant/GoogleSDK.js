@@ -82,7 +82,7 @@ exports.readTab = async function (key, tabName) {
                             latestObj = scheduleObj;
                         }
                         //there is an effective value to the first cell
-                        let effval = rows[row].values[col].effectiveValue
+                        let effval = rows[row].values[col].effectiveValue;
                         let cellval = effval.stringValue || effval.numberValue.toString();
                         let newObj = {};
                         latestObj[cellval] = newObj;
