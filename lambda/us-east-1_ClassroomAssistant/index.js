@@ -312,7 +312,6 @@ const handlers = {
     },
 
     'SpecifyCourseNumber': function () {
-        this.attributes.lastIntent = 'SpecifyCourseNumber';
         const courseNumber = this.event.request.intent.slots.courseNumber.value;
 
         if (this.event.request.dialogState !== 'COMPLETED') {
@@ -330,6 +329,12 @@ const handlers = {
             let speechOutput = "And for which date should I add this note?";
             this.response.speak(speechOutput).listen("For which date should I add this note?");
             this.emit(':responseReady')
+        } else if (this.attributes.lastIntent == 'ParticipationTracker') {
+            this.attributes.courseNumber = courseNumber;
+
+            const speechOutput = `I have course ${courseNumber}. What section time?`;
+            this.response.speak(speechOutput).listen(speechOutput);
+            this.emit(':responseReady');
         } else {
             this.attributes.courseNumber = courseNumber;
 
@@ -340,8 +345,6 @@ const handlers = {
     },
 
     'SpecifyClassDate': function () {
-        this.attributes.lastIntent = 'SpecifyClassDate';
-
         console.log('obtaining class date');
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
@@ -356,6 +359,10 @@ const handlers = {
             this.response.speak(speechOutput).listen("If you'd like me to add another note or play a briefing for you, just let me know.");
             this.emit(':responseReady');
         }
+    },
+
+    'SpecifySectionTime': function () {
+        
     },
 
     'FastFacts': async function () {
