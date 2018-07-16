@@ -42,7 +42,7 @@ function randomQuizQuestion(attributes, quizquestions) {
     let speechOutput;
     let courseObj = quizquestions[attributes.courseNumber];
     let questionList = Object.keys(courseObj);
-    questionList.forEach(question => beenCalledList.push(courseObj[question][Object.keys(courseObj[student])[2]));
+    questionList.forEach(question => beenCalledList.push(courseObj[question][Object.keys(courseObj[student])[2]]));
     const minim = Math.min(...beenCalledList);
     while (true) {
         let randomIndex = Math.floor(Math.random() * questionList.length);
@@ -178,7 +178,7 @@ async function readRoster() {
 }
 
 async function readQuizQuestions() {
-    let readObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "QuizQuestions");
+    let questionObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "QuizQuestions");
     return questionObj;
 }
 
@@ -293,7 +293,7 @@ let fakeRosterObj = {
                 }
         }
     }
-}
+};
 
 const handlers = {
     'LaunchRequest': function () {
@@ -436,7 +436,7 @@ const handlers = {
             this.emit(':responseReady');
         }
     },
-
+ /*
     'SpecifySectionTime': function() {
         this.attributes.lastIntent = 'SpecifySectionTime';
 
@@ -466,10 +466,8 @@ const handlers = {
             this.response.speak(participationAwarder(this.attributes, rosterObj));
             this.emit(':responseReady');
         }
-
-    'SpecifySectionTime': function () {
-
     },
+   */
 
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
@@ -746,7 +744,7 @@ const handlers = {
 
     'ParticipationTracker': async function () {
 
-        this.attributes.lastIntent = 'ParticipationTracker'
+        this.attributes.lastIntent = 'ParticipationTracker';
         let scheduleObj = await readSchedule();
         let rosterObj = await readRoster();
         let slotobj = this.event.request.intent.slots;
