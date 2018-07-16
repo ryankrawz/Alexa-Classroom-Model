@@ -1,12 +1,11 @@
 // This is the master skill for all Alexa Skills
 
 /*
-TO DO:
+todo:
 - Refactor intents to use data from Sheets
 - Streamline DynamoDB Cache
 - Implement Writing to Sheets
 - Course Number Override Intent
-
 */
 
 'use strict';
@@ -259,7 +258,7 @@ let fakeRosterObj = {
                 }
         }
     }
-}
+};
 
 const handlers = {
     'LaunchRequest': function () {
