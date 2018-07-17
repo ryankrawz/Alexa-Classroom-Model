@@ -270,12 +270,6 @@ function groupPresentHelper(attributes, roster, groupString) {
         }
     }
 
-
-        if (studentNotInList(randomStudent, presentList)) {
-            presentList.push(randomStudent);
-            j++;
-        }
-
     // Names all students randomly ordered, along with number for purpose of presentation order
     // Divides student names into groups based on groupNumber
     let k = 1;
