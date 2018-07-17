@@ -57,7 +57,6 @@ function getNames(students) {
 }
 */
 
-
 function orderedQuizQuestion(attributes, quizQuestions) {
     let courseObj = quizQuestions[attributes.courseNumber];
 
@@ -72,7 +71,6 @@ function orderedQuizQuestion(attributes, quizQuestions) {
         attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
     }
     attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
-
     if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber] == undefined) {
         console.log('*** we reached the end of the current question list, resetting back to the first question');
         attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
@@ -227,6 +225,7 @@ function coldCallHelper(attributes, roster) {
     return speechOutput;
 }
 
+
 function participationTrackerHelper(attributes, roster) {
     let speechOutput = 'Awarded';
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
@@ -271,6 +270,12 @@ function groupPresentHelper(attributes, roster, groupString) {
         }
     }
 
+
+        if (studentNotInList(randomStudent, presentList)) {
+            presentList.push(randomStudent);
+            j++;
+        }
+
     // Names all students randomly ordered, along with number for purpose of presentation order
     // Divides student names into groups based on groupNumber
     let k = 1;
@@ -311,6 +316,7 @@ function groupPresentHelper(attributes, roster, groupString) {
     console.log(returnObj);
     return returnObj;
 }
+
 
 function writeToSheets(key, tabName, scheduleObj) {
     //TO DO: add first two rows for the headers and kinds
@@ -506,7 +512,7 @@ const handlers = {
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else {
             this.attributes.sectionTime = sectionTime;
-            this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
+            this.response.speak(speechOutput).listen("If you'd like me to add another note or play a briefing for you, just let me know.");
             this.emit(':responseReady');
         }
     },
@@ -591,6 +597,7 @@ const handlers = {
 
     'GroupPresent': async function () {
         this.attributes.lastIntent = 'GroupPresent';
+
         function findStudent(student) {
             for (let i = 0; i < presentList.length; i++) {
                 if (presentList[i] === student) {
@@ -598,10 +605,8 @@ const handlers = {
                 }
             }
         }
-        let scheduleObj = await
-        readSchedule();
-        let rosterObj = await
-        readRoster();
+        let scheduleObj = await readSchedule();
+        let rosterObj =  await readRoster();
         const groupNumberString = this.event.request.intent.slots.groupNumber.value;
         const courseNumber = this.event.request.intent.slots.courseNumber.value;
         const sectionTime = this.event.request.intent.slots.sectionTime.value;
@@ -740,7 +745,6 @@ const handlers = {
             let speechOutput = "From which course would you like me to add points?";
             this.response.speak(speechOutput).listen(speechOutput);
             this.emit(':responseReady');
-
             // how to fit context into this function
             getContext(this.attributes, checkSchedule(scheduleObj));
             if (checkSchedule(scheduleObj) == false) {
@@ -753,10 +757,9 @@ const handlers = {
                     this.emit(':responseReady');
                 }
             } else {
-                    this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
-                    this.emit(':responseReady');
+                this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
+                this.emit(':responseReady');
             }
-
         }
     },
 
