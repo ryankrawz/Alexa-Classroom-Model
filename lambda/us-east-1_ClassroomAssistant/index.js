@@ -348,13 +348,11 @@ const handlers = {
     },
 
     'AMAZON.CancelIntent': function () {
-        this.attributes.lastIntent = null;
         const speechOutput = 'Goodbye!';
         this.emit(':tell', speechOutput);
     },
 
     'AMAZON.StopIntent': function () {
-        this.attributes.lastIntent = null;
         const speechOutput = 'See you later!';
         this.emit(':tell', speechOutput);
     },
@@ -366,7 +364,6 @@ const handlers = {
     },
 
     'SessionEndedRequest': function () {
-        this.attributes.lastIntent = null;
         this.emit(':saveState', true);
     },
 
@@ -662,7 +659,9 @@ const handlers = {
             } else {
                 console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
-                this.response.speak(coldCallHelper(this.attributes, rosterObj));
+                let speechOutput = coldCallHelper(this.attributes, rosterObj);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
                 this.emit(':responseReady');
             }
         } else {
@@ -674,7 +673,9 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 console.log('*** we\'re in a class');
-                this.response.speak(coldCallHelper(this.attributes, rosterObj));
+                let speechOutput = coldCallHelper(this.attributes, rosterObj);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
                 this.emit(':responseReady');
             }
         }
@@ -693,7 +694,9 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.courseNumber = courseNumber;
-                this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
+                let speechOutput = orderedQuizQuestion(this.attributes, questionObj);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
                 this.emit(":responseReady");
             }
         } else {
@@ -703,7 +706,9 @@ const handlers = {
                     let speechOutput = "For which course number?";
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 } else {
-                    this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
+                    let speechOutput = orderedQuizQuestion(this.attributes, questionObj)
+                    this.attributes.lastOutput = speechOutput;
+                    this.response.speak(speechOutput);
                     this.emit(":responseReady");
                 }
             }
@@ -762,6 +767,7 @@ const handlers = {
     },
 
     'RepeatIntent': function () {
-        this.emitWithState(this.attributes.lastIntent);
+        this.response.speak(this.attributes.lastOutput);
+        this.emit(':responseReady');
     }
 };
