@@ -57,28 +57,6 @@ function getNames(students) {
 }
 */
 
-function orderedQuizQuestion(attributes, quizQuestions) {
-    let courseObj = quizQuestions[attributes.courseNumber];
-
-    if (!attributes.questionSets) {
-        console.log('*** making a questionSets attribute');
-        attributes.questionSets = {};
-        attributes.questionSets[attributes.courseNumber] = {};
-        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
-    } else if (!attributes.questionSets[attributes.courseNumber]) {
-        console.log('*** making a questionSets[attributes.courseNumber] attribute');
-        attributes.questionSets[attributes.courseNumber] = {};
-        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
-    }
-    attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
-    if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber] == undefined) {
-        console.log('*** we reached the end of the current question list, resetting back to the first question');
-        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
-    }
-    console.log('*** got the current question');
-    return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
-}
-
 function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
 	return dayInitials[day];
@@ -204,6 +182,14 @@ async function readBriefing() {
     return briefingObj;
 }
 
+//force tags to lower case
+//must validate tags! Invalid tags break the skill
+function fastFactsHelper(attributes, facts, tag) {
+    console.log(JSON.stringify(facts));
+    console.log(tag);
+    return facts[attributes.courseNumber][tag]['Answer'];
+}
+
 function coldCallHelper(attributes, roster) {
     const beenCalledList = [];
     let speechOutput;
@@ -225,6 +211,27 @@ function coldCallHelper(attributes, roster) {
     return speechOutput;
 }
 
+function orderedQuizQuestion(attributes, quizQuestions) {
+    let courseObj = quizQuestions[attributes.courseNumber];
+
+    if (!attributes.questionSets) {
+        console.log('*** making a questionSets attribute');
+        attributes.questionSets = {};
+        attributes.questionSets[attributes.courseNumber] = {};
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
+    } else if (!attributes.questionSets[attributes.courseNumber]) {
+        console.log('*** making a questionSets[attributes.courseNumber] attribute');
+        attributes.questionSets[attributes.courseNumber] = {};
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
+    }
+    attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
+    if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber] == undefined) {
+        console.log('*** we reached the end of the current question list, resetting back to the first question');
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
+    }
+    console.log('*** got the current question');
+    return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
+}
 
 function participationTrackerHelper(attributes, roster) {
     let speechOutput = 'Awarded';
@@ -341,6 +348,22 @@ function writeToSheets(key, tabName, scheduleObj) {
         }
     });
     googleSDK.writeTab(key, tabName, values);
+}
+
+let fakeFactsObj = {
+    '1111': {
+        'Gettysburg': {
+            'Answer': 'I\'m talking about Gettysburg'
+        },
+        'punctuation': {
+            'Answer': 'I\'m talking about Punctuation'
+        }
+    },
+    '2222': {
+        'geography': {
+            'Answer': 'I\'m talking about Geography'
+        }
+    }
 }
 
 const handlers = {
@@ -510,57 +533,43 @@ const handlers = {
 
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
-        console.log("*** AnswerIntent Started");
-        let allQuestions = {};
-        let loadPromise = loadFromSheets();
-        let auth = await loadPromise;
-        let data = await getData(auth);
-        console.log("Google Sheets Read - Success");
-        let sheets = data.data.sheets;
-        sheets.forEach(sheet => {
-            allQuestions[sheet.properties.title] = {};
-            //omit element 0 because it's the header row
-            let rows = sheet.data[0].rowData.slice(1);
-            rows.forEach(row => {
-                if (row.values) {
-                    if (row.values[0].effectiveValue && row.values[1].effectiveValue) {
-                        allQuestions[sheet.properties.title][row.values[0].effectiveValue.stringValue] = row.values[1].effectiveValue.stringValue;
-                    } else {
-                        console.log("That row didn't have both a tag and an answer");
-                    }
-                } else {
-                    console.log("Skipping empty row.");
-                }
-            });
-        });
+        let scheduleObj = await readSchedule();
+        let factsObj =  fakeFactsObj;
+        let courseNumber = this.event.request.intent.slots.courseNumber.value;
+        let tag = this.event.request.intent.slots.tag.value
 
-        console.log("Length of allQuestions: " + Object.keys(allQuestions).length);
-        console.log(allQuestions["1111"]["Gettysburg"]);
-
-        if (!this.event.request.intent.slots.tag.value || !this.event.request.intent.slots.courseNumber.value) {
-
-            this.emit(':delegate');
-
-        } else if (!allQuestions.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
-
-            const slotToElicit = 'courseNumber';
-            const speechOutput = "I'm sorry, we couldn't find any data for that course number. Try again";
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-
-        } else if (!allQuestions[this.event.request.intent.slots.courseNumber.value].hasOwnProperty(this.event.request.intent.slots.tag.value)) {
-
-            const slotToElicit = 'tag';
-            const speechOutput = 'I\'m sorry, that tag doesn\'t currently exist. Could you provide another tag?';
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-
+        if (courseNumber) {
+            if (!scheduleObj.hasOwnProperty(courseNumber)) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like to access?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!tag) {
+                let slotToElicit = 'tag';
+                let speechOutput = "What would you like me to talk about?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                this.attributes.courseNumber = courseNumber;
+                let speechOutput = fastFactsHelper(this.attributes, factsObj, tag);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
+                this.emit(":responseReady");
+            }
         } else {
-
-            const tag = this.event.request.intent.slots.tag.value;
-            const courseNumber = this.event.request.intent.slots.courseNumber.value;
-
-            const speechOutput = allQuestions[courseNumber][tag];
-            this.response.speak(speechOutput);
-            this.emit(':responseReady');
+            getContext(this.attributes, checkSchedule(scheduleObj));
+            if (checkSchedule(scheduleObj) == false) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!tag) {
+                let slotToElicit = 'tag';
+                let speechOutput = "What would you like me to talk about?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                let speechOutput = fastFactsHelper(this.attributes, factsObj, tag);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
+                this.emit(":responseReady");
+            }
         }
     },
 
