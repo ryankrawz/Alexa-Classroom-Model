@@ -635,7 +635,7 @@ const handlers = {
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
                 Object.keys(groups).forEach(group => {
-                    speechOutput += group + groups[group].toString();
+                    speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "2s"/>';
                 });
                 this.response.speak(speechOutput);
                 this.emit(':responseReady');
@@ -650,7 +650,7 @@ const handlers = {
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
                 Object.keys(groups).forEach(group => {
-                    speechOutput += group + groups[group].toString();
+                    speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "2s"/>';
                 });
                 this.response.speak(speechOutput);
                 this.emit(':responseReady');
