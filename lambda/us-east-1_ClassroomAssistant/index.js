@@ -656,7 +656,7 @@ const handlers = {
                 this.emit(':responseReady');
             }
         }
-        },
+    },
 
     'ColdCall': async function () {
         this.attributes.lastIntent = 'ColdCall';
