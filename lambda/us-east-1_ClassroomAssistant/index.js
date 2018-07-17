@@ -671,7 +671,7 @@ const handlers = {
                 }
             }
         } else {
-                getContext(this.attributes,checkSchedule(scheduleObj));
+                getContext(this.attributes, checkSchedule(scheduleObj));
                 if (checkSchedule(scheduleObj) == false) {
                     if(!this.attributes.courseNumber) {
                         let slotToElicit = 'courseNumber';
