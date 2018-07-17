@@ -44,6 +44,7 @@ exports.writeTab = async function (sheetID, tabName, keyList, valueList) {
     for (let row = 2; row < rows.length; row++) {
         if (rows[row][0] === keyList) {
             writeRow = row;
+            break;
         }
     }
 
@@ -58,6 +59,7 @@ exports.writeTab = async function (sheetID, tabName, keyList, valueList) {
     for (let col = 0; col < theRow.length; col++) {
         if (rows[0][col] === valueList.header) {
             theRow[col] = valueList.value;
+            break;
         }
     }
 
