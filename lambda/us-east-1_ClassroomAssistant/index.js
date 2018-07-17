@@ -6,6 +6,7 @@ todo:
 - Implement Writing to Sheets
 - Outsource sheet schema to a JSON file, column names are currently hardcoded
 - Change cache stream so user is always prompted for context after-hours
+    a. As of right now, our logic is set up to grab values from the cache by default if teacher is not in a course
 */
 
 'use strict';
@@ -35,8 +36,8 @@ function getNames(students) {
     students.forEach(student => names.push(student.name));
     return names;
 }
-/*
-function randomQuizQuestion(attributes, quizquestions) {
+
+/*function randomQuizQuestion(attributes, quizquestions) {
     const beenCalledList = [];
     let speechOutput;
     let courseObj = quizquestions[attributes.courseNumber];
@@ -56,12 +57,28 @@ function randomQuizQuestion(attributes, quizquestions) {
 }
 */
 
-function orderedQuizQuestion(attributes, quizquestions) {
-    let courseObj = quizquestions[attributes.courseNumber];
-    let questionList = Object.keys(courseObj);
-    let questionToAsk = questionList.shift();
-    questionList.push(questionToAsk);
-    return questionToAsk;
+
+function orderedQuizQuestion(attributes, quizQuestions) {
+    let courseObj = quizQuestions[attributes.courseNumber];
+
+    if (!attributes.questionSets) {
+        console.log('*** making a questionSets attribute');
+        attributes.questionSets = {};
+        attributes.questionSets[attributes.courseNumber] = {};
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
+    } else if (!attributes.questionSets[attributes.courseNumber]) {
+        console.log('*** making a questionSets[attributes.courseNumber] attribute');
+        attributes.questionSets[attributes.courseNumber] = {};
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
+    }
+    attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
+
+    if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber] == undefined) {
+        console.log('*** we reached the end of the current question list, resetting back to the first question');
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
+    }
+    console.log('*** got the current question');
+    return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
 }
 
 function convertDayOfWeek(day) {
@@ -209,7 +226,8 @@ function coldCallHelper(attributes, roster) {
     }
     return speechOutput;
 }
-function participationAwarder(attributes, roster) {
+
+function participationTrackerHelper(attributes, roster) {
     let speechOutput = 'Awarded';
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
     let rosterList = Object.keys(sectionObj);
@@ -226,6 +244,73 @@ function participationAwarder(attributes, roster) {
     return speechOutput;
 }
 
+function groupPresentHelper(attributes, roster, groupString) {
+    let groupCount = parseInt(groupString);
+    let presentList = [];
+    let students = Object.keys(roster[attributes.courseNumber][attributes.sectionNumber]);
+    console.log(students);
+
+    // Searches existing presentation list for the student's name, returns true if name is not in list
+    function studentNotInList(student, presenters) {
+        for (let i = 0; i < presenters.length; i++) {
+            if (presenters[i] === student) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Adds students in random order to presentation list if student is not already in list
+    let j = 0;
+    while (j < students.length) { //
+        let randomIndex = Math.floor(Math.random() * students.length); //
+        let randomStudent = students[randomIndex]; //
+        if (studentNotInList(randomStudent, presentList)) {
+            presentList.push(randomStudent);
+            j++;
+        }
+    }
+
+    // Names all students randomly ordered, along with number for purpose of presentation order
+    // Divides student names into groups based on groupNumber
+    let k = 1;
+    let returnObj = {};
+    if (groupCount === 1) {
+        for (let l = 0; l < presentList.length; l++) {
+            returnObj[k.toString()] = presentList[l];
+            k++;
+        }
+    } else {
+        let groups;
+        let eachGroup = [];
+        const groupList = [];
+
+        if (students.length % groupCount === 0) { //
+            groups = students.length / groupCount; //
+        } else {
+            groups = Math.floor(students.length / groupCount) + 1;
+        }
+
+        for (let l = 0; l < groups; l++) {
+            for (let m = 0; m < groupCount; m++) {
+                if (presentList.length === 0) {
+                    break;
+                }
+                eachGroup.push(presentList[0]);
+                presentList.shift();
+            }
+            groupList.push(eachGroup);
+            eachGroup = [];
+        }
+
+        for (let n = 0; n < groupList.length; n++) {
+            returnObj[k.toString()] = groupList[n];
+            k++;
+        }
+    }
+    console.log(returnObj);
+    return returnObj;
+}
 
 function writeToSheets(key, tabName, scheduleObj) {
     //TO DO: add first two rows for the headers and kinds
@@ -421,11 +506,10 @@ const handlers = {
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else {
             this.attributes.sectionTime = sectionTime;
-            this.response.speak(participationAwarder(this.attributes, rosterObj));
+            this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
             this.emit(':responseReady');
-            }
+        }
     },
-
 
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
@@ -507,95 +591,62 @@ const handlers = {
 
     'GroupPresent': async function () {
         this.attributes.lastIntent = 'GroupPresent';
-        let presentList = [];
-        let scheduleObj = await readSchedule();
-        let rosterObj = await readRoster();
-        let courseNumber = this.event.request.intent.slots.courseNumber.value;
-        let sectionTime = this.event.request.intent.slots.sectionTime.value;
-        // Searches existing presentation list for the student's name, returns true if name is not in list
         function findStudent(student) {
             for (let i = 0; i < presentList.length; i++) {
                 if (presentList[i] === student) {
                     return false;
                 }
             }
-            return true;
         }
+        let scheduleObj = await
+        readSchedule();
+        let rosterObj = await
+        readRoster();
+        const groupNumberString = this.event.request.intent.slots.groupNumber.value;
+        const courseNumber = this.event.request.intent.slots.courseNumber.value;
+        const sectionTime = this.event.request.intent.slots.sectionTime.value;
 
-        let currentDialogState = this.event.request.dialogState;
-        if (currentDialogState !== 'COMPLETED') {
-
-            this.emit(':delegate');
-
-        } else if (!this.attributes.courses.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
-
-            const slotToElicit = 'courseNumber';
-            const speechOutput = 'Please provide a valid course number.';
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-
-        } else {
-
-            const courseNumber = this.event.request.intent.slots.courseNumber.value;
-            const groupNumber = parseInt(this.event.request.intent.slots.groupNumber.value);
-            presentList = []; // reset presentList
-
-            // Adds students in random order to presentation list if student is not already in list
-            let j = 0;
-            while (j < this.attributes.courses[courseNumber].length) {
-                let randomIndex = Math.floor(Math.random() * this.attributes.courses[courseNumber].length);
-                let randomStudent = this.attributes.courses[courseNumber][randomIndex];
-
-                if (findStudent(randomStudent.name)) {
-                    presentList.push(randomStudent.name);
-                    j++;
-                }
-            }
-
-            // Names all students randomly ordered, along with number for purpose of presentation order
-            // Divides student names into groups based on groupNumber
-            let k = 1;
-            let speechOutput = '';
-            if (groupNumber === 1) {
-                for (let l = 0; l < presentList.length; l++) {
-                    speechOutput += `${k}, ${presentList[l]}; `;
-                    k++;
-                }
+        if (courseNumber || sectionTime) {
+            if (!courseNumber) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "From which course would you like me to make groups";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to make groups?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!sectionTime) {
+                let slotToElicit = 'sectionTime';
+                let speechOutput = "From which section time?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
+                let slotToElicit = 'sectionTime';
+                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like?`;
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!groupNumberString) {
+                let slotToElicit = 'groupNumber';
+                let speechOutput = 'How many people per group?';
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                let groups;
-                let eachGroup = [];
-                const groupList = [];
-
-                if (this.attributes.courses[courseNumber].length % groupNumber === 0) {
-                    groups = this.attributes.courses[courseNumber].length / groupNumber;
-                } else {
-                    groups = Math.floor(this.attributes.courses[courseNumber].length / groupNumber) + 1;
-                }
-
-                for (let l = 0; l < groups; l++) {
-                    for (let m = 0; m < groupNumber; m++) {
-                        if (presentList.length === 0) {
-                            break;
-                        }
-                        eachGroup.push(presentList[0]);
-                        presentList.shift();
-                    }
-                    groupList.push(eachGroup);
-                    eachGroup = [];
-                }
-
-                for (let n = 0; n < groupList.length; n++) {
-                    speechOutput += `group ${k}, ${groupList[n].toString()}; `;
-                    k++;
-                }
+                console.log('*** valid course number, section number, and group count provided manually');
+                this.attributes.courseNumber = courseNumber;
+                this.response.speak(groupPresentHelper(this.attributes, rosterObj, groupNumberString));
+                this.emit(':responseReady');
             }
-
-            this.response.speak(speechOutput);
-            this.emit(':responseReady');
+        } else {
+            getContext(this.attributes, checkSchedule(scheduleObj));
+            if (checkSchedule(scheduleObj) == false) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                this.response.speak(groupPresentHelper(this.attributes, rosterObj, groupNumberString));
+                this.emit(':responseReady');
+            }
         }
-    },
+        },
 
     'ColdCall': async function () {
-
         this.attributes.lastIntent = 'ColdCall';
         let scheduleObj = await readSchedule();
         let rosterObj =  await readRoster();
@@ -631,20 +682,11 @@ const handlers = {
             getContext(this.attributes, checkSchedule(scheduleObj));
             if (checkSchedule(scheduleObj) == false) {
                 console.log('*** not in a class');
-                if (!this.attributes.courseNumber || !this.attributes.sectionNumber) {
-                    console.log('*** nothing in the cache');
-                    let slotToElicit = 'courseNumber';
-                    let speechOutput = "For which course number?";
-                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-                } else {
-                    console.log('*** something in the cache');
-                    coldCallHelper(this.attributes, rosterObj);
-                    this.response.speak(coldCallHelper(this.attributes, rosterObj));
-                    this.emit(':responseReady');
-                }
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 console.log('*** we\'re in a class');
-                coldCallHelper(this.attributes, rosterObj);
                 this.response.speak(coldCallHelper(this.attributes, rosterObj));
                 this.emit(':responseReady');
             }
@@ -653,7 +695,6 @@ const handlers = {
 
     'QuizQuestion': async function () {
         this.attributes.lastIntent = 'QuizQuestion';
-
         let scheduleObj = await readSchedule();
         let questionObj = await readQuizQuestions();
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
@@ -663,42 +704,22 @@ const handlers = {
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. From which course should I ask a question?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.courseNumber = courseNumber;
-                if (courseObj[questionList][Object.keys(courseObj[questionList])[2]] === 'no') {
-                    this.response.speak(randomQuizQuestion(this.attributes, questionObj));
-                    this.emit(":responseReady");
-                } else {
-                    this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
-                    this.emit(":responseReady");
-                }
+                this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
+                this.emit(":responseReady");
             }
         } else {
                 getContext(this.attributes, checkSchedule(scheduleObj));
                 if (checkSchedule(scheduleObj) == false) {
-                    if(!this.attributes.courseNumber) {
-                        let slotToElicit = 'courseNumber';
-                        let speechOutput = "For which course number?";
-                        this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-                    } else {
-                        if (courseObj[questionList][Object.keys(courseObj[questionList])[2]] === 'no') {
-                            this.response.speak(randomQuizQuestion(this.attributes, questionObj));
-                            this.emit(":responseReady");
-                        } else {
-                            this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
-                            this.emit(":responseReady");
-                        }
-                    }
+                    let slotToElicit = 'courseNumber';
+                    let speechOutput = "For which course number?";
+                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 } else {
-                    if (courseObj[questionList][Object.keys(courseObj[questionList])[2]] === 'no') {
-                        this.response.speak(randomQuizQuestion(this.attributes, questionObj));
-                        this.emit(":responseReady");
-                    } else {
-                        this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
-                        this.emit(":responseReady");
-                    }
+                    this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
+                    this.emit(":responseReady");
                 }
             }
         },
@@ -708,7 +729,6 @@ const handlers = {
         this.attributes.lastIntent = 'ParticipationTracker';
         let scheduleObj = await readSchedule();
         let rosterObj = await readRoster();
-
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
         } else if (!this.event.request.intent.slots.firstNames.value) {
@@ -720,7 +740,8 @@ const handlers = {
             let speechOutput = "From which course would you like me to add points?";
             this.response.speak(speechOutput).listen(speechOutput);
             this.emit(':responseReady');
-        } else {
+
+            // how to fit context into this function
             getContext(this.attributes, checkSchedule(scheduleObj));
             if (checkSchedule(scheduleObj) == false) {
                 if (!this.attributes.courseNumber || !this.attributes.sectionNumber) {
@@ -728,13 +749,14 @@ const handlers = {
                     let speechOutput = "For which course number?";
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 } else {
-                    this.response.speak(participationAwarder(this.attributes, rosterObj));
+                    this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
                     this.emit(':responseReady');
                 }
             } else {
-                this.response.speak(participationAwarder(this.attributes, rosterObj));
-                this.emit(':responseReady');
+                    this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
+                    this.emit(':responseReady');
             }
+
         }
     },
 
