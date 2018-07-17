@@ -756,11 +756,11 @@ const handlers = {
         if (courseNumber || sectionTime) {
             if (!courseNumber) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "From which course would you like me to cold call?";
+                let speechOutput = "From which course would you like me to add points?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to cold call?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to add points ?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!sectionTime) {
                 let slotToElicit = 'sectionTime';
@@ -768,7 +768,7 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to cold call from?`;
+                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to add points?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!this.event.request.intent.slots.firstNames.value) {
                 let speechOutput = "Who would you like to award points to?";
