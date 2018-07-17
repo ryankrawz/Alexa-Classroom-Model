@@ -617,7 +617,12 @@ const handlers = {
             } else {
                 console.log('*** valid course number, section number, and group count provided manually');
                 this.attributes.courseNumber = courseNumber;
-                this.response.speak(groupPresentHelper(this.attributes, rosterObj, groupNumberString));
+                let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
+                let speechOutput = '';
+                Object.keys(groups).forEach(group => {
+                    speechOutput += group + groups[group].toString();
+                });
+                this.response.speak(speechOutput);
                 this.emit(':responseReady');
             }
         } else {
@@ -627,7 +632,12 @@ const handlers = {
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                this.response.speak(groupPresentHelper(this.attributes, rosterObj, groupNumberString));
+                let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
+                let speechOutput = '';
+                Object.keys(groups).forEach(group => {
+                    speechOutput += group + groups[group].toString();
+                });
+                this.response.speak(speechOutput);
                 this.emit(':responseReady');
             }
         }
@@ -710,8 +720,6 @@ const handlers = {
         },
 
     'ParticipationTracker': async function () {
-
-        this.attributes.lastIntent = 'ParticipationTracker';
         let scheduleObj = await readSchedule();
         let rosterObj = await readRoster();
         let slotobj = this.event.request.intent.slots;
