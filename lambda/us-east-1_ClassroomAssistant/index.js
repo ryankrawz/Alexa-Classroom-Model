@@ -588,14 +588,6 @@ const handlers = {
 
     'GroupPresent': async function () {
         this.attributes.lastIntent = 'GroupPresent';
-
-        function findStudent(student) {
-            for (let i = 0; i < presentList.length; i++) {
-                if (presentList[i] === student) {
-                    return false;
-                }
-            }
-        }
         let scheduleObj = await readSchedule();
         let rosterObj =  await readRoster();
         const groupNumberString = this.event.request.intent.slots.groupNumber.value;
