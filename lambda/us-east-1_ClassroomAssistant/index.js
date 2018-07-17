@@ -5,6 +5,7 @@ todo:
 - Refactor intents to use data from Sheets
 - Implement Writing to Sheets
 - Outsource sheet schema to a JSON file, column names are currently hardcoded
+- Change cache stream so user is always prompted for context after-hours
 */
 
 'use strict';
