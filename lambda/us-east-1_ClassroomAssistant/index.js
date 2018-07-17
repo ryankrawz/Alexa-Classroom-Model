@@ -182,8 +182,6 @@ async function readBriefing() {
     return briefingObj;
 }
 
-//force tags to lower case
-//must validate tags! Invalid tags break the skill
 function fastFactsHelper(attributes, facts, tag) {
     console.log(JSON.stringify(facts));
     console.log(tag);
@@ -472,7 +470,6 @@ const handlers = {
     },
 
     'SpecifyCourseNumber': async function () {
-
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let scheduleObj = await readSchedule();
         if (this.event.request.dialogState !== 'COMPLETED') {
@@ -533,6 +530,9 @@ const handlers = {
         }
     },
 
+//force tags to lower case
+//must validate tags! Invalid tags break the skill
+//still need to integrate with readFastFacts()
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
         let scheduleObj = await readSchedule();
