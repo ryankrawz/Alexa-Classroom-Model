@@ -64,11 +64,15 @@ exports.readTab = async function (key, tabName) {
     console.log("Google Sheets Read - Success");
 
     let rows = data.data.sheets[0].data[0].rowData;
-    let headers = rows[0].values; //reference the property later, this isn't a plain list
-    let kinds = rows[1].values;
-    let scheduleObj = {};
-    let latestObj = scheduleObj;
 
+    // in what follows values is not a plain list and will be referenced later
+    let headers = rows[0].values; //column headers
+    let kinds = rows[1].values; // types of data in each header
+
+    let scheduleObj = {}; // the object that will hold the data
+    let latestObj = scheduleObj; // will point to object we are currently working on (could be subset)
+
+    // scan each column of each non-header row
     try {
         for (let row = 2; row < rows.length; row++) {
             for (let col = 0; col < rows[row].values.length; col++) {
@@ -76,12 +80,20 @@ exports.readTab = async function (key, tabName) {
                 let kval = headers[col].effectiveValue.stringValue;
 
                 if (kind == 'key') {
+
+                    // blank key value continues previous key
+                    // otherwise we need to grab new key
                     if (rows[row].values[col].effectiveValue) {
                         // Unwind stack until stack depth == col
+                        // because col starts at 0, this gets us
+                        // to level above col
                         while(stack.size() > col) {
                             stack.pop();
                         }
 
+                        // if at 0, we add a key top level object
+                        // otherwise stack points to parent in which
+                        // to add key
                         if (stack.size() == 0) {
                             latestObj = scheduleObj;
                         }
@@ -89,6 +101,9 @@ exports.readTab = async function (key, tabName) {
                             latestObj = stack.head();
                         }
 
+                        // get new key as a string
+                        // add it as attribute of parent object
+                        // intially it points to an empty object
                         let effval = rows[row].values[col].effectiveValue;
                         let cellval = effval.stringValue || effval.numberValue.toString();
                         let newObj = {};
@@ -96,6 +111,9 @@ exports.readTab = async function (key, tabName) {
                         latestObj = newObj;
                         stack.push(latestObj);
                     }
+
+                    // anything else is data to be added to object we are working on
+                    // in that case, kval holds text of header for that kind of data
                 } else if (kind == 'string') {
                     let sval = rows[row].values[col].effectiveValue.stringValue;
                     latestObj[kval] = sval;
