@@ -6,6 +6,7 @@ todo:
 - Implement Writing to Sheets
 - Outsource sheet schema to a JSON file, column names are currently hardcoded
 - Change cache stream so user is always prompted for context after-hours
+    a. As of right now, our logic is set up to grab values from the cache by default if teacher is not in a course
 */
 
 'use strict';
@@ -36,7 +37,7 @@ function getNames(students) {
     return names;
 }
 
-function randomQuizQuestion(attributes, quizquestions) {
+/*function randomQuizQuestion(attributes, quizquestions) {
     const beenCalledList = [];
     let speechOutput;
     let courseObj = quizquestions[attributes.courseNumber];
@@ -53,15 +54,29 @@ function randomQuizQuestion(attributes, quizquestions) {
         }
     }
     return speechOutput;
-}
+}*/
 
-function orderedQuizQuestion(attributes, quizquestions) {
-    let speechOutput;
-    let courseObj = quizquestions[attributes.courseNumber];
-    let questionList = Object.keys(courseObj);
-    let questionToAsk = questionList.shift();
-    questionList.push(questionToAsk);
-    return questionToAsk;
+function orderedQuizQuestion(attributes, quizQuestions) {
+    let courseObj = quizQuestions[attributes.courseNumber];
+
+    if (!attributes.questionSets) {
+        console.log('*** making a questionSets attribute');
+        attributes.questionSets = {};
+        attributes.questionSets[attributes.courseNumber] = {};
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
+    } else if (!attributes.questionSets[attributes.courseNumber]) {
+        console.log('*** making a questionSets[attributes.courseNumber] attribute');
+        attributes.questionSets[attributes.courseNumber] = {};
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
+    }
+    attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
+
+    if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber] == undefined) {
+        console.log('*** we reached the end of the current question list, resetting back to the first question');
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
+    }
+    console.log('*** got the current question');
+    return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
 }
 
 function convertDayOfWeek(day) {
@@ -591,7 +606,6 @@ const handlers = {
     },
 
     'ColdCall': async function () {
-
         this.attributes.lastIntent = 'ColdCall';
         let scheduleObj = await readSchedule();
         let rosterObj =  await readRoster();
@@ -627,20 +641,11 @@ const handlers = {
             getContext(this.attributes, checkSchedule(scheduleObj));
             if (checkSchedule(scheduleObj) == false) {
                 console.log('*** not in a class');
-                if (!this.attributes.courseNumber || !this.attributes.sectionNumber) {
-                    console.log('*** nothing in the cache');
-                    let slotToElicit = 'courseNumber';
-                    let speechOutput = "For which course number?";
-                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-                } else {
-                    console.log('*** something in the cache');
-                    coldCallHelper(this.attributes, rosterObj);
-                    this.response.speak(coldCallHelper(this.attributes, rosterObj));
-                    this.emit(':responseReady');
-                }
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 console.log('*** we\'re in a class');
-                coldCallHelper(this.attributes, rosterObj);
                 this.response.speak(coldCallHelper(this.attributes, rosterObj));
                 this.emit(':responseReady');
             }
@@ -649,51 +654,29 @@ const handlers = {
 
     'QuizQuestion': async function () {
         this.attributes.lastIntent = 'QuizQuestion';
-
         let scheduleObj = await readSchedule();
         let questionObj = await readQuizQuestions();
-        let slotObj = this.event.request.intent.slots;
-        let courseNumber = slotObj.courseNumber.value;
+        let courseNumber = this.event.request.intent.slots.courseNumber.value;
 
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. From which course should I ask a question?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.courseNumber = courseNumber;
-                if (courseObj[questionList][Object.keys(courseObj[questionList])[2]] === 'no') {
-                    this.response.speak(randomQuizQuestion(this.attributes, questionObj));
-                    this.emit(":responseReady");
-                } else {
-                    this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
-                    this.emit(":responseReady");
-                }
+                this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
+                this.emit(":responseReady");
             }
         } else {
                 getContext(this.attributes,checkSchedule(scheduleObj));
                 if (checkSchedule(scheduleObj) == false) {
-                    if(!this.attributes.courseNumber) {
-                        let slotToElicit = 'courseNumber';
-                        let speechOutput = "For which course number?";
-                        this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-                    } else {
-                        if (courseObj[questionList][Object.keys(courseObj[questionList])[2]] === 'no') {
-                            this.response.speak(randomQuizQuestion(this.attributes, questionObj));
-                            this.emit(":responseReady");
-                        } else {
-                            this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
-                            this.emit(":responseReady");
-                        }
-                    }
+                    let slotToElicit = 'courseNumber';
+                    let speechOutput = "For which course number?";
+                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 } else {
-                    if (courseObj[questionList][Object.keys(courseObj[questionList])[2]] === 'no') {
-                        this.response.speak(randomQuizQuestion(this.attributes, questionObj));
-                        this.emit(":responseReady");
-                    } else {
-                        this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
-                        this.emit(":responseReady");
-                    }
+                    this.response.speak(orderedQuizQuestion(this.attributes, questionObj));
+                    this.emit(":responseReady");
                 }
             }
         },
