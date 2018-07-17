@@ -81,18 +81,18 @@ function checkSchedule(scheduleObj) {
     console.log(timeStamp);
     let courseNumbers = Object.keys(scheduleObj);
     let gracePeriod = 300/(3600 * 24);
-    let dayDoesMatch = false;
-    let timeDoesMatch = false;
 
     for (let i = 0; i < courseNumbers.length; i++) {
         let sectionNumbers = Object.keys(scheduleObj[courseNumbers[i]]);
         for (let j = 0; j < sectionNumbers.length; j++) {
+            let dayDoesMatch = false;
+            let timeDoesMatch = false;
             let sectionObj = scheduleObj[courseNumbers[i]][sectionNumbers[j]];
-            let DOWList = sectionObj[Object.keys(sectionObj)[0]].split('');
+            let DOWList = sectionObj['DayOfWeek'].split('');
             console.log(DOWList);
-            let start = sectionObj[Object.keys(sectionObj)[1]];
+            let start = sectionObj['Start'];
             console.log(start);
-            let end = sectionObj[Object.keys(sectionObj)[2]];
+            let end = sectionObj['End'];
             console.log(end);
 
             DOWList.forEach(day => {
@@ -131,6 +131,7 @@ function getCurrentTime() {
     return currentTime;
 }
 
+//inSchedule is only one section object, with the section number as a key located at the 0th index of Object.keys(inSchedule)
 function getContext(attributes, inSchedule) {
     console.log(inSchedule);
     if (inSchedule) {
@@ -138,7 +139,7 @@ function getContext(attributes, inSchedule) {
         let sectionObj = inSchedule[sectionNumber];
         attributes.courseNumber = sectionNumber.substr(0, 4);
         attributes.sectionNumber = sectionNumber;
-        attributes.expiration = sectionObj[Object.keys(sectionObj)[2]] + sectionObj.gracePeriod;
+        attributes.expiration = sectionObj['End'] + sectionObj.gracePeriod;
     } else {
         console.log('*** looks like we\'re not in the schedule');
     }
@@ -148,7 +149,7 @@ function isValidSectionTime(attributes, scheduleObj, courseNumberSlot, sectionTi
     let sectionTime = convertTimeStamp(sectionTimeSlot);
     let timeDoesMatch = false;
     Object.values(scheduleObj[courseNumberSlot]).forEach(sectionObj => {
-        if (sectionObj[Object.keys(sectionObj)[1]] == sectionTime) {
+        if (sectionObj['Start'] == sectionTime) {
             attributes.sectionNumber = Object.keys(scheduleObj[courseNumberSlot])[Object.values(scheduleObj[courseNumberSlot]).indexOf(sectionObj)];
             timeDoesMatch = true;
             console.log('***valid section time provided manually');
@@ -173,14 +174,14 @@ function coldCallHelper(attributes, roster) {
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
     console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
-    rosterList.forEach(student => beenCalledList.push(sectionObj[student][Object.keys(sectionObj[student])[2]]));
+    rosterList.forEach(student => beenCalledList.push(sectionObj[student]['BeenCalled']));
     const minim = Math.min(...beenCalledList);
     while (true) {
         let randomIndex = Math.floor(Math.random() * rosterList.length);
         let randomStudent = rosterList[randomIndex];
-        if (sectionObj[randomStudent][Object.keys(sectionObj[randomStudent])[2]] === minim) {
+        if (sectionObj[randomStudent]['BeenCalled'] === minim) {
             speechOutput = randomStudent;
-            sectionObj[randomStudent][Object.keys(sectionObj[randomStudent])[2]]++;
+            sectionObj[randomStudent]['BeenCalled']++;
             // todo: write updated beenCalled values to sheet
             break;
         }
@@ -216,49 +217,7 @@ function writeToSheets(key, tabName, scheduleObj) {
             values.push(row)
         }
     });
-
     googleSDK.writeTab(key, tabName, values);
-}
-
-let fakeRosterObj = {
-    '1111': {
-        '111101': {
-            'Andy': {
-                'LastName': 'Greenwell',
-                'FirstName': 'Andrew',
-                'BeenCalled': 0,
-                'ParticipationPoints': 0,
-                'Group-2018-07': 1,
-                'Group-2018-08': 1
-                },
-            'RyGuy': {
-                'LastName': 'Krawczyk',
-                'FirstName': 'Ryan',
-                'BeenCalled': 0,
-                'ParticipationPoints': 0,
-                'Group-2018-07': 1,
-                'Group-2018-08': 1
-                }
-            },
-        '111102': {
-            'Becca': {
-                'LastName': 'Redfield',
-                'FirstName': 'Rebecca',
-                'BeenCalled': 0,
-                'ParticipationPoints': 0,
-                'Group-2018-07': 2,
-                'Group-2018-08': 2
-                },
-            'DaeBae': {
-                'LastName': 'Jeong',
-                'FirstName': 'Daewoo',
-                'BeenCalled': 0,
-                'ParticipationPoints': 0,
-                'Group-2018-07': 2,
-                'Group-2018-08': 2
-                }
-        }
-    }
 }
 
 const handlers = {
@@ -379,7 +338,6 @@ const handlers = {
             this.emit(':responseReady');
         } else {
             this.attributes.courseNumber = courseNumber;
-
             const speechOutput = `The course number has been set to ${courseNumber}. What can I do for you?`;
             this.response.speak(speechOutput).listen(speechOutput);
             this.emit(':responseReady');
@@ -576,7 +534,7 @@ const handlers = {
 
         this.attributes.lastIntent = 'ColdCall';
         let scheduleObj = await readSchedule();
-        let rosterObj =  fakeRosterObj;
+        let rosterObj =  await readRoster();
         console.log(scheduleObj);
         console.log(rosterObj);
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
