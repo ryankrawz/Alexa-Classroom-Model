@@ -111,17 +111,14 @@ exports.writeTab = async function (sheetID, tabName, keys, values) {
         }
     };
 
-    sheets.spreadsheets.values.batchUpdate(params1)
-      .then(data => {
-        console.log("Success");
-        console.log(data.toString());
-
-      })
-
-      .catch(err => {
-        console.log("Error");
-        console.log(err.toString());
-      })
+    try {
+        await sheets.spreadsheets.values.batchUpdate(params1);
+        return true;
+    }
+    catch(e) {
+        console.log('writeTab exception writing to Google sheet tab ' + tabName + ': ' + e);
+        return false;
+    }
 };
 
 // readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule")
