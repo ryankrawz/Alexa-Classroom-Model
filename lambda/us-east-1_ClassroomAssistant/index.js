@@ -261,9 +261,9 @@ function groupPresentHelper(attributes, roster, groupString) {
 
     // Adds students in random order to presentation list if student is not already in list
     let j = 0;
-    while (j < students.length) { //
-        let randomIndex = Math.floor(Math.random() * students.length); //
-        let randomStudent = students[randomIndex]; //
+    while (j < students.length) {
+        let randomIndex = Math.floor(Math.random() * students.length);
+        let randomStudent = students[randomIndex];
         if (studentNotInList(randomStudent, presentList)) {
             presentList.push(randomStudent);
             j++;
@@ -284,8 +284,8 @@ function groupPresentHelper(attributes, roster, groupString) {
         let eachGroup = [];
         const groupList = [];
 
-        if (students.length % groupCount === 0) { //
-            groups = students.length / groupCount; //
+        if (students.length % groupCount === 0) {
+            groups = students.length / groupCount;
         } else {
             groups = Math.floor(students.length / groupCount) + 1;
         }
@@ -299,8 +299,10 @@ function groupPresentHelper(attributes, roster, groupString) {
                 presentList.shift();
             }
             groupList.push(eachGroup);
+            console.log(eachGroup);
             eachGroup = [];
         }
+        console.log(groupList);
 
         for (let n = 0; n < groupList.length; n++) {
             returnObj[k.toString()] = groupList[n];
@@ -621,14 +623,19 @@ const handlers = {
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
                 Object.keys(groups).forEach(group => {
-                    speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "2s"/>';
+                    speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
                 });
+                // todo: write new groups to Sheet
                 this.response.speak(speechOutput);
                 this.emit(':responseReady');
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
+            if (!groupNumberString) {
+                let slotToElicit = 'groupNumber';
+                let speechOutput = 'How many people per group?';
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (checkSchedule(scheduleObj) == false) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -636,8 +643,9 @@ const handlers = {
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
                 Object.keys(groups).forEach(group => {
-                    speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "2s"/>';
+                    speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
                 });
+                // todo: write new groups to Sheet
                 this.response.speak(speechOutput);
                 this.emit(':responseReady');
             }
