@@ -140,13 +140,21 @@ exports.readTab = async function (key, tabName) {
     let headers = rows[0].values; //column headers
     let kinds = rows[1].values; // types of data in each header
 
+    // set number of columns to avoid getting thrown off by formatting witn no data
+    // this might need to get smarter.  for now just take min length of kinds or headers
+    const numCols = Math.min(headers.length,kinds.length);
+
     let scheduleObj = {}; // the object that will hold the data
     let latestObj = scheduleObj; // will point to object we are currently working on (could be subset)
 
     // scan each column of each non-header row
     try {
         for (let row = 2; row < rows.length; row++) {
-            for (let col = 0; col < rows[row].values.length; col++) {
+            // need to exit if we find an all blank row
+            if (rowIsBlank(rows[row].values,numCols)) {
+                break;
+            }
+            for (let col = 0; col < numCols; col++) {
                 let kind = kinds[col].effectiveValue.stringValue;
                 let kval = headers[col].effectiveValue.stringValue;
 
@@ -288,4 +296,14 @@ function getValueRange(auth, key, tabName) {
 
     let p = sheets.spreadsheets.values.get(readDataParams);
     return p;
+}
+
+// check for blank row
+function rowIsBlank(rowData, numCol) {
+    for (let i = 0; i < numCol; i++) {
+        if (rowData[i].hasOwnProperty("effectiveValue")) {
+            return false;
+        }
+    }
+    return true;
 }

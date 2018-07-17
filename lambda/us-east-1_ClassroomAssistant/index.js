@@ -536,7 +536,7 @@ const handlers = {
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
         let scheduleObj = await readSchedule();
-        let factsObj =  fakeFactsObj;
+        let factsObj =  await readFastFacts();
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let tag = this.event.request.intent.slots.tag.value
 
