@@ -21,20 +21,57 @@ const TOKEN_PATH = 'credentials.json';
 
 const readFile = util.promisify(fs.readFile);
 
-exports.writeTab = async function (key, tabName, values) {
+// keyList is an array of key values
+// valueList is an array of value objects consisting of header and value properties
+exports.writeTab = async function (sheetID, tabName, keyList, valueList) {
 
     let loadPromise = loadFromSheets();
     let auth = await loadPromise;
     const sheets = google.sheets({version: 'v4', auth});
 
-    let body = {
-      values: values
-    };
+    // get current data as value range
+    let valRange = await getValueRange(auth, sheetID, tabName);
+    valRange = valRange.data;
+
+    // search for key match
+    // fixme: now assuming we have just one key and that it is found
+
+    let rows = valRange.values;
+    let writeRow = -1;
+
+    // todo: handle multiple keys
+    // todo: handle appends correctly
+    for (let row = 2; row < rows.length; row++) {
+        if (rows[row][0] === keyList) {
+            writeRow = row;
+            break;
+        }
+    }
+
+    // append row if we need to
+    // need to figure out how many columns to append
+    // writeRow = -1 will signal append
+
+    // find column to write into
+    // todo: handle multiple values
+    // todo: handle column append
+    const theRow = rows[writeRow];
+    for (let col = 0; col < theRow.length; col++) {
+        if (rows[0][col] === valueList.header) {
+            theRow[col] = valueList.value;
+            break;
+        }
+    }
+
+
+    // valRange should now have what it needs
+
+
 
     let params1 = {
-      spreadsheetId: key,
-      range: tabName,
-      resource: body,
+      spreadsheetId: sheetID,
+      range: valRange.range, // need to update to range we got
+      resource: valRange,
       valueInputOption: "USER_ENTERED"
     };
 
@@ -191,6 +228,7 @@ function getNewToken(oAuth2Client, callback) {
     });
 }
 
+// return data in format readTab can work with
 function getData(auth, key, tabName) {
     const sheets = google.sheets({version: 'v4', auth});
 
@@ -201,5 +239,19 @@ function getData(auth, key, tabName) {
     };
 
     let p = sheets.spreadsheets.get(readDataParams);
+    return p;
+}
+
+// return data as a ValueRange
+// writeTab can then update this and push back in
+function getValueRange(auth, key, tabName) {
+    const sheets = google.sheets({version: 'v4', auth});
+
+    let readDataParams = {
+        spreadsheetId: key,
+        range: tabName
+    };
+
+    let p = sheets.spreadsheets.values.get(readDataParams);
     return p;
 }

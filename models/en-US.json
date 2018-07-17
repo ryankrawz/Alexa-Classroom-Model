@@ -38,12 +38,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "for {courseNumber}",
-                                "{courseNumber}",
-                                "course {courseNumber}"
-                            ]
+                            "type": "AMAZON.NUMBER"
                         },
                         {
                             "name": "tag",
@@ -75,12 +70,7 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "course {courseNumber}",
-                                "{courseNumber}",
-                                "for {courseNumber}"
-                            ]
+                            "type": "AMAZON.NUMBER"
                         }
                     ],
                     "samples": [
@@ -109,28 +99,11 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "course number {courseNumber}",
-                                "for course number {courseNumber}",
-                                "for number {courseNumber}",
-                                "number {courseNumber}",
-                                "course {courseNumber}",
-                                "for course {courseNumber}",
-                                "for {courseNumber}",
-                                "{courseNumber}"
-                            ]
+                            "type": "AMAZON.NUMBER"
                         },
                         {
                             "name": "classDate",
-                            "type": "AMAZON.DATE",
-                            "samples": [
-                                "on {classDate}",
-                                "for the day {classDate}",
-                                "for day {classDate}",
-                                "for {classDate}",
-                                "{classDate}"
-                            ]
+                            "type": "AMAZON.DATE"
                         }
                     ],
                     "samples": [
@@ -255,40 +228,11 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "from the class number {courseNumber}",
-                                "from the course number {courseNumber}",
-                                "from course number {courseNumber}",
-                                "from class number {courseNumber}",
-                                "from the number {courseNumber}",
-                                "from number {courseNumber}",
-                                "for the class number {courseNumber}",
-                                "for the course number {courseNumber}",
-                                "for class number {courseNumber}",
-                                "for course number {courseNumber}",
-                                "for number {courseNumber}",
-                                "number {courseNumber}",
-                                "class {courseNumber}",
-                                "course {courseNumber}",
-                                "{courseNumber}",
-                                "from class {courseNumber}",
-                                "from course {courseNumber}",
-                                "from {courseNumber}",
-                                "for class {courseNumber}",
-                                "for {courseNumber}",
-                                "for course {courseNumber}"
-                            ]
+                            "type": "AMAZON.NUMBER"
                         },
                         {
                             "name": "sectionTime",
-                            "type": "AMAZON.TIME",
-                            "samples": [
-                                "For my {sectionTime}",
-                                "My {sectionTime}",
-                                "{sectionTime}",
-                                "For {sectionTime}"
-                            ]
+                            "type": "AMAZON.TIME"
                         }
                     ],
                     "samples": [
@@ -360,32 +304,15 @@
                     "slots": [
                         {
                             "name": "groupNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "{groupNumber}",
-                                "{groupNumber} people",
-                                "{groupNumber} people in each group",
-                                "Each group has {groupNumber} people"
-                            ]
+                            "type": "AMAZON.NUMBER"
                         },
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "{courseNumber}",
-                                "course {courseNumber}",
-                                "the course number is {courseNumber}"
-                            ]
+                            "type": "AMAZON.NUMBER"
                         },
                         {
                             "name": "sectionTime",
-                            "type": "AMAZON.TIME",
-                            "samples": [
-                                "For my {sectionTime}",
-                                "{sectionTime}",
-                                "My {sectionTime}",
-                                "For {sectionTime}"
-                            ]
+                            "type": "AMAZON.TIME"
                         }
                     ],
                     "samples": [
@@ -442,16 +369,10 @@
                     "slots": [
                         {
                             "name": "courseNumber",
-                            "type": "AMAZON.NUMBER",
-                            "samples": [
-                                "For course {courseNumber}",
-                                "{courseNumber}",
-                                "For {courseNumber}"
-                            ]
+                            "type": "AMAZON.NUMBER"
                         }
                     ],
                     "samples": [
-                        "say a question from course {courseNumber}",
                         "please give me a question from the set {courseNumber}",
                         "please give me a question",
                         "provide a question to me ",
@@ -524,12 +445,7 @@
                             ]
                         }
                     ],
-                    "samples": [
-                        "For {sectionTime}",
-                        "In my {sectionTime}",
-                        "For my {sectionTime}",
-                        "{sectionTime}"
-                    ]
+                    "samples": []
                 }
             ],
             "types": []
@@ -545,10 +461,8 @@
                             "name": "courseNumber",
                             "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.10171930131.884624945249"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         },
                         {
                             "name": "tag",
@@ -570,10 +484,8 @@
                             "name": "courseNumber",
                             "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.693285471643.256993100672"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 },
@@ -586,19 +498,15 @@
                             "name": "courseNumber",
                             "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.361498969210.127450840526"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         },
                         {
                             "name": "classDate",
                             "type": "AMAZON.DATE",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.361498969210.1019633625842"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 },
@@ -659,19 +567,15 @@
                             "name": "courseNumber",
                             "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.904927354859.28482745767"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         },
                         {
                             "name": "sectionTime",
                             "type": "AMAZON.TIME",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.561976454685.716631315359"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 },
@@ -684,28 +588,22 @@
                             "name": "groupNumber",
                             "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.427601158270.166483079185"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         },
                         {
                             "name": "courseNumber",
                             "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.427601158270.1491891020254"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         },
                         {
                             "name": "sectionTime",
                             "type": "AMAZON.TIME",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.1381026918808.521774804790"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 },
@@ -718,10 +616,8 @@
                             "name": "courseNumber",
                             "type": "AMAZON.NUMBER",
                             "confirmationRequired": false,
-                            "elicitationRequired": true,
-                            "prompts": {
-                                "elicitation": "Elicit.Slot.622400587991.542034962152"
-                            }
+                            "elicitationRequired": false,
+                            "prompts": {}
                         }
                     ]
                 },
