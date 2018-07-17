@@ -3,9 +3,8 @@
 /*
 todo:
 - Refactor intents to use data from Sheets
-- Streamline DynamoDB Cache
 - Implement Writing to Sheets
-- Course Number Override Intent
+- Outsource sheet schema to a JSON file, column names are currently hardcoded
 */
 
 'use strict';
