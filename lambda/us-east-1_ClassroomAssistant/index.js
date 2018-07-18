@@ -276,7 +276,7 @@ function addBriefingHelper(attributes, notes, content) {
     this.response.speak(speechOutput).listen("If you'd like me to add another note or play a briefing for you, just let me know.");
     this.emit(':responseReady');
     return speechOutput;
-}
+}                                    
 
 function groupPresentHelper(attributes, roster, groupString) {
     let groupCount = parseInt(groupString);
