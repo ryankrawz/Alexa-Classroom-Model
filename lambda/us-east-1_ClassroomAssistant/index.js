@@ -553,24 +553,7 @@ const handlers = {
             }
         }
     },
-
-    'SpecifyClassDate': function () {
-        console.log('obtaining class date');
-        if (this.event.request.dialogState !== 'COMPLETED') {
-            this.emit(':delegate');
-        } else if (!this.attributes.briefingNotes[this.attributes.courseNumber].hasOwnProperty(this.event.request.intent.slots.classDate.value)) {
-            let speechOutput = "I'm sorry, I couldn't find that class date. For which date would you like me to this note?";
-            let slotToElicit = "classDate";
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-        } else {
-            this.attributes.date = this.event.request.intent.slots.classDate.value;
-            this.attributes.briefingNotes[this.attributes.courseNumber][this.attributes.date].push(this.attributes.noteContent);
-            let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
-            this.response.speak(speechOutput).listen("If you'd like me to add another note or play a briefing for you, just let me know.");
-            this.emit(':responseReady');
-        }
-    },
-
+    
 //force tags to lower case
 //must validate tags! Invalid tags break the skill
 //still need to integrate with readFastFacts()
