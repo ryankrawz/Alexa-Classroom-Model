@@ -5,8 +5,6 @@ todo:
 - Refactor intents to use data from Sheets
 - Implement Writing to Sheets
 - Outsource sheet schema to a JSON file, column names are currently hardcoded
-- Change cache stream so user is always prompted for context after-hours
-    a. As of right now, our logic is set up to grab values from the cache by default if teacher is not in a course
 */
 
 'use strict';
@@ -231,12 +229,14 @@ function orderedQuizQuestion(attributes, quizQuestions) {
     return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
 }
 
-function participationTrackerHelper(attributes, roster) {
+function participationTrackerHelper(attributes, roster, names) {
     let speechOutput = 'Awarded';
+    console.log('*** roster object: ' + roster);
+    console.log('*** course number object: ' + roster[attributes.courseNumber]);
+    console.log('*** section number object: ' + roster[attributes.courseNumber][attributes.sectionNumber]);
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
     let rosterList = Object.keys(sectionObj);
-    let firstNames = attributes.event.request.intent.slots.firstNames.value;
-    let nameList = firstNames.split(' ');
+    let nameList = names.split(' ');                                                               
     for (let i = 0; i < nameList.length; i++) {
         for (let j = 0; j < rosterList.length; j++) {
             if (nameList[i] === rosterList[j]) {
@@ -263,7 +263,6 @@ function groupPresentHelper(attributes, roster, groupString) {
         }
         return true;
     }
-
     // Adds students in random order to presentation list if student is not already in list
     let j = 0;
     while (j < students.length) {
@@ -274,12 +273,10 @@ function groupPresentHelper(attributes, roster, groupString) {
             j++;
         }
     }
-
         if (studentNotInList(randomStudent, presentList)) {
             presentList.push(randomStudent);
             j++;
         }
-
     // Names all students randomly ordered, along with number for purpose of presentation order
     // Divides student names into groups based on groupNumber
     let k = 1;
@@ -299,7 +296,6 @@ function groupPresentHelper(attributes, roster, groupString) {
         } else {
             groups = Math.floor(students.length / groupCount) + 1;
         }
-
         for (let l = 0; l < groups; l++) {
             for (let m = 0; m < groupCount; m++) {
                 if (presentList.length === 0) {
@@ -313,7 +309,6 @@ function groupPresentHelper(attributes, roster, groupString) {
             eachGroup = [];
         }
         console.log(groupList);
-
         for (let n = 0; n < groupList.length; n++) {
             returnObj[k.toString()] = groupList[n];
             k++;
@@ -565,7 +560,7 @@ const handlers = {
         let scheduleObj = await readSchedule();
         let factsObj =  await readFastFacts();
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
-        let tag = this.event.request.intent.slots.tag.value
+        let tag = this.event.request.intent.slots.tag.value;
 
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
@@ -786,7 +781,7 @@ const handlers = {
                     let speechOutput = "For which course number?";
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 } else {
-                    let speechOutput = orderedQuizQuestion(this.attributes, questionObj)
+                    let speechOutput = orderedQuizQuestion(this.attributes, questionObj);
                     this.attributes.lastOutput = speechOutput;
                     this.response.speak(speechOutput);
                     this.emit(":responseReady");
@@ -825,17 +820,21 @@ const handlers = {
             } else {
                 console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
-                this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
+                this.response.speak(participationTrackerHelper(this.attributes, rosterObj, firstNames));
                 this.emit(':responseReady');
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
-                let slotToElicit = 'courseNumber';
+            if (!firstNames) {
+                let speechOutput = "Who would you like to award points to?";
+                let slotToElicit = "firstNames";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (checkSchedule(scheduleObj) == false) {
+                let slotToElicit = 'courseNumber';                                          
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
+                this.response.speak(participationTrackerHelper(this.attributes, rosterObj, firstNames));
                 this.emit(':responseReady');
             }
         }

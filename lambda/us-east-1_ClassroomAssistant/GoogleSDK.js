@@ -21,8 +21,15 @@ const TOKEN_PATH = 'credentials.json';
 
 const readFile = util.promisify(fs.readFile);
 
-// keyList is an array of key values
-// valueList is an array of value objects consisting of header and value properties
+/**
+ * Writes values into specified columns of a specially formatted spreadsheet
+ * @param  {string}                    sheetId     Google Sheets identifer string for whole file
+ * @param  {string}                    tabName     Name of tab being written to; exact match required
+ * @param  {Object.<string, string>}   keys        Key:Value pairs for all keys identified in the sheet
+ * @param  {Object.<string, string>}   values      Key:Value pairs for non-key columns being written to
+ *
+ * @returns {boolean} Returns true if successful, false if error
+ */
 exports.writeTab = async function (sheetID, tabName, keys, values) {
 
     let loadPromise = loadFromSheets();
@@ -103,6 +110,7 @@ exports.writeTab = async function (sheetID, tabName, keys, values) {
     }
 
 
+    // Construct appropriate parameters for Sheets API call
     let params1 = {
         spreadsheetId: sheetID,
         resource: {
@@ -111,6 +119,7 @@ exports.writeTab = async function (sheetID, tabName, keys, values) {
         }
     };
 
+    // Make the Sheets API call
     try {
         await sheets.spreadsheets.values.batchUpdate(params1);
         return true;
