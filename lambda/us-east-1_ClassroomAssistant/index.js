@@ -380,6 +380,13 @@ let fakeFactsObj = {
     }
 };
 
+function nullifyObjects(attributes) {
+    attributes.scheduleObj = null;
+    attributes.rosterObj =  null;
+    attributes.briefingsObj = null;
+    attributes.factsObj = null;
+    attributes.questionsObj = null;
+}
 const handlers = {
     'LaunchRequest': function () {
         const speechOutput = 'This is the Classroom Assistant skill.';
@@ -395,11 +402,13 @@ const handlers = {
 
     'AMAZON.CancelIntent': function () {
         const speechOutput = 'Goodbye!';
+        nullifyObjects(this.attributes);
         this.emit(':tell', speechOutput);
     },
 
     'AMAZON.StopIntent': function () {
         const speechOutput = 'See you later!';
+        nullifyObjects(this.attributes);
         this.emit(':tell', speechOutput);
     },
 
@@ -410,12 +419,13 @@ const handlers = {
     },
 
     'SessionEndedRequest': function () {
+        nullifyObjects(this.attributes);
         this.emit(':saveState', true);
     },
 
     //Custom Intents
     'PlayBriefing': async function () {
-        initSheetID(this.attributes);
+        //initSheetID(this);
         this.attributes.lastOutput = 'PlayBriefing';
         let briefingObj = await readBriefing();
         let scheduleObj = await readSchedule();
@@ -434,7 +444,7 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj.hasOwnProperty(classDate)) {
+            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -456,6 +466,10 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!briefingObj[this.attributes.courseNumber].hasOwnProperty(classDate)) {
+                let slotToElicit = 'classDate';
+                let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.classDate = classDate;
                 const speechOutput = playBriefingHelper(this.attributes, briefingObj);
@@ -467,7 +481,6 @@ const handlers = {
 
     'AddBriefingNote': function () {
         this.attributes.lastIntent = 'AddBriefingNote';
-
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
         } else if (!this.event.request.intent.slots.noteContent.value) {
@@ -653,10 +666,12 @@ const handlers = {
 
     'ColdCall': async function () {
         this.attributes.lastIntent = 'ColdCall';
-        let scheduleObj = await readSchedule();
-        let rosterObj =  await readRoster();
-        console.log(scheduleObj);
-        console.log(rosterObj);
+        console.log('*** Starting ColdCall');
+        if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
+            console.log('*** First time through cold call in this session');
+            this.attributes.scheduleObj = await readSchedule();
+            this.attributes.rosterObj =  await readRoster();
+        }
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let sectionTime = this.event.request.intent.slots.sectionTime.value;
 
@@ -665,7 +680,7 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "From which course would you like me to cold call?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
+            } else if (!this.attributes.scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to cold call?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -673,30 +688,32 @@ const handlers = {
                 let slotToElicit = 'sectionTime';
                 let speechOutput = "From which section time?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
+            } else if (!isValidSectionTime(this.attributes, this.attributes.scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
                 let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to cold call from?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
-                let speechOutput = coldCallHelper(this.attributes, rosterObj);
+                let speechOutput = coldCallHelper(this.attributes, this.attributes.rosterObj);
                 this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(':responseReady');
             }
         } else {
-            getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
+            getContext(this.attributes, checkSchedule(this.attributes.scheduleObj));
+            if (checkSchedule(this.attributes.scheduleObj) == false) {
                 console.log('*** not in a class');
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 console.log('*** we\'re in a class');
-                let speechOutput = coldCallHelper(this.attributes, rosterObj);
+                let speechOutput = coldCallHelper(this.attributes, this.attributes.rosterObj);
                 this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(':responseReady');
             }
         }
@@ -707,8 +724,6 @@ const handlers = {
         let scheduleObj = await readSchedule();
         let questionObj = await readQuizQuestions();
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
-        let courseObj = questionObj[attributes.courseNumber];
-        let questionList = Object.keys(courseObj);
 
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
