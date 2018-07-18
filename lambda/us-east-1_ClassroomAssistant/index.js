@@ -16,6 +16,8 @@ const AWS = require("aws-sdk");
 const googleSDK = require('./GoogleSDK.js');
 AWS.config.update({region: 'us-east-1'});
 
+const spreadsheetID = "1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0";
+
 exports.handler = function (event, context, callback) {
     const alexa = Alexa.handler(event, context, callback);
     alexa.dynamoDBTableName = "ClassroomAssistant";
@@ -160,25 +162,25 @@ function isValidSectionTime(attributes, scheduleObj, courseNumberSlot, sectionTi
 }
 
 async function readSchedule() {
-    let scheduleObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule");
+    let scheduleObj = await googleSDK.readTab(spreadsheetID, "Schedule");
     return scheduleObj;
 }
 
 async function readRoster() {
-    let readObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Roster");
+    let readObj = await googleSDK.readTab(spreadsheetID, "Roster");
     return readObj;
 }
 
 async function readQuizQuestions() {
-    let questionObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "QuizQuestions");
+    let questionObj = await googleSDK.readTab(spreadsheetID, "QuizQuestions");
     return questionObj;
 }
 async function readFastFacts() {
-    let factsObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "FastFacts");
+    let factsObj = await googleSDK.readTab(spreadsheetID, "FastFacts");
     return factsObj;
 }
 async function readBriefing() {
-    let briefingObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "ClassroomBriefing");
+    let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
     return briefingObj;
 }
 
