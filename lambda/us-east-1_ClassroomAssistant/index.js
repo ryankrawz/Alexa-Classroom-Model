@@ -745,6 +745,19 @@ const handlers = {
                 this.attributes.courseNumber = courseNumber;
                 let speechOutput = coldCallHelper(this.attributes, this.attributes.rosterObj);
                 this.attributes.lastOutput = speechOutput;
+
+                //writing
+                let keys = {
+                    CourseNumber: this.attributes.courseNumber,
+                    SectionNumber: this.attributes.sectionNumber,
+                    NickName: speechOutput
+                };
+                let values = {
+                    BeenCalled: this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"]
+                };
+
+                googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
+
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
                 this.emit(':responseReady');
@@ -760,6 +773,19 @@ const handlers = {
                 console.log('*** we\'re in a class');
                 let speechOutput = coldCallHelper(this.attributes, this.attributes.rosterObj);
                 this.attributes.lastOutput = speechOutput;
+
+                //writing
+                let keys = {
+                    CourseNumber: this.attributes.courseNumber,
+                    SectionNumber: this.attributes.sectionNumber,
+                    NickName: speechOutput
+                };
+                let values = {
+                    BeenCalled: this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"]
+                };
+
+                googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
+
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
                 this.emit(':responseReady');
