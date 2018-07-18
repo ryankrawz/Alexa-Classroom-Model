@@ -35,7 +35,7 @@ async function testWrite() {
     const keysWriteTest = {
         Category: 'drivetrain',
         SubCategory: 'transmission',
-        Item: 'engine'
+        Item: 'foo'
     };
 
     const keysRoster = {
@@ -44,14 +44,15 @@ async function testWrite() {
         NickName: 'Jam'
     };
 
-    const valuesWriteTest = {"Ship Date":"7/18/2018"};
+    const valuesWriteTest = {"Stocked": 6};
     const valuesRoster = {ParticipationPoints: 3};
+
     const tabNameWriteTest = 'WriteTest';
     const tabNameRoster = 'Roster';
 
-    let keys = keysRoster;
-    let values = valuesRoster;
-    let tabName = tabNameRoster;
+    let keys = keysWriteTest;
+    let values = valuesWriteTest;
+    let tabName = tabNameWriteTest;
 
     googleSDK.writeTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", tabName, keys, values);
 }

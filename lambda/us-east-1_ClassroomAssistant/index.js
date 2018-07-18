@@ -663,6 +663,7 @@ const handlers = {
                 Object.keys(groups).forEach(group => {
                     speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
                 });
+                this.attributes.lastOutput = speechOutput;
                 // todo: write new groups to Sheet
                 this.response.speak(speechOutput);
                 this.emit(':responseReady');
@@ -684,6 +685,7 @@ const handlers = {
                     speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
                 });
                 // todo: write new groups to Sheet
+                this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
                 this.emit(':responseReady');
             }
