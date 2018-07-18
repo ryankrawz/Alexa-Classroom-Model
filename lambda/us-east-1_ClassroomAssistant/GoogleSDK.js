@@ -151,7 +151,7 @@ exports.readTab = async function (key, tabName) {
 
     // set number of columns to avoid getting thrown off by formatting witn no data
     // this might need to get smarter.  for now just take min length of kinds or headers
-    const numCols = Math.min(headers.length,kinds.length);
+    const numCols = Math.min(getActualLength(headers),getActualLength(kinds));
 
     let scheduleObj = {}; // the object that will hold the data
     let latestObj = scheduleObj; // will point to object we are currently working on (could be subset)
@@ -202,11 +202,24 @@ exports.readTab = async function (key, tabName) {
 
                     // anything else is data to be added to object we are working on
                     // in that case, kval holds text of header for that kind of data
+                    // if there is no effective value, then store empty string
                 } else if (kind == 'string') {
-                    let sval = rows[row].values[col].effectiveValue.stringValue;
+                    let sval;
+                    try {
+                        sval = rows[row].values[col].effectiveValue.stringValue;
+                    }
+                    catch (e) {
+                        sval =  "";
+                    }
                     latestObj[kval] = sval;
                 } else if (kind == 'number') {
-                    let nval = rows[row].values[col].effectiveValue.numberValue;
+                    let nval;
+                    try {
+                        nval = rows[row].values[col].effectiveValue.numberValue;
+                    }
+                    catch (e) {
+                        nval =  "";
+                    }
                     latestObj[kval] = nval;
                 } else {
                     console.log("Yikes that's a weird type");
@@ -309,10 +322,22 @@ function getValueRange(auth, key, tabName) {
 
 // check for blank row
 function rowIsBlank(rowData, numCol) {
-    for (let i = 0; i < numCol; i++) {
+    const lastCol = Math.min(numCol,rowData.length);
+    for (let i = 0; i < lastCol; i++) {
         if (rowData[i].hasOwnProperty("effectiveValue")) {
             return false;
         }
     }
     return true;
+}
+
+// get actual length of a row of cells by looking for only columns that have effective value
+function getActualLength(rowData) {
+    let i;
+    for (i = 0; i < rowData.length; i++) {
+        if (!rowData[i].hasOwnProperty("effectiveValue")) {
+            break;
+        }
+    }
+    return i;
 }
