@@ -799,7 +799,7 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
+            if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -865,6 +865,19 @@ const handlers = {
                 this.attributes.courseNumber = courseNumber;
                 let speechOutput = participationTrackerHelper(this.attributes, rosterObj, firstNames);
                 this.attributes.lastOutput = speechOutput;
+
+                //writing
+                let keys = {
+                    CourseNumber: this.attributes.courseNumber,
+                    SectionNumber: this.attributes.sectionNumber,
+                    NickName: speechOutput
+                };
+                let values = {
+                    ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["ParticipationPoints"] + 1)
+                };
+
+                googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
+
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
                 this.emit(':responseReady');
@@ -897,6 +910,19 @@ const handlers = {
             } else {
                 let speechOutput = participationTrackerHelper(this.attributes, rosterObj, firstNames);
                 this.attributes.lastOutput = speechOutput;
+
+                //writing
+                let keys = {
+                    CourseNumber: this.attributes.courseNumber,
+                    SectionNumber: this.attributes.sectionNumber,
+                    NickName: speechOutput
+                };
+                let values = {
+                    ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["ParticipationPoints"] + 1)
+                };
+
+                googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
+
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
                 this.emit(':responseReady');
