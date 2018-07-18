@@ -768,7 +768,7 @@ const handlers = {
                     let speechOutput = "For which course number?";
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 } else {
-                    let speechOutput = orderedQuizQuestion(this.attributes, questionObj)
+                    let speechOutput = orderedQuizQuestion(this.attributes, questionObj);
                     this.attributes.lastOutput = speechOutput;
                     this.response.speak(speechOutput);
                     this.emit(":responseReady");
