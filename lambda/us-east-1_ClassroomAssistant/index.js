@@ -269,14 +269,10 @@ function playBriefingHelper(attributes, notes) {
 }
 function addBriefingHelper(attributes, notes, content) {
     let notesAccessed = notes[attributes.courseNumber][attributes.classDate];
-    let returnObj = {};
-    let returnObj = notesAccessed;
-    let userContent = returnObj.push(attributes.content);
-    let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
-    this.response.speak(speechOutput).listen("If you'd like me to add another note or play a briefing for you, just let me know.");
-    this.emit(':responseReady');
+    attributes.notesAccessed.push(attributes.content);
+    let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${attributes.courseNumber}</say-as> on ${attributes.date}. What else can I do for you today?`;
     return speechOutput;
-}                                    
+}
 
 function groupPresentHelper(attributes, roster, groupString) {
     let groupCount = parseInt(groupString);
@@ -437,9 +433,8 @@ const handlers = {
 
     //Custom Intents
     'PlayBriefing': async function () {
-        //initSheetID(this);
-        console.log('*** PlayBriefing Started');
-        this.attributes.lastOutput = 'PlayBriefing';
+        this.attributes.lastIntent = 'PlayBriefing';
+
         if (!this.attributes.scheduleObj || !this.attributes.briefingObj) {
             console.log('*** First time through PlayBriefing in this session');
             this.attributes.scheduleObj = await readSchedule();
@@ -507,8 +502,12 @@ const handlers = {
 
 
     'AddBriefingNote': async function () {
+
         this.attributes.lastIntent = 'AddBriefingNote';
-        let briefingObj = await readBriefing();
+        if (!this.attributes.briefingObj) {
+            this.attributes.briefingObj = await readBriefing();
+        }
+
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
         let noteContent = this.event.request.intent.slots.noteContent.value;
@@ -534,12 +533,23 @@ const handlers = {
                 console.log('*** valid course number and class Date provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
-                let speechOutput = addBriefingHelper(this.attributes, briefingObj,noteContent);
+                let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
                 this.attributes.lastOutput = speechOutput;
+
+                //writing
+                let keys = {
+                    CourseNumber: this.attributes.courseNumber,
+                    Date: this.attributes.classDate
+                };
+                let values = {
+                    Note: this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] + " | " + noteContent
+                };
+
+                googleSDK.writeTab(spreadsheetID, "ClassroomBriefing", keys, values);
+
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
                 this.emit(':responseReady');
-
             }
         }
     },
@@ -802,6 +812,7 @@ const handlers = {
 
     'ParticipationTracker': async function () {
         this.attributes.lastIntent = 'ParticipationTracker';
+
         if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
             console.log('*** First time through participation tracker in this session');
             this.attributes.scheduleObj = await readSchedule();
