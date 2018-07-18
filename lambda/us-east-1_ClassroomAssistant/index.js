@@ -14,6 +14,8 @@ const AWS = require("aws-sdk");
 const googleSDK = require('./GoogleSDK.js');
 AWS.config.update({region: 'us-east-1'});
 
+const spreadsheetID = "1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0";
+
 exports.handler = function (event, context, callback) {
     const alexa = Alexa.handler(event, context, callback);
     alexa.dynamoDBTableName = "ClassroomAssistant";
@@ -181,25 +183,25 @@ function getInvalidNameList(attributes, roster, course, names) {
 }
 
 async function readSchedule() {
-    let scheduleObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule");
+    let scheduleObj = await googleSDK.readTab(spreadsheetID, "Schedule");
     return scheduleObj;
 }
 
 async function readRoster() {
-    let readObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Roster");
+    let readObj = await googleSDK.readTab(spreadsheetID, "Roster");
     return readObj;
 }
 
 async function readQuizQuestions() {
-    let questionObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "QuizQuestions");
+    let questionObj = await googleSDK.readTab(spreadsheetID, "QuizQuestions");
     return questionObj;
 }
 async function readFastFacts() {
-    let factsObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "FastFacts");
+    let factsObj = await googleSDK.readTab(spreadsheetID, "FastFacts");
     return factsObj;
 }
 async function readBriefing() {
-    let briefingObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "ClassroomBriefing");
+    let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
     return briefingObj;
 }
 
@@ -402,7 +404,7 @@ let fakeFactsObj = {
 function nullifyObjects(attributes) {
     attributes.scheduleObj = null;
     attributes.rosterObj =  null;
-    attributes.briefingsObj = null;
+    attributes.briefingObj = null;
     attributes.factsObj = null;
     attributes.questionsObj = null;
 }
@@ -445,12 +447,20 @@ const handlers = {
     //Custom Intents
     'PlayBriefing': async function () {
         //initSheetID(this);
+        console.log('*** PlayBriefing Started');
         this.attributes.lastOutput = 'PlayBriefing';
-        let briefingObj = await readBriefing();
-        let scheduleObj = await readSchedule();
+        if (!this.attributes.scheduleObj || !this.attributes.briefingObj) {
+            console.log('*** First time through PlayBriefing in this session');
+            this.attributes.scheduleObj = await readSchedule();
+            this.attributes.briefingObj =  await readBriefing();
+        }
+        let briefingObj = this.attributes.briefingObj;
+        let scheduleObj = this.attributes.scheduleObj;
+        console.log(JSON.stringify(briefingObj));
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
         if (courseNumber || classDate) {
+            console.log(classDate);
             if(!courseNumber) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "From which course would you like me play a briefing?";
@@ -473,6 +483,7 @@ const handlers = {
                 console.log('*** valid course number and class date provided manually');
                 const speechOutput = playBriefingHelper(this.attributes, briefingObj);
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(':responseReady');
             }
         } else {
@@ -493,6 +504,7 @@ const handlers = {
                 this.attributes.classDate = classDate;
                 const speechOutput = playBriefingHelper(this.attributes, briefingObj);
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(':responseReady');
             }
         }
