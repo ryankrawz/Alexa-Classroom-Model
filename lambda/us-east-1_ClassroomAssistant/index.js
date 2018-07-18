@@ -35,25 +35,6 @@ function getNames(students) {
     return names;
 }
 
-/*function randomQuizQuestion(attributes, quizquestions) {
-    const beenCalledList = [];
-    let speechOutput;
-    let courseObj = quizquestions[attributes.courseNumber];
-    let questionList = Object.keys(courseObj);
-    questionList.forEach(question => beenCalledList.push(courseObj[question][Object.keys(courseObj[student])[2]]));
-    const minim = Math.min(...beenCalledList);
-    while (true) {
-        let randomIndex = Math.floor(Math.random() * questionList.length);
-        let randomQuestion = questionList[randomIndex];
-        if (courseObj[randomQuestion][Object.keys(courseObj[randomQuestion])[2]] === minim) {
-            speechOutput = randomQuestion;
-            courseobj[randomQuestion][Object.keys(courseObj[randomQuestion])[2]]++;
-            break;
-        }
-    }
-    return speechOutput;
-}
-*/
 
 function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
@@ -261,6 +242,14 @@ function playBriefingHelper(attributes, notes) {
     }
     return speechOutput;
 }
+function addBriefingHelper(attributes, notes) {
+    
+    this.attributes.briefingNotes[this.attributes.courseNumber][this.attributes.date].push(this.attributes.noteContent);
+    let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
+            this.response.speak(speechOutput).listen("If you'd like me to add another note or play a briefing for you, just let me know.");
+            this.emit(':responseReady')
+    return speechOutput;
+}
 
 function groupPresentHelper(attributes, roster, groupString) {
     let groupCount = parseInt(groupString);
@@ -465,8 +454,37 @@ const handlers = {
         }
     },
 
-    'AddBriefingNote': function () {
-        this.attributes.lastIntent = 'AddBriefingNote';
+    'AddBriefingNote': async function () {
+        this.attributes.lastOutput = 'AddBriefingNote';
+        let briefingObj = await readBriefing();
+        let courseNumber = this.event.request.intent.slots.courseNumber.value;
+        let classDate = this.event.request.intent.slots.classDate.value;
+
+        if (courseNumber || classDate) {
+            if(!courseNumber) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "From which course would you like me play a briefing?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!briefingObj.hasOwnProperty(courseNumber)) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing ?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!classDate) {
+                let slotToElicit = 'classDate';
+                let speechOutput = 'For which date?';
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!briefingObj.hasOwnProperty(classDate)) {
+                let slotToElicit = 'classDate';
+                let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                console.log('*** valid course number and class Date provided manually');
+                this.attributes.courseNumber = courseNumber;
+                this.attributes.classDate = classDate;
+                this.response.speak();
+                this.emit(':responseReady');
+
+            }
 
         if (this.event.request.dialogState !== 'COMPLETED') {
             this.emit(':delegate');
@@ -481,7 +499,9 @@ const handlers = {
             this.response.speak(speechOutput).listen(speechOutput);
             this.emit(':responseReady');
         }
+    }
     },
+        /*
     'SpecifyClassDate': function () {
         console.log('obtaining class date');
         if (this.event.request.dialogState !== 'COMPLETED') {
@@ -498,7 +518,7 @@ const handlers = {
             this.emit(':responseReady');
         }
     },
-
+   */
 
 //force tags to lower case
 //must validate tags! Invalid tags break the skill
