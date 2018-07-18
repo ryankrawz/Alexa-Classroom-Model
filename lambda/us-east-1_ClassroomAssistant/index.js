@@ -421,7 +421,6 @@ const handlers = {
         let scheduleObj = await readSchedule();
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
-        let notesAccessed = 
         if (courseNumber || classDate) {
             if(!courseNumber) {
                 let slotToElicit = 'courseNumber';
