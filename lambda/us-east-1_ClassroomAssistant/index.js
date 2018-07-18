@@ -230,7 +230,7 @@ function participationTrackerHelper(attributes, roster) {
     let speechOutput = 'Awarded';
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
     let rosterList = Object.keys(sectionObj);
-    let firstNames = this.event.request.intent.slots.firstNames.value;
+    let firstNames = attributes.event.request.intent.slots.firstNames.value;
     let nameList = firstNames.split(' ');
     for (let i = 0; i < nameList.length; i++) {
         for (let j = 0; j < rosterList.length; j++) {
@@ -770,7 +770,7 @@ const handlers = {
                 let slotToElicit = 'sectionTime';
                 let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to add points?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!this.event.request.intent.slots.firstNames.value) {
+            } else if (!firstNames) {
                 let speechOutput = "Who would you like to award points to?";
                 let slotToElicit = "firstNames";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
