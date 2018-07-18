@@ -812,7 +812,7 @@ const handlers = {
                 let slotToElicit = "firstNames";
                 let speechOutput = "Who would you like to award points to?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (getInvalidNameList(this.attributes, rosterObj, firstNames)) {
+            } else if (getInvalidNameList(this.attributes, rosterObj, courseNumber, firstNames)) {
                 let invalidNames = getInvalidNameList(this.attributes, rosterObj, courseNumber, firstNames);
                 let nameOutput = '';
                 invalidNames.forEach(name => {
@@ -846,7 +846,7 @@ const handlers = {
                 let speechOutput = "Who would you like to award points to?";
                 let slotToElicit = "firstNames";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (getInvalidNameList(this.attributes, rosterObj, firstNames)) {
+            } else if (getInvalidNameList(this.attributes, rosterObj, courseNumber, firstNames)) {
                 let invalidNames = getInvalidNameList(this.attributes, rosterObj, courseNumber, firstNames);
                 let nameOutput = '';
                 invalidNames.forEach(name => {
