@@ -740,7 +740,7 @@ const handlers = {
                     NickName: speechOutput
                  };
                 let values = {
-                    BeenCalled: this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"]
+                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"] + 1)
                 };
                 googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
 
