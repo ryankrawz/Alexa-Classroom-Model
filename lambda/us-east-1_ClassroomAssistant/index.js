@@ -231,12 +231,14 @@ function orderedQuizQuestion(attributes, quizQuestions) {
     return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
 }
 
-function participationTrackerHelper(attributes, roster) {
+function participationTrackerHelper(attributes, roster, names) {
     let speechOutput = 'Awarded';
+    console.log('*** roster object: ' + roster);
+    console.log('*** course number object: ' + roster[attributes.courseNumber]);
+    console.log('*** section number object: ' + roster[attributes.courseNumber][attributes.sectionNumber]);
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
     let rosterList = Object.keys(sectionObj);
-    let firstNames = attributes.event.request.intent.slots.firstNames.value;
-    let nameList = firstNames.split(' ');
+    let nameList = names.split(' ');                                                               
     for (let i = 0; i < nameList.length; i++) {
         for (let j = 0; j < rosterList.length; j++) {
             if (nameList[i] === rosterList[j]) {
@@ -807,17 +809,21 @@ const handlers = {
             } else {
                 console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
-                this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
+                this.response.speak(participationTrackerHelper(this.attributes, rosterObj, firstNames));
                 this.emit(':responseReady');
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
-                let slotToElicit = 'courseNumber';
+            if (!firstNames) {
+                let speechOutput = "Who would you like to award points to?";
+                let slotToElicit = "firstNames";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (checkSchedule(scheduleObj) == false) {
+                let slotToElicit = 'courseNumber';                                          
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
+                this.response.speak(participationTrackerHelper(this.attributes, rosterObj, firstNames));
                 this.emit(':responseReady');
             }
         }
