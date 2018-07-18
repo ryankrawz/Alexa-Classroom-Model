@@ -57,28 +57,6 @@ function getNames(students) {
 }
 */
 
-function orderedQuizQuestion(attributes, quizQuestions) {
-    let courseObj = quizQuestions[attributes.courseNumber];
-
-    if (!attributes.questionSets) {
-        console.log('*** making a questionSets attribute');
-        attributes.questionSets = {};
-        attributes.questionSets[attributes.courseNumber] = {};
-        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
-    } else if (!attributes.questionSets[attributes.courseNumber]) {
-        console.log('*** making a questionSets[attributes.courseNumber] attribute');
-        attributes.questionSets[attributes.courseNumber] = {};
-        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
-    }
-    attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
-    if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber] == undefined) {
-        console.log('*** we reached the end of the current question list, resetting back to the first question');
-        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
-    }
-    console.log('*** got the current question');
-    return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
-}
-
 function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
 	return dayInitials[day];
@@ -204,6 +182,12 @@ async function readBriefing() {
     return briefingObj;
 }
 
+function fastFactsHelper(attributes, facts, tag) {
+    console.log(JSON.stringify(facts));
+    console.log(tag);
+    return facts[attributes.courseNumber][tag]['Answer'];
+}
+
 function coldCallHelper(attributes, roster) {
     const beenCalledList = [];
     let speechOutput;
@@ -225,12 +209,33 @@ function coldCallHelper(attributes, roster) {
     return speechOutput;
 }
 
+function orderedQuizQuestion(attributes, quizQuestions) {
+    let courseObj = quizQuestions[attributes.courseNumber];
+
+    if (!attributes.questionSets) {
+        console.log('*** making a questionSets attribute');
+        attributes.questionSets = {};
+        attributes.questionSets[attributes.courseNumber] = {};
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
+    } else if (!attributes.questionSets[attributes.courseNumber]) {
+        console.log('*** making a questionSets[attributes.courseNumber] attribute');
+        attributes.questionSets[attributes.courseNumber] = {};
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
+    }
+    attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
+    if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber] == undefined) {
+        console.log('*** we reached the end of the current question list, resetting back to the first question');
+        attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
+    }
+    console.log('*** got the current question');
+    return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
+}
 
 function participationTrackerHelper(attributes, roster) {
     let speechOutput = 'Awarded';
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
     let rosterList = Object.keys(sectionObj);
-    let firstNames = this.event.request.intent.slots.firstNames.value;
+    let firstNames = attributes.event.request.intent.slots.firstNames.value;
     let nameList = firstNames.split(' ');
     for (let i = 0; i < nameList.length; i++) {
         for (let j = 0; j < rosterList.length; j++) {
@@ -269,6 +274,11 @@ function groupPresentHelper(attributes, roster, groupString) {
             j++;
         }
     }
+
+        if (studentNotInList(randomStudent, presentList)) {
+            presentList.push(randomStudent);
+            j++;
+        }
 
     // Names all students randomly ordered, along with number for purpose of presentation order
     // Divides student names into groups based on groupNumber
@@ -344,6 +354,22 @@ function writeToSheets(key, tabName, scheduleObj) {
     });
     googleSDK.writeTab(key, tabName, values);
 }
+
+let fakeFactsObj = {
+    '1111': {
+        'Gettysburg': {
+            'Answer': 'I\'m talking about Gettysburg'
+        },
+        'punctuation': {
+            'Answer': 'I\'m talking about Punctuation'
+        }
+    },
+    '2222': {
+        'geography': {
+            'Answer': 'I\'m talking about Geography'
+        }
+    }
+};
 
 const handlers = {
     'LaunchRequest': function () {
@@ -447,6 +473,26 @@ const handlers = {
             this.emit(':responseReady');
         }
     },
+    /*
+    'SpecifyCNBriefing': async function() {},
+        let courseNumber = this.event.request.intent.slots.courseNumber.value;
+        let scheduleObj = await readSchedule();
+    if (!this.attributes.briefingNotes.hasOwnProperty(courseNumber)) {
+                console.log('*** Invalid courseNumber');
+                let speechOutput = "I'm sorry, I can't find that course number. Which course number should I add this note to?";
+                let slotToElicit = 'courseNumber';
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                console.log('*** I have the courseNumber: ' + courseNumber);
+                this.attributes.courseNumber = courseNumber;
+
+
+                let speechOutput = "And for which date should I add this note?";
+                this.response.speak(speechOutput).listen("For which date should I add this note?");
+                this.emit(':responseReady')
+            }
+
+    'SpecifyCNParticipation': async function () {
 
     'SpecifyCourseNumber': async function () {
 
@@ -509,60 +555,50 @@ const handlers = {
             this.emit(':responseReady');
         }
     },
+    */
 
+//force tags to lower case
+//must validate tags! Invalid tags break the skill
+//still need to integrate with readFastFacts()
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
-        console.log("*** AnswerIntent Started");
-        let allQuestions = {};
-        let loadPromise = loadFromSheets();
-        let auth = await loadPromise;
-        let data = await getData(auth);
-        console.log("Google Sheets Read - Success");
-        let sheets = data.data.sheets;
-        sheets.forEach(sheet => {
-            allQuestions[sheet.properties.title] = {};
-            //omit element 0 because it's the header row
-            let rows = sheet.data[0].rowData.slice(1);
-            rows.forEach(row => {
-                if (row.values) {
-                    if (row.values[0].effectiveValue && row.values[1].effectiveValue) {
-                        allQuestions[sheet.properties.title][row.values[0].effectiveValue.stringValue] = row.values[1].effectiveValue.stringValue;
-                    } else {
-                        console.log("That row didn't have both a tag and an answer");
-                    }
-                } else {
-                    console.log("Skipping empty row.");
-                }
-            });
-        });
+        let scheduleObj = await readSchedule();
+        let factsObj =  await readFastFacts();
+        let courseNumber = this.event.request.intent.slots.courseNumber.value;
+        let tag = this.event.request.intent.slots.tag.value
 
-        console.log("Length of allQuestions: " + Object.keys(allQuestions).length);
-        console.log(allQuestions["1111"]["Gettysburg"]);
-
-        if (!this.event.request.intent.slots.tag.value || !this.event.request.intent.slots.courseNumber.value) {
-
-            this.emit(':delegate');
-
-        } else if (!allQuestions.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
-
-            const slotToElicit = 'courseNumber';
-            const speechOutput = "I'm sorry, we couldn't find any data for that course number. Try again";
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-
-        } else if (!allQuestions[this.event.request.intent.slots.courseNumber.value].hasOwnProperty(this.event.request.intent.slots.tag.value)) {
-
-            const slotToElicit = 'tag';
-            const speechOutput = 'I\'m sorry, that tag doesn\'t currently exist. Could you provide another tag?';
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-
+        if (courseNumber) {
+            if (!scheduleObj.hasOwnProperty(courseNumber)) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like to access?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!tag) {
+                let slotToElicit = 'tag';
+                let speechOutput = "What would you like me to talk about?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                this.attributes.courseNumber = courseNumber;
+                let speechOutput = fastFactsHelper(this.attributes, factsObj, tag);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
+                this.emit(":responseReady");
+            }
         } else {
-
-            const tag = this.event.request.intent.slots.tag.value;
-            const courseNumber = this.event.request.intent.slots.courseNumber.value;
-
-            const speechOutput = allQuestions[courseNumber][tag];
-            this.response.speak(speechOutput);
-            this.emit(':responseReady');
+            getContext(this.attributes, checkSchedule(scheduleObj));
+            if (checkSchedule(scheduleObj) == false) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!tag) {
+                let slotToElicit = 'tag';
+                let speechOutput = "What would you like me to talk about?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                let speechOutput = fastFactsHelper(this.attributes, factsObj, tag);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
+                this.emit(":responseReady");
+            }
         }
     },
 
@@ -743,28 +779,43 @@ const handlers = {
     'ParticipationTracker': async function () {
         let scheduleObj = await readSchedule();
         let rosterObj = await readRoster();
-        if (this.event.request.dialogState !== 'COMPLETED') {
-            this.emit(':delegate');
-        } else if (!this.event.request.intent.slots.firstNames.value) {
-            let speechOutput = "Who would you like to award points to?";
-            let slotToElicit = "firstNames";
-            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+        let courseNumber = this.event.request.intent.slots.courseNumber.value;
+        let sectionTime = this.event.request.intent.slots.sectionTime.value;
+        let firstNames = this.event.request.intent.slots.firstNames.value;
+
+        if (courseNumber || sectionTime) {
+            if (!courseNumber) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "From which course would you like me to add points?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to add points ?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!sectionTime) {
+                let slotToElicit = 'sectionTime';
+                let speechOutput = "From which section time?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
+                let slotToElicit = 'sectionTime';
+                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to add points?`;
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!firstNames) {
+                let speechOutput = "Who would you like to award points to?";
+                let slotToElicit = "firstNames";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                console.log('*** valid course number and section number provided manually');
+                this.attributes.courseNumber = courseNumber;
+                this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
+                this.emit(':responseReady');
+            }
         } else {
-            this.attributes.firstNames = this.event.request.intent.slots.firstNames.value;
-            let speechOutput = "From which course would you like me to add points?";
-            this.response.speak(speechOutput).listen(speechOutput);
-            this.emit(':responseReady');
-            // how to fit context into this function
             getContext(this.attributes, checkSchedule(scheduleObj));
             if (checkSchedule(scheduleObj) == false) {
-                if (!this.attributes.courseNumber || !this.attributes.sectionNumber) {
-                    let slotToElicit = 'courseNumber';
-                    let speechOutput = "For which course number?";
-                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-                } else {
-                    this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
-                    this.emit(':responseReady');
-                }
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.response.speak(participationTrackerHelper(this.attributes, rosterObj));
                 this.emit(':responseReady');

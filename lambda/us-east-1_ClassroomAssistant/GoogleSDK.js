@@ -23,7 +23,7 @@ const readFile = util.promisify(fs.readFile);
 
 // keyList is an array of key values
 // valueList is an array of value objects consisting of header and value properties
-exports.writeTab = async function (sheetID, tabName, keyList, valueList) {
+exports.writeTab = async function (sheetID, tabName, keys, values) {
 
     let loadPromise = loadFromSheets();
     let auth = await loadPromise;
@@ -33,58 +33,92 @@ exports.writeTab = async function (sheetID, tabName, keyList, valueList) {
     let valRange = await getValueRange(auth, sheetID, tabName);
     valRange = valRange.data;
 
-    // search for key match
-    // fixme: now assuming we have just one key and that it is found
+    // Find rows that correspond to each key and successively narrow the set, key by key.
 
     let rows = valRange.values;
-    let writeRow = -1;
+    let headers = rows[0];
+    let types = rows[1];
 
-    // todo: handle multiple keys
-    // todo: handle appends correctly
-    for (let row = 2; row < rows.length; row++) {
-        if (rows[row][0] === keyList) {
-            writeRow = row;
+    // Construct an array of key names based on columns in types that are annotated as 'key'
+    let keyNames = [];
+    for (let i = 0; i < types.length; i++) {
+        if (types[i] != 'key') {
             break;
         }
+        keyNames.push(headers[i]);
     }
 
-    // append row if we need to
-    // need to figure out how many columns to append
-    // writeRow = -1 will signal append
+    let startRow = 2;
+    let endRow = rows.length - 1;
 
-    // find column to write into
-    // todo: handle multiple values
-    // todo: handle column append
-    const theRow = rows[writeRow];
-    for (let col = 0; col < theRow.length; col++) {
-        if (rows[0][col] === valueList.header) {
-            theRow[col] = valueList.value;
-            break;
+    // Narrow down to a range of row indices (startRow, endRow) that contain the intersection of the key values
+    keyNames.forEach((k, idx) => {
+        let r;
+        for (r=startRow; r <= endRow; r++) {
+            if (keys[k] == rows[r][idx]) {
+                startRow = r;
+                break;
+            }
+        }
+
+        if (r == endRow + 1) {
+            // Key not found
+            console.log('writeTab could not find value ' + keys[k] + ' for key ' + k);
+            return false;
+        }
+
+        for (let r=startRow + 1; r <= endRow; r++) {
+            if (rows[r][idx] != "" && rows[r][idx] != keys[k]) {
+                endRow = r - 1;
+                break;
+            }
+        }
+    });
+
+    // startRow and endRow should be equal. If not, duplicate key error
+    if (startRow != endRow) {
+        console.log('Apparent duplicate key in sheet tab ' + tabName);
+        return false;
+    }
+
+    // Determine spreadsheet row corresponding to startRow
+    let spreadsheetRow = startRow;
+
+    // Determine spreadsheet columns corresponding to value keys we were given
+    // Create appropriate data structure to pass to Google Sheets API
+    let dataObjects = [];
+
+    for (let col = keyNames.length; col < headers.length; col++) {
+        if (values.hasOwnProperty(headers[col])) {
+            let data = {
+                range: tabName + '!' + String.fromCharCode(65 + col) + (spreadsheetRow+1).toString(),
+                values: [
+                    [
+                        values[headers[col]]
+                    ]
+                ]
+            };
+            dataObjects.push(data);
         }
     }
-
-
-    // valRange should now have what it needs
-
 
 
     let params1 = {
-      spreadsheetId: sheetID,
-      range: valRange.range, // need to update to range we got
-      resource: valRange,
-      valueInputOption: "USER_ENTERED"
+        spreadsheetId: sheetID,
+        resource: {
+            valueInputOption: "USER_ENTERED",
+            data: dataObjects
+        }
     };
 
-    sheets.spreadsheets.values.update(params1)
-      .then(data => {
-        console.log("Success");
-        console.log(data.toString());
-      })
-
-      .catch(err => {
-        console.log("Error");
-        console.log(err.toString());
-      })
+    try {
+        await sheets.spreadsheets.values.batchUpdate(params1);
+        return true;
+    }
+    catch(e) {
+        console.log('writeTab exception writing to Google sheet tab ' + tabName + ': ' + e);
+        return false;
+    }
 };
 
 // readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule")
@@ -106,13 +140,21 @@ exports.readTab = async function (key, tabName) {
     let headers = rows[0].values; //column headers
     let kinds = rows[1].values; // types of data in each header
 
+    // set number of columns to avoid getting thrown off by formatting witn no data
+    // this might need to get smarter.  for now just take min length of kinds or headers
+    const numCols = Math.min(headers.length,kinds.length);
+
     let scheduleObj = {}; // the object that will hold the data
     let latestObj = scheduleObj; // will point to object we are currently working on (could be subset)
 
     // scan each column of each non-header row
     try {
         for (let row = 2; row < rows.length; row++) {
-            for (let col = 0; col < rows[row].values.length; col++) {
+            // need to exit if we find an all blank row
+            if (rowIsBlank(rows[row].values,numCols)) {
+                break;
+            }
+            for (let col = 0; col < numCols; col++) {
                 let kind = kinds[col].effectiveValue.stringValue;
                 let kval = headers[col].effectiveValue.stringValue;
 
@@ -254,4 +296,14 @@ function getValueRange(auth, key, tabName) {
 
     let p = sheets.spreadsheets.values.get(readDataParams);
     return p;
+}
+
+// check for blank row
+function rowIsBlank(rowData, numCol) {
+    for (let i = 0; i < numCol; i++) {
+        if (rowData[i].hasOwnProperty("effectiveValue")) {
+            return false;
+        }
+    }
+    return true;
 }

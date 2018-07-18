@@ -17,7 +17,8 @@
   "scripts": {
     "test": "lambda-local -l index.js -h handler -e local-event.json",
     "npm-update": "npm prune;npm install",
-    "ask-deploy": "cd ../..;ask deploy"
+    "ask-deploy": "cd ../..;ask deploy",
+    "ask-deploy-lambda": "cd ../..;ask deploy --target lambda"
   },
   "repository": {
     "type": "git",

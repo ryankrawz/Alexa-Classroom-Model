@@ -32,22 +32,28 @@ testRead();
 
 async function testWrite() {
 
-    const sheetData = {
-        // omit? "range": "A1:D5",
-        "majorDimension": "ROWS",
-        "values": [
-            ["Item", "Cost", "Stocked", "Ship Date"],
-            ["Wheel", "$20.50", "4", "3/1/2016"],
-            ["Door", "$15", "2", "3/15/2016"],
-            ["Engine", "$100", "1", "30/20/2016"],
-            ["Totals", "=SUM(B2:B4)", "=SUM(C2:C4)", "=MAX(D2:D4)"]
-        ]
+    const keysWriteTest = {
+        Category: 'drivetrain',
+        SubCategory: 'transmission',
+        Item: 'engine'
     };
 
-    const keyList = "Engine";
-    const valueList = {"header":"Cost", "value": "1,000.99"};
+    const keysRoster = {
+        CourseNumber: '1111',
+        SectionNumber: '111102',
+        NickName: 'Jam'
+    };
 
-    googleSDK.writeTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "WriteTest", keyList, valueList);
+    const valuesWriteTest = {"Ship Date":"7/18/2018"};
+    const valuesRoster = {ParticipationPoints: 3};
+    const tabNameWriteTest = 'WriteTest';
+    const tabNameRoster = 'Roster';
+
+    let keys = keysRoster;
+    let values = valuesRoster;
+    let tabName = tabNameRoster;
+
+    googleSDK.writeTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", tabName, keys, values);
 }
 
 testWrite();
