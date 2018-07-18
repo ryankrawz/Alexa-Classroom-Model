@@ -129,12 +129,14 @@ function getContext(attributes, inSchedule) {
 
 function isValidSectionTime(attributes, schedule, courseNumberSlot, sectionTimeSlot) {
     let sectionTime = convertTimeStamp(sectionTimeSlot);
+    console.log('*** section time from slot: ' + sectionTime);
     let timeDoesMatch = false;
     Object.values(schedule[courseNumberSlot]).forEach(sectionObj => {
+        console.log('*** start time: ' + sectionObj['Start']);
         if (sectionObj['Start'] == sectionTime) {
             attributes.sectionNumber = Object.keys(schedule[courseNumberSlot])[Object.values(schedule[courseNumberSlot]).indexOf(sectionObj)];
             timeDoesMatch = true;
-            console.log('***valid section time provided manually');
+            console.log('*** valid section time provided manually');
         }
     });
     return timeDoesMatch;
@@ -821,10 +823,12 @@ const handlers = {
                 let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to add points ?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!sectionTime) {
+                console.log('*** checking to see if section time exists as slot');
                 let slotToElicit = 'sectionTime';
                 let speechOutput = "From which section time?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
+                console.log('*** section time returned invalid');
                 let slotToElicit = 'sectionTime';
                 let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to add points?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
