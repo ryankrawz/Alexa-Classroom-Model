@@ -5,8 +5,6 @@ todo:
 - Refactor intents to use data from Sheets
 - Implement Writing to Sheets
 - Outsource sheet schema to a JSON file, column names are currently hardcoded
-- Change cache stream so user is always prompted for context after-hours
-    a. As of right now, our logic is set up to grab values from the cache by default if teacher is not in a course
 */
 
 'use strict';
@@ -279,7 +277,6 @@ function groupPresentHelper(attributes, roster, groupString) {
         }
         return true;
     }
-
     // Adds students in random order to presentation list if student is not already in list
     let j = 0;
     while (j < students.length) {
@@ -290,12 +287,10 @@ function groupPresentHelper(attributes, roster, groupString) {
             j++;
         }
     }
-
         if (studentNotInList(randomStudent, presentList)) {
             presentList.push(randomStudent);
             j++;
         }
-
     // Names all students randomly ordered, along with number for purpose of presentation order
     // Divides student names into groups based on groupNumber
     let k = 1;
@@ -315,7 +310,6 @@ function groupPresentHelper(attributes, roster, groupString) {
         } else {
             groups = Math.floor(students.length / groupCount) + 1;
         }
-
         for (let l = 0; l < groups; l++) {
             for (let m = 0; m < groupCount; m++) {
                 if (presentList.length === 0) {
@@ -329,7 +323,6 @@ function groupPresentHelper(attributes, roster, groupString) {
             eachGroup = [];
         }
         console.log(groupList);
-
         for (let n = 0; n < groupList.length; n++) {
             returnObj[k.toString()] = groupList[n];
             k++;
