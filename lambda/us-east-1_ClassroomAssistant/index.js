@@ -494,7 +494,6 @@ const handlers = {
 
     'SpecifyCNParticipation': async function () {
 
-=======
     'SpecifyCourseNumber': async function () {
 
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
