@@ -435,8 +435,7 @@ const handlers = {
             this.attributes.scheduleObj = await readSchedule();
             this.attributes.briefingObj =  await readBriefing();
         }
-        let briefingObj = this.attributes.briefingObj;
-        let scheduleObj = this.attributes.scheduleObj;
+        
         console.log(JSON.stringify(briefingObj));
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
