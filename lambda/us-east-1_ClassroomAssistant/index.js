@@ -826,8 +826,13 @@ const handlers = {
 
     'ParticipationTracker': async function () {
         this.attributes.lastIntent = 'ParticipationTracker';
-        let scheduleObj = await readSchedule();
-        let rosterObj = await readRoster();
+        if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
+            console.log('*** First time through participation tracker in this session');
+            this.attributes.scheduleObj = await readSchedule();
+            this.attributes.rosterObj =  await readRoster();
+        }
+        let scheduleObj = this.attributes.scheduleObj;
+        let rosterObj = this.attributes.rosterObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let sectionTime = this.event.request.intent.slots.sectionTime.value;
         let firstNames = this.event.request.intent.slots.firstNames.value;
@@ -853,7 +858,7 @@ const handlers = {
                 let slotToElicit = "firstNames";
                 let speechOutput = "Who would you like to award points to?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (getInvalidNameList(this.attributes, rosterObj, firstNames)) {
+            } else if (getInvalidNameList(this.attributes, rosterObj, courseNumber, firstNames)) {
                 let invalidNames = getInvalidNameList(this.attributes, rosterObj, courseNumber, firstNames);
                 let nameOutput = '';
                 invalidNames.forEach(name => {
@@ -887,7 +892,7 @@ const handlers = {
                 let speechOutput = "Who would you like to award points to?";
                 let slotToElicit = "firstNames";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (getInvalidNameList(this.attributes, rosterObj, firstNames)) {
+            } else if (getInvalidNameList(this.attributes, rosterObj, courseNumber, firstNames)) {
                 let invalidNames = getInvalidNameList(this.attributes, rosterObj, courseNumber, firstNames);
                 let nameOutput = '';
                 invalidNames.forEach(name => {
