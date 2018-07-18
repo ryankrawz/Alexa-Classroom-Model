@@ -526,7 +526,7 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj.hasOwnProperty(classDate)) {
+            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -535,7 +535,9 @@ const handlers = {
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
                 let speechOutput = addBriefingHelper(this.attributes, briefingObj,noteContent);
+                this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(':responseReady');
 
             }
