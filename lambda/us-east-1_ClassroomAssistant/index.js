@@ -267,12 +267,7 @@ function playBriefingHelper(attributes, notes) {
     }
     return speechOutput;
 }
-function addBriefingHelper(attributes, notes, content) {
-    let notesAccessed = notes[attributes.courseNumber][attributes.classDate];
-    attributes.notesAccessed.push(attributes.content);
-    let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${attributes.courseNumber}</say-as> on ${attributes.date}. What else can I do for you today?`;
-    return speechOutput;
-}
+
 
 function groupPresentHelper(attributes, roster, groupString) {
     let groupCount = parseInt(groupString);
