@@ -269,16 +269,6 @@ function playBriefingHelper(attributes, notes) {
     }
     return speechOutput;
 }
-function addBriefingHelper(attributes, notes, content) {
-    let notesAccessed = notes[attributes.courseNumber][attributes.classDate];
-    let returnObj = {};
-    let returnObj = notesAccessed;
-    let userContent = returnObj.push(attributes.content);
-    let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
-    this.response.speak(speechOutput).listen("If you'd like me to add another note or play a briefing for you, just let me know.");
-    this.emit(':responseReady');
-    return speechOutput;
-}
 
 function groupPresentHelper(attributes, roster, groupString) {
     let groupCount = parseInt(groupString);
