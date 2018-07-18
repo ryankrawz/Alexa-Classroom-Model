@@ -144,12 +144,12 @@ function getContext(attributes, inSchedule) {
     }
 }
 
-function isValidSectionTime(attributes, scheduleObj, courseNumberSlot, sectionTimeSlot) {
+function isValidSectionTime(attributes, schedule, courseNumberSlot, sectionTimeSlot) {
     let sectionTime = convertTimeStamp(sectionTimeSlot);
     let timeDoesMatch = false;
-    Object.values(scheduleObj[courseNumberSlot]).forEach(sectionObj => {
+    Object.values(schedule[courseNumberSlot]).forEach(sectionObj => {
         if (sectionObj['Start'] == sectionTime) {
-            attributes.sectionNumber = Object.keys(scheduleObj[courseNumberSlot])[Object.values(scheduleObj[courseNumberSlot]).indexOf(sectionObj)];
+            attributes.sectionNumber = Object.keys(schedule[courseNumberSlot])[Object.values(schedule[courseNumberSlot]).indexOf(sectionObj)];
             timeDoesMatch = true;
             console.log('***valid section time provided manually');
         }
@@ -157,8 +157,27 @@ function isValidSectionTime(attributes, scheduleObj, courseNumberSlot, sectionTi
     return timeDoesMatch;
 }
 
-function isValidNameList(attributes, rosterObj, names) {
-
+function getInvalidNameList(attributes, roster, names) {
+    let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
+    let nameList = names.split(' ');
+    let rosterList = Object.keys(sectionObj);
+    let invalidNames = [];
+    nameList.forEach(name => {
+        let nameDoesMatch = false;
+        rosterList.forEach(rosterItem => {
+            if (name == rosterItem) {
+                nameDoesMatch = true;
+            }
+        });
+        if (!nameDoesMatch) {
+            invalidNames.push(name);
+        }
+    });
+    if (invalidNames.length > 0) {
+        return invalidNames;
+    } else {
+        return false;
+    }
 }
 
 async function readSchedule() {
@@ -766,9 +785,20 @@ const handlers = {
                 let slotToElicit = "firstNames";
                 let speechOutput = "Who would you like to award points to?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!isValidNameList(this.attributes, rosterObj, firstNames)) {
+            } else if (getInvalidNameList(this.attributes, rosterObj, firstNames)) {
+                let invalidNames = getInvalidNameList(this.attributes, rosterObj, firstNames);
+                let nameOutput = '';
+                invalidNames.forEach(name => {
+                    if (invalidNames.length == 1) {
+                        nameOutput = name;
+                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                        nameOutput += `or ${name} `;
+                    } else {
+                        nameOutput += `${name}, `
+                    }
+                });
                 let slotToElicit = 'firstNames';
-                let speechOutput = `I'm sorry, I don't have all the mentioned names on record for course ${courseNumber}. Who would you like to award points to?`;
+                let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 console.log('*** valid course number and section number provided manually');
@@ -778,17 +808,28 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (!firstNames) {
+            if (checkSchedule(scheduleObj) == false) {
+                let slotToElicit = 'courseNumber';                                          
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!firstNames) {
                 let speechOutput = "Who would you like to award points to?";
                 let slotToElicit = "firstNames";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!isValidNameList(this.attributes, rosterObj, firstNames)) {
+            } else if (getInvalidNameList(this.attributes, rosterObj, firstNames)) {
+                let invalidNames = getInvalidNameList(this.attributes, rosterObj, firstNames);
+                let nameOutput = '';
+                invalidNames.forEach(name => {
+                    if (invalidNames.length == 1) {
+                        nameOutput = name;
+                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                        nameOutput += `or ${name} `;
+                    } else {
+                        nameOutput += `${name}, `
+                    }
+                });
                 let slotToElicit = 'firstNames';
-                let speechOutput = `I'm sorry, I don't have all the mentioned names on record for course ${courseNumber}. Who would you like to award points to?`;
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (checkSchedule(scheduleObj) == false) {
-                let slotToElicit = 'courseNumber';                                          
-                let speechOutput = "For which course number?";
+                let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${this.attributes.courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.response.speak(participationTrackerHelper(this.attributes, rosterObj, firstNames));
