@@ -739,7 +739,7 @@ const handlers = {
                     CourseNumber: this.attributes.courseNumber,
                     SectionNumber: this.attributes.sectionNumber,
                     NickName: speechOutput
-                 };
+                };
                 let values = {
                     BeenCalled: this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"]
                 };
@@ -799,18 +799,18 @@ const handlers = {
                 this.emit(":responseReady");
             }
         } else {
-                getContext(this.attributes, checkSchedule(scheduleObj));
-                if (checkSchedule(scheduleObj) == false) {
-                    let slotToElicit = 'courseNumber';
-                    let speechOutput = "For which course number?";
-                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-                } else {
-                    let speechOutput = orderedQuizQuestion(this.attributes, questionObj);
-                    this.attributes.lastOutput = speechOutput;
-                    this.response.speak(speechOutput);
-                    this.emit(":responseReady");
-                }
+            getContext(this.attributes, checkSchedule(scheduleObj));
+            if (checkSchedule(scheduleObj) == false) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                let speechOutput = orderedQuizQuestion(this.attributes, questionObj);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
+                this.emit(":responseReady");
             }
+        }
         },
 
     'ParticipationTracker': async function () {
