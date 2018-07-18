@@ -157,6 +157,10 @@ function isValidSectionTime(attributes, scheduleObj, courseNumberSlot, sectionTi
     return timeDoesMatch;
 }
 
+function isValidNameList(attributes, rosterObj, names) {
+
+}
+
 async function readSchedule() {
     let scheduleObj = await googleSDK.readTab("1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0", "Schedule");
     return scheduleObj;
@@ -287,10 +291,6 @@ function groupPresentHelper(attributes, roster, groupString) {
             j++;
         }
     }
-        if (studentNotInList(randomStudent, presentList)) {
-            presentList.push(randomStudent);
-            j++;
-        }
     // Names all students randomly ordered, along with number for purpose of presentation order
     // Divides student names into groups based on groupNumber
     let k = 1;
@@ -495,6 +495,7 @@ const handlers = {
             this.emit(':responseReady');
         }
     },
+
     'SpecifyClassDate': function () {
         console.log('obtaining class date');
         if (this.event.request.dialogState !== 'COMPLETED') {
@@ -777,8 +778,12 @@ const handlers = {
                 let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to add points?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!firstNames) {
-                let speechOutput = "Who would you like to award points to?";
                 let slotToElicit = "firstNames";
+                let speechOutput = "Who would you like to award points to?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!isValidNameList(this.attributes, rosterObj, firstNames)) {
+                let slotToElicit = 'firstNames';
+                let speechOutput = `I'm sorry, I don't have all the mentioned names on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 console.log('*** valid course number and section number provided manually');
@@ -791,6 +796,10 @@ const handlers = {
             if (!firstNames) {
                 let speechOutput = "Who would you like to award points to?";
                 let slotToElicit = "firstNames";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!isValidNameList(this.attributes, rosterObj, firstNames)) {
+                let slotToElicit = 'firstNames';
+                let speechOutput = `I'm sorry, I don't have all the mentioned names on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (checkSchedule(scheduleObj) == false) {
                 let slotToElicit = 'courseNumber';                                          
