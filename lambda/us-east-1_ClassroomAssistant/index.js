@@ -576,9 +576,18 @@ const handlers = {
                 let slotToElicit = 'tag';
                 let speechOutput = "What would you like me to talk about?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!factsObj[courseNumber][tag.toLowerCase()]) {
+                if (tag.toLowerCase() == 'cancel' || tag.toLowerCase() == 'stop' ||
+                    tag.toLowerCase() == 'alexa stop' || tag.toLowerCase() == 'alexa cancel') {
+                    this.emitWithState('AMAZON.CancelIntent');
+                } else {
+                    let slotToElicit = 'tag';
+                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${this.attributes.courseNumber}. What would you like me to talk about?`;
+                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+                }
             } else {
                 this.attributes.courseNumber = courseNumber;
-                let speechOutput = fastFactsHelper(this.attributes, factsObj, tag);
+                let speechOutput = fastFactsHelper(this.attributes, factsObj, tag.toLowerCase());
                 this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
                 this.emit(":responseReady");
@@ -593,8 +602,17 @@ const handlers = {
                 let slotToElicit = 'tag';
                 let speechOutput = "What would you like me to talk about?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!factsObj[this.attributes.courseNumber].hasOwnProperty(tag.toLowerCase())) {
+                if (tag.toLowerCase() == 'cancel' || tag.toLowerCase() == 'stop' ||
+                    tag.toLowerCase() == 'alexa stop' || tag.toLowerCase() == 'alexa cancel') {
+                    this.emitWithState('AMAZON.CancelIntent');
+                } else {
+                    let slotToElicit = 'tag';
+                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${this.attributes.courseNumber}. What would you like me to talk about?`;
+                    this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+                }
             } else {
-                let speechOutput = fastFactsHelper(this.attributes, factsObj, tag);
+                let speechOutput = fastFactsHelper(this.attributes, factsObj, tag.toLowerCase());
                 this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
                 this.emit(":responseReady");
