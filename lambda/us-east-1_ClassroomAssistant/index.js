@@ -805,6 +805,8 @@ const handlers = {
             this.attributes.scheduleObj = await readSchedule();
             this.attributes.rosterObj =  await readRoster();
         }
+        let scheduleObj = this.attributes.scheduleObj;
+        let rosterObj = this.attributes.rosterObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let sectionTime = this.event.request.intent.slots.sectionTime.value;
         let firstNames = this.event.request.intent.slots.firstNames.value;
