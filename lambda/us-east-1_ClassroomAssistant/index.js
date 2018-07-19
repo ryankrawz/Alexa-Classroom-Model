@@ -204,7 +204,6 @@ function coldCallHelper(attributes, roster) {
         if (sectionObj[randomStudent]['BeenCalled'] === minim) {
             speechOutput = randomStudent;
             sectionObj[randomStudent]['BeenCalled']++;
-            // todo: write updated beenCalled values to sheet
             break;
         }
     }
@@ -693,20 +692,32 @@ const handlers = {
                 Object.keys(groups).forEach(group => {
                     speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
                 });
+                Object.keys(groups).forEach(group => {
+                    groups[group].forEach(student => {
+                        let keys = {
+                            CourseNumber: this.attributes.courseNumber,
+                            SectionNumber: this.attributes.sectionNumber,
+                            NickName: student
+                        };
+                        let values = {
+                            CurrentGroup: group
+                        };
+                        googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
+                    });
+                });
                 this.attributes.lastOutput = speechOutput;
-                // todo: write new groups to Sheet
                 this.response.speak(speechOutput);
                 this.emit(':responseReady');
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (!groupNumberString) {
-                let slotToElicit = 'groupNumber';
-                let speechOutput = 'How many people per group?';
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!checkSchedule(scheduleObj)) {
+            if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!groupNumberString) {
+                let slotToElicit = 'groupNumber';
+                let speechOutput = 'How many people per group?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
@@ -714,7 +725,19 @@ const handlers = {
                 Object.keys(groups).forEach(group => {
                     speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
                 });
-                // todo: write new groups to Sheet
+                Object.keys(groups).forEach(group => {
+                    groups[group].forEach(student => {
+                        let keys = {
+                            CourseNumber: this.attributes.courseNumber,
+                            SectionNumber: this.attributes.sectionNumber,
+                            NickName: student
+                        };
+                        let values = {
+                            CurrentGroup: group
+                        };
+                        googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
+                    });
+                });
                 this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
                 this.emit(':responseReady');
