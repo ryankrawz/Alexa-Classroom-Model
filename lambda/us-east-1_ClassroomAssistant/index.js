@@ -144,26 +144,19 @@ function getInvalidNameList(attributes, names) {
     let roster = attributes.rosterObj;
     let courseNumber = attributes.courseNumber;
     let sectionObj = roster[courseNumber][attributes.sectionNumber];
+    console.log(names);
     let nameList = names.split(' ');
     console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
     let invalidNames = [];
+
     nameList.forEach(name => {
-        let nameDoesMatch = false;
-        rosterList.forEach(rosterItem => {
-            if (name == rosterItem) {
-                nameDoesMatch = true;
-            }
-        });
-        if (!nameDoesMatch) {
-            invalidNames.push(name);
+        if (!(name in rosterList)) {
+            invalidNames.push(name)
         }
     });
-    if (invalidNames.length > 0) {
-        return invalidNames;
-    } else {
-        return false;
-    }
+
+    return (invalidNames.length > 0);
 }
 
 async function readSchedule() {
