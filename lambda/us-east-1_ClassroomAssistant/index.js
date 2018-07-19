@@ -14,7 +14,7 @@ const AWS = require("aws-sdk");
 const googleSDK = require('./GoogleSDK.js');
 AWS.config.update({region: 'us-east-1'});
 
-const spreadsheetID = "1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0";
+//const spreadsheetID = "1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0";
 
 exports.handler = function (event, context, callback) {
     const alexa = Alexa.handler(event, context, callback);
@@ -24,11 +24,11 @@ exports.handler = function (event, context, callback) {
 };
 
 function initSheetID(context) {
-    if (!context.attributes.spreadsheetID || context.attributes.spreadsheetID === "Not a Real ID") {
-        context.attributes.spreadsheetID = "Not a Real ID";
+    if (!context.spreadsheetID || context.spreadsheetID === "Not a Real ID") {
+        context.spreadsheetID = "Not a Real ID";
+        return false;
     }
-    context.response.speak("Please wait for your administrator to set up Google Sheets.");
-    context.emit(':responseReady');
+    return true;
 }
 
 function getNames(students) {
@@ -58,9 +58,9 @@ function convertTimeStamp(timeStamp) {
 
 function checkSchedule(scheduleObj) {
     let dayOfWeek = convertDayOfWeek(getCurrentDay());
-    console.log(dayOfWeek);
+    //console.log(dayOfWeek);
     let timeStamp = convertTimeStamp(getCurrentTime());
-    console.log(timeStamp);
+    //console.log(timeStamp);
     let courseNumbers = Object.keys(scheduleObj);
     let gracePeriod = 300/(3600 * 24);
 
@@ -71,11 +71,11 @@ function checkSchedule(scheduleObj) {
             let timeDoesMatch = false;
             let sectionObj = scheduleObj[courseNumbers[i]][sectionNumbers[j]];
             let DOWList = sectionObj['DayOfWeek'].split('');
-            console.log(DOWList);
+            //console.log(DOWList);
             let start = sectionObj['Start'];
-            console.log(start);
+            //console.log(start);
             let end = sectionObj['End'];
-            console.log(end);
+            //console.log(end);
 
             DOWList.forEach(day => {
                 if (day == dayOfWeek) {
@@ -85,8 +85,8 @@ function checkSchedule(scheduleObj) {
             if (timeStamp >= (start - gracePeriod) && timeStamp <= (end + gracePeriod)) {
                 timeDoesMatch = true;
             }
-            console.log(dayDoesMatch);
-            console.log(timeDoesMatch);
+            //.log(dayDoesMatch);
+            //console.log(timeDoesMatch);
             if (dayDoesMatch && timeDoesMatch) {
                 let returnObj = {};
                 returnObj[sectionNumbers[j]] = sectionObj;
@@ -101,21 +101,21 @@ function checkSchedule(scheduleObj) {
 function getCurrentDay() {
     let localDateTime = new Date(Date.now()).toLocaleDateString('en-US', {timeZone: 'America/New_York', hour12: false});
     let currentDay = new Date(localDateTime).getDay();
-    console.log(currentDay);
-    console.log(typeof currentDay);
+    //console.log(currentDay);
+    //console.log(typeof currentDay);
     return currentDay;
 }
 
 function getCurrentTime() {
     let currentTime = new Date(Date.now()).toLocaleTimeString('en-US', {timeZone: 'America/New_York', hour12: false});
-    console.log(currentTime);
-    console.log(typeof currentTime);
+    //console.log(currentTime);
+    //console.log(typeof currentTime);
     return currentTime;
 }
 
 //inSchedule is only one section object, with the section number as a key located at the 0th index of Object.keys(inSchedule)
 function getContext(attributes, inSchedule) {
-    console.log(inSchedule);
+    //console.log(inSchedule);
     if (inSchedule) {
         let sectionNumber = Object.keys(inSchedule)[0];
         let sectionObj = inSchedule[sectionNumber];
@@ -134,7 +134,7 @@ function isValidSectionTime(attributes, schedule, courseNumberSlot, sectionTimeS
         if (sectionObj['Start'] == sectionTime) {
             attributes.sectionNumber = Object.keys(schedule[courseNumberSlot])[Object.values(schedule[courseNumberSlot]).indexOf(sectionObj)];
             timeDoesMatch = true;
-            console.log('***valid section time provided manually');
+            //console.log('***valid section time provided manually');
         }
     });
     return timeDoesMatch;
@@ -144,54 +144,49 @@ function getInvalidNameList(attributes, names) {
     let roster = attributes.rosterObj;
     let courseNumber = attributes.courseNumber;
     let sectionObj = roster[courseNumber][attributes.sectionNumber];
+    console.log(names);
     let nameList = names.split(' ');
     console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
     let invalidNames = [];
+
     nameList.forEach(name => {
-        let nameDoesMatch = false;
-        rosterList.forEach(rosterItem => {
-            if (name == rosterItem) {
-                nameDoesMatch = true;
-            }
-        });
-        if (!nameDoesMatch) {
-            invalidNames.push(name);
+        if (!(name in rosterList)) {
+            invalidNames.push(name)
         }
     });
-    if (invalidNames.length > 0) {
-        return invalidNames;
-    } else {
-        return false;
-    }
+
+    return (invalidNames.length > 0);
 }
 
-async function readSchedule() {
+async function readSchedule(spreadsheetID) {
     let scheduleObj = await googleSDK.readTab(spreadsheetID, "Schedule");
     return scheduleObj;
 }
 
-async function readRoster() {
+async function readRoster(spreadsheetID) {
     let readObj = await googleSDK.readTab(spreadsheetID, "Roster");
     return readObj;
 }
 
-async function readQuizQuestions() {
+async function readQuizQuestions(spreadsheetID) {
     let questionsObj = await googleSDK.readTab(spreadsheetID, "QuizQuestions");
     return questionsObj;
 }
-async function readFastFacts() {
+async function readFastFacts(spreadsheetID) {
     let factsObj = await googleSDK.readTab(spreadsheetID, "FastFacts");
     return factsObj;
 }
-async function readBriefing() {
+async function readBriefing(spreadsheetID) {
+    //console.log("readBriefing called");
     let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
+    //console.log("readBriefing about to return");
     return briefingObj;
 }
 
 function fastFactsHelper(attributes, facts, tag) {
-    console.log(JSON.stringify(facts));
-    console.log(tag);
+    //console.log(JSON.stringify(facts));
+    //console.log(tag);
     return facts[attributes.courseNumber][tag]['Answer'];
 }
 
@@ -199,7 +194,7 @@ function coldCallHelper(attributes, roster) {
     const beenCalledList = [];
     let speechOutput;
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
-    console.log(sectionObj);
+    //console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
     rosterList.forEach(student => beenCalledList.push(sectionObj[student]['BeenCalled']));
     const minim = Math.min(...beenCalledList);
@@ -218,32 +213,32 @@ function coldCallHelper(attributes, roster) {
 
 function orderedQuizQuestion(attributes, quizQuestions) {
     let courseObj = quizQuestions[attributes.courseNumber];
-    console.log(JSON.stringify(quizQuestions));
-    console.log(attributes.questionSets[attributes.courseNumber].currentQuestionNumber);
+    //console.log(JSON.stringify(quizQuestions));
+    //console.log(attributes.questionSets[attributes.courseNumber].currentQuestionNumber);
     if (!attributes.questionSets) {
-        console.log('*** making a questionSets attribute');
+        //console.log('*** making a questionSets attribute');
         attributes.questionSets = {};
         attributes.questionSets[attributes.courseNumber] = {};
         attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
     } else if (!attributes.questionSets[attributes.courseNumber]) {
-        console.log('*** making a questionSets[attributes.courseNumber] attribute');
+        //console.log('*** making a questionSets[attributes.courseNumber] attribute');
         attributes.questionSets[attributes.courseNumber] = {};
         attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
     }
     attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
     if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber.toString()] == undefined) {
-        console.log('*** we reached the end of the current question list, resetting back to the first question');
+        //console.log('*** we reached the end of the current question list, resetting back to the first question');
         attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
     }
-    console.log(`*** got the current question: ${courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question']}`);
+    //console.log(`*** got the current question: ${courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question']}`);
     return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
 }
 
 function participationTrackerHelper(attributes, roster, names) {
     let speechOutput = 'Awarded';
-    console.log('*** roster object: ' + roster);
-    console.log('*** course number object: ' + roster[attributes.courseNumber]);
-    console.log('*** section number object: ' + roster[attributes.courseNumber][attributes.sectionNumber]);
+    //console.log('*** roster object: ' + roster);
+    //console.log('*** course number object: ' + roster[attributes.courseNumber]);
+    //console.log('*** section number object: ' + roster[attributes.courseNumber][attributes.sectionNumber]);
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
     let rosterList = Object.keys(sectionObj);
     let nameList = names.split(' ');                                                               
@@ -259,7 +254,7 @@ function participationTrackerHelper(attributes, roster, names) {
 }
 
 function playBriefingHelper(attributes, notes) {
-    let notesAccessed = notes[attributes.courseNumber][attributes.classDate];
+    let notesAccessed = notes[attributes.courseNumber][attributes.classDate].split(" | ");
     let speechOutput = '';
     if (notesAccessed.length == 1) {
         speechOutput = notesAccessed;
@@ -276,7 +271,7 @@ function groupPresentHelper(attributes, roster, groupString) {
     let groupCount = parseInt(groupString);
     let presentList = [];
     let students = Object.keys(roster[attributes.courseNumber][attributes.sectionNumber]);
-    console.log(students);
+    //console.log(students);
 
     // Searches existing presentation list for the student's name, returns true if name is not in list
     function studentNotInList(student, presenters) {
@@ -325,19 +320,18 @@ function groupPresentHelper(attributes, roster, groupString) {
                 presentList.shift();
             }
             groupList.push(eachGroup);
-            console.log(eachGroup);
+            //console.log(eachGroup);
             eachGroup = [];
         }
-        console.log(groupList);
+        //console.log(groupList);
         for (let n = 0; n < groupList.length; n++) {
             returnObj[k.toString()] = groupList[n];
             k++;
         }
     }
-    console.log(returnObj);
+    //console.log(returnObj);
     return returnObj;
 }
-
 
 function writeToSheets(key, tabName, scheduleObj) {
     //TO DO: add first two rows for the headers and kinds
@@ -379,20 +373,31 @@ function nullifyObjects(attributes) {
 }
 
 async function initializeObjects(attributes, intentObj) {
+
+    let setUp = initSheetID(attributes);
+
+    if (!setUp) {
+        return false;
+    }
+
     let readFunctions = {
         'scheduleObj': readSchedule,
         'rosterObj': readRoster,
         'briefingObj': readBriefing,
         'questionsObj': readQuizQuestions,
         'factsObj': readFastFacts
-    };                                  
+    };
+
     if (!attributes.scheduleObj || !attributes[intentObj] && readFunctions[intentObj]) {
-        attributes.scheduleObj = await readSchedule();
-        attributes[intentObj] =  await readFunctions[intentObj]();
+        attributes.scheduleObj = await readSchedule(attributes.spreadsheetID);
+        attributes[intentObj] =  await readFunctions[intentObj](attributes.spreadsheetID);
     } else if (!readFunctions[intentObj]) {
         console.log(`*** ${intentObj} is not a valid argument. Argument type must be string.`);
     }
+
+    return true;
 }
+
 const handlers = {
     'LaunchRequest': function () {
         const speechOutput = 'This is the Classroom Assistant skill.';
@@ -431,16 +436,22 @@ const handlers = {
 
     //Custom Intents
     'PlayBriefing': async function () {
-        console.log('*** PlayBriefing Started');
+        //console.log('*** PlayBriefing Started');
         this.attributes.lastOutput = 'PlayBriefing';
-        await initializeObjects(this.attributes, 'briefingObj');
+        let initialized = await initializeObjects(this.attributes, 'briefingObj');
+
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
+
         let briefingObj = this.attributes.briefingObj;
         let scheduleObj = this.attributes.scheduleObj;
-        console.log(JSON.stringify(briefingObj));
+        //console.log(JSON.stringify(briefingObj));
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
         if (courseNumber || classDate) {
-            console.log(classDate);
+            //console.log(classDate);
             if(!courseNumber) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "From which course would you like me play a briefing?";
@@ -458,7 +469,7 @@ const handlers = {
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number and class date provided manually');
+                //console.log('*** valid course number and class date provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
                 let speechOutput = playBriefingHelper(this.attributes, briefingObj);
@@ -469,7 +480,7 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule (scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
+            if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput)
@@ -491,7 +502,6 @@ const handlers = {
             }
         }
     },
-
 
     'AddBriefingNote': async function () {
 
@@ -522,7 +532,7 @@ const handlers = {
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number and class Date provided manually');
+                //console.log('*** valid course number and class Date provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
                 let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
@@ -537,7 +547,7 @@ const handlers = {
                     Note: this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] + " | " + noteContent
                 };
 
-                googleSDK.writeTab(spreadsheetID, "ClassroomBriefing", keys, values);
+                googleSDK.writeTab(this.attributes.spreadsheetID, "ClassroomBriefing", keys, values);
 
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
@@ -546,13 +556,17 @@ const handlers = {
         }
     },
 
-
-//force tags to lower case
-//must validate tags! Invalid tags break the skill
-//still need to integrate with readFastFacts()
+    //force tags to lower case
+    //must validate tags! Invalid tags break the skill
+    //still need to integrate with readFastFacts()
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
-        await initializeObjects(this.attributes, 'factsObj');
+        let initialized = await initializeObjects(this.attributes, 'factsObj');
+
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
         let scheduleObj = this.attributes.scheduleObj;
         let factsObj =  this.attributes.factsObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
@@ -586,7 +600,7 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
+            if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -637,7 +651,13 @@ const handlers = {
 
     'GroupPresent': async function () {
         this.attributes.lastIntent = 'GroupPresent';
-        await initializeObjects(this.attributes, 'rosterObj');
+
+        let initialized = await initializeObjects(this.attributes, 'rosterObj');
+
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
         let scheduleObj = this.attributes.scheduleObj;
         let rosterObj =  this.attributes.rosterObj;
         const groupNumberString = this.event.request.intent.slots.groupNumber.value;
@@ -666,7 +686,7 @@ const handlers = {
                 let speechOutput = 'How many people per group?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number, section number, and group count provided manually');
+                //console.log('*** valid course number, section number, and group count provided manually');
                 this.attributes.courseNumber = courseNumber;
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
@@ -684,7 +704,7 @@ const handlers = {
                 let slotToElicit = 'groupNumber';
                 let speechOutput = 'How many people per group?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (checkSchedule(scheduleObj) == false) {
+            } else if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -704,8 +724,13 @@ const handlers = {
 
     'ColdCall': async function () {
         this.attributes.lastIntent = 'ColdCall';
-        console.log('*** Starting ColdCall');
-        await initializeObjects(this.attributes, 'rosterObj');
+        //console.log('*** Starting ColdCall');
+        let initialized = await initializeObjects(this.attributes, 'rosterObj');
+
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
         let scheduleObj = this.attributes.scheduleObj;
         let rosterObj = this.attributes.rosterObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
@@ -729,7 +754,7 @@ const handlers = {
                 let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to cold call from?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number and section number provided manually');
+                //console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
                 let speechOutput = coldCallHelper(this.attributes, rosterObj);
                 this.attributes.lastOutput = speechOutput;
@@ -743,7 +768,7 @@ const handlers = {
                 let values = {
                     BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"] + 1)
                 };
-                googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
+                googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
 
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
@@ -751,13 +776,13 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
-                console.log('*** not in a class');
+            if (!checkSchedule(scheduleObj)) {
+                //console.log('*** not in a class');
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** we\'re in a class');
+                //console.log('*** we\'re in a class');
                 let speechOutput = coldCallHelper(this.attributes, rosterObj);
                 this.attributes.lastOutput = speechOutput;
 
@@ -771,7 +796,7 @@ const handlers = {
                     BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"] + 1)
                 };
 
-                googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
+                googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
 
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
@@ -782,7 +807,13 @@ const handlers = {
 
     'QuizQuestion': async function () {
         this.attributes.lastIntent = 'QuizQuestion';
-        await initializeObjects(this.attributes, 'questionsObj');
+
+        let initialized = await initializeObjects(this.attributes, 'questionsObj');
+
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
         let scheduleObj = this.attributes.scheduleObj;
         let questionsObj = this.attributes.questionsObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
@@ -802,8 +833,8 @@ const handlers = {
             }
         } else {
                 getContext(this.attributes, checkSchedule(scheduleObj));
-                if (checkSchedule(scheduleObj) == false) {
-                    console.log('*** not in a course');
+                if (!checkSchedule(scheduleObj)) {
+                    //console.log('*** not in a course');
                     let slotToElicit = 'courseNumber';
                     let speechOutput = "For which course number?";
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -821,7 +852,7 @@ const handlers = {
         this.attributes.lastIntent = 'ParticipationTracker';
 
         if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
-            console.log('*** First time through participation tracker in this session');
+            //console.log('*** First time through participation tracker in this session');
             this.attributes.scheduleObj = await readSchedule();
             this.attributes.rosterObj =  await readRoster();
         }
@@ -866,7 +897,7 @@ const handlers = {
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number and section number provided manually');
+                //console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
                 let speechOutput = participationTrackerHelper(this.attributes, this.attributes.rosterObj, firstNames);
                 this.attributes.lastOutput = speechOutput;
@@ -881,7 +912,7 @@ const handlers = {
                     ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["ParticipationPoints"] + 1)
                 };
 
-                googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
+                googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
 
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
@@ -889,7 +920,7 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule(this.attributes.scheduleObj));
-            if (checkSchedule(this.attributes.scheduleObj) == false) {
+            if (!checkSchedule(this.attributes.scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -926,7 +957,7 @@ const handlers = {
                     ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["ParticipationPoints"] + 1)
                 };
 
-                googleSDK.writeTab(spreadsheetID, "Roster", keys, values);
+                googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
 
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
