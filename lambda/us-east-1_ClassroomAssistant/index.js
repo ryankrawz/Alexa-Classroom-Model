@@ -437,7 +437,7 @@ const handlers = {
     //Custom Intents
     'PlayBriefing': async function () {
         //console.log('*** PlayBriefing Started');
-        this.attributes.lastOutput = 'PlayBriefing';
+        this.attributes.lastIntent = 'PlayBriefing';
         let initialized = await initializeObjects(this.attributes, 'briefingObj');
 
         if (!initialized) {
