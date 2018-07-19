@@ -185,7 +185,9 @@ async function readFastFacts() {
     return factsObj;
 }
 async function readBriefing() {
+    console.log("readBriefing called");
     let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
+    console.log("readBriefing about to return");
     return briefingObj;
 }
 

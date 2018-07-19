@@ -137,11 +137,12 @@ exports.writeTab = async function (sheetID, tabName, keys, values) {
 
 exports.readTab = async function (key, tabName) {
 
+    console.log("readTab starting (" + tabName + ")");
     let loadPromise = loadFromSheets();
     let auth = await loadPromise;
 
     let data = await getData(auth, key, tabName);
-    console.log("Google Sheets Read - Success");
+    console.log("Google Sheets Read " + tabName + " - Success");
 
     let rows = data.data.sheets[0].data[0].rowData;
 
@@ -229,7 +230,7 @@ exports.readTab = async function (key, tabName) {
     } catch (err) {
         console.log("ERROR: " + err);
     }
-
+    console.log("Returning from readTab");
     return scheduleObj;
 };
 
