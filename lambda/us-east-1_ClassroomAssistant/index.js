@@ -510,7 +510,7 @@ const handlers = {
                 //console.log('*** valid course number and class Date provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
-                let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
+                let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}. What else can I do for you today?`;
                 this.attributes.lastOutput = speechOutput;
 
                 //writing
