@@ -205,7 +205,6 @@ function coldCallHelper(attributes, roster) {
         if (sectionObj[randomStudent]['BeenCalled'] === minim) {
             speechOutput = randomStudent;
             sectionObj[randomStudent]['BeenCalled']++;
-            // todo: write updated beenCalled values to sheet
             break;
         }
     }
@@ -311,6 +310,14 @@ function groupPresentHelper(attributes, roster, groupString) {
             k++;
         }
     }
+    Object.keys(roster).forEach(courseNumber => {
+        Object.keys(roster[courseNumber]).forEach(sectionNumber => {
+            Object.keys(roster[courseNumber][sectionNumber]).forEach(student => {
+                roster[courseNumber][sectionNumber][student]['CurrentGroup'] = 'none';
+                console.log(JSON.stringify(roster[courseNumber][sectionNumber][student]));
+            });
+        });
+    });
     //console.log(returnObj);
     return returnObj;
 }
@@ -696,37 +703,64 @@ const handlers = {
                 let speechOutput = 'How many people per group?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                //console.log('*** valid course number, section number, and group count provided manually');
                 this.attributes.courseNumber = courseNumber;
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
                 Object.keys(groups).forEach(group => {
                     speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
                 });
+                Object.keys(groups).forEach(group => {
+                    groups[group].forEach(student => {
+                        let keys = {
+                            CourseNumber: this.attributes.courseNumber,
+                            SectionNumber: this.attributes.sectionNumber,
+                            NickName: student
+                        };
+                        let values = {
+                            CurrentGroup: group
+                        };
+                        googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
+                    });
+                });
                 this.attributes.lastOutput = speechOutput;
-                // todo: write new groups to Sheet
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(':responseReady');
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (!groupNumberString) {
-                let slotToElicit = 'groupNumber';
-                let speechOutput = 'How many people per group?';
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!checkSchedule(scheduleObj)) {
+            if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (!groupNumberString) {
+                let slotToElicit = 'groupNumber';
+                let speechOutput = 'How many people per group?';
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
+                let attributes = await JSON.stringify(this.attributes); // temp
+                console.log('*** all attributes: ' + attributes); // temp
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
                 Object.keys(groups).forEach(group => {
                     speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
                 });
-                // todo: write new groups to Sheet
+                Object.keys(groups).forEach(group => {
+                    groups[group].forEach(student => {
+                        let keys = {
+                            CourseNumber: this.attributes.courseNumber,
+                            SectionNumber: this.attributes.sectionNumber,
+                            NickName: student
+                        };
+                        let values = {
+                            CurrentGroup: group
+                        };
+                        googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
+                    });
+                });
                 this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(':responseReady');
             }
         }
