@@ -510,50 +510,48 @@ const handlers = {
         let classDate = this.event.request.intent.slots.classDate.value;
         let noteContent = this.event.request.intent.slots.noteContent.value;
 
-        if (courseNumber || classDate) {
-            if (!courseNumber) {
-                let slotToElicit = 'courseNumber';
-                let speechOutput = "From which course would you like me to add a briefing?";
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj.hasOwnProperty(courseNumber)) {
-                let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. For which course";
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!classDate) {
-                let slotToElicit = 'classDate';
-                let speechOutput = 'For which date?';
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
-                let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if(!noteContent) {
-                let slotToElicit = "noteContent";
-                let speechOutput = "What note would you like to add?";
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else {
-                //console.log('*** valid course number and class Date provided manually');
-                this.attributes.courseNumber = courseNumber;
-                this.attributes.classDate = classDate;
-                this.attributes.noteContent = noteContent;
-                let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
-                this.attributes.lastOutput = speechOutput;
-
-                //writing
-                let keys = {
-                    CourseNumber: this.attributes.courseNumber,
-                    Date: this.attributes.classDate
-                };
-                let values = {
-                    Note: this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] + " | " + noteContent
-                };
-
-                googleSDK.writeTab(this.attributes.spreadsheetID, "ClassroomBriefing", keys, values);
-
-                this.response.speak(speechOutput);
-                nullifyObjects(this.attributes);
-                this.emit(':responseReady');
+        if (!courseNumber) {
+            let slotToElicit = 'courseNumber';
+            let speechOutput = "From which course would you like me to add a briefing?";
+            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+        } else if (!briefingObj.hasOwnProperty(courseNumber)) {
+            let slotToElicit = 'courseNumber';
+            let speechOutput = "I'm sorry, I don't have that course number on record. For which course";
+            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+        } else if (!classDate) {
+            let slotToElicit = 'classDate';
+            let speechOutput = 'For which date?';
+            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+        } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
+            let slotToElicit = 'classDate';
+            let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
+            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+        } else if(!noteContent) {
+            let slotToElicit = "noteContent";
+            let speechOutput = "What note would you like to add?";
+            this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+        } else {
+            //console.log('*** valid course number and class Date provided manually');
+            this.attributes.courseNumber = courseNumber;
+            this.attributes.classDate = classDate;
+            this.attributes.noteContent = noteContent;
+            let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
+            this.attributes.lastOutput = speechOutput;
+            if (this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"]) {
+                noteContent = " | " + noteContent;
             }
+            //writing
+            let keys = {
+                CourseNumber: this.attributes.courseNumber,
+                Date: this.attributes.classDate
+            };
+            let values = {
+                Note: this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] + noteContent
+            };
+            googleSDK.writeTab(this.attributes.spreadsheetID, "ClassroomBriefing", keys, values);
+            this.response.speak(speechOutput);
+            nullifyObjects(this.attributes);
+            this.emit(':responseReady');
         }
     },
 
