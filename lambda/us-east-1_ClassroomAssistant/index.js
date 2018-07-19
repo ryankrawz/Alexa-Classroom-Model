@@ -151,12 +151,12 @@ function getInvalidNameList(attributes, names) {
     let invalidNames = [];
 
     nameList.forEach(name => {
-        if (!(name in rosterList)) {
-            invalidNames.push(name)
+        if (rosterList.indexOf(name) === -1) {
+            invalidNames.push(name);
         }
     });
 
-    return (invalidNames.length > 0);
+    return invalidNames;
 }
 
 async function readSchedule(spreadsheetID) {
@@ -233,27 +233,8 @@ function orderedQuizQuestion(attributes, quizQuestions) {
     return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
 }
 
-function participationTrackerHelper(attributes, roster, names) {
-    let speechOutput = 'Awarded';
-    //console.log('*** roster object: ' + roster);
-    //console.log('*** course number object: ' + roster[attributes.courseNumber]);
-    //console.log('*** section number object: ' + roster[attributes.courseNumber][attributes.sectionNumber]);
-    let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
-    let rosterList = Object.keys(sectionObj);
-    let nameList = names.split(' ');                                                               
-    for (let i = 0; i < nameList.length; i++) {
-        for (let j = 0; j < rosterList.length; j++) {
-            if (nameList[i] === rosterList[j]) {
-                sectionObj[rosterList[j]][Object.keys(sectionObj[rosterList[j]])[3]]++;
-                // Need to integrate writing to sheets now for points
-            }
-        }
-    }
-    return speechOutput;
-}
-
 function playBriefingHelper(attributes, notes) {
-    let notesAccessed = notes[attributes.courseNumber][attributes.classDate].split(" | ");
+    let notesAccessed = notes[attributes.courseNumber][attributes.classDate]['Note'].split(" | ");
     let speechOutput = '';
     if (notesAccessed.length == 1) {
         speechOutput = notesAccessed;
@@ -365,20 +346,17 @@ function writeToSheets(key, tabName, scheduleObj) {
 
 function nullifyObjects(attributes) {
     attributes.scheduleObj = null;
-    attributes.rosterObj =  null;
+    attributes.rosterObj = null;
     attributes.briefingObj = null;
     attributes.factsObj = null;
     attributes.questionsObj = null;
 }
 
 async function initializeObjects(attributes, intentObj) {
-
     let setUp = initSheetID(attributes);
-
     if (!setUp) {
         return false;
     }
-
     let readFunctions = {
         'scheduleObj': readSchedule,
         'rosterObj': readRoster,
@@ -386,14 +364,13 @@ async function initializeObjects(attributes, intentObj) {
         'questionsObj': readQuizQuestions,
         'factsObj': readFastFacts
     };
-
-    if (!attributes.scheduleObj || !attributes[intentObj] && readFunctions[intentObj]) {
+    if ((attributes.scheduleObj == null || attributes[intentObj] == null) && readFunctions[intentObj]) {
+        console.log('*** reading in objects');
         attributes.scheduleObj = await readSchedule(attributes.spreadsheetID);
         attributes[intentObj] =  await readFunctions[intentObj](attributes.spreadsheetID);
     } else if (!readFunctions[intentObj]) {
-        console.log(`*** ${intentObj} is not a valid argument. Argument type must be string.`);
+        console.log(`*** ${intentObj} is not a valid argument. Remember that argument type must be string.`);
     }
-
     return true;
 }
 
@@ -423,7 +400,7 @@ const handlers = {
     },
 
     'AMAZON.FallbackIntent': function () {
-        let speechOutput = 'I did not understand that command.';
+        let speechOutput = 'I did not understand that command. Please try again.';
         this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
     },
@@ -435,10 +412,8 @@ const handlers = {
 
     //Custom Intents
     'PlayBriefing': async function () {
-        //console.log('*** PlayBriefing Started');
         this.attributes.lastIntent = 'PlayBriefing';
         let initialized = await initializeObjects(this.attributes, 'briefingObj');
-
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
@@ -449,13 +424,9 @@ const handlers = {
         //console.log(JSON.stringify(briefingObj));
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
-        if (courseNumber || classDate) {
-            //console.log(classDate);
-            if(!courseNumber) {
-                let slotToElicit = 'courseNumber';
-                let speechOutput = "From which course would you like me play a briefing?";
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj.hasOwnProperty(courseNumber)) {
+
+        if (courseNumber) {
+            if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing ?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -478,8 +449,9 @@ const handlers = {
                 this.emit(':responseReady');
             }
         } else {
-            getContext(this.attributes, checkSchedule (scheduleObj));
-            if (!checkSchedule(scheduleObj)) {
+            let sectionObj = checkSchedule(scheduleObj);
+            getContext(this.attributes, sectionObj);
+            if (!sectionObj) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput)
@@ -505,10 +477,13 @@ const handlers = {
     'AddBriefingNote': async function () {
 
         this.attributes.lastIntent = 'AddBriefingNote';
-        if (!this.attributes.briefingObj) {
-            this.attributes.briefingObj = await readBriefing();
-        }
+        let initialized = await initializeObjects(this.attributes, 'briefingObj');
 
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
+        let briefingObj = this.attributes.briefingObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
         let noteContent = this.event.request.intent.slots.noteContent.value;
@@ -555,9 +530,6 @@ const handlers = {
         }
     },
 
-    //force tags to lower case
-    //must validate tags! Invalid tags break the skill
-    //still need to integrate with readFastFacts()
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
         let initialized = await initializeObjects(this.attributes, 'factsObj');
@@ -874,6 +846,13 @@ const handlers = {
     'ParticipationTracker': async function () {
         this.attributes.lastIntent = 'ParticipationTracker';
 
+        let initialized = await initializeObjects(this.attributes, 'rosterObj');
+
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
+
         if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
             //console.log('*** First time through participation tracker in this session');
             this.attributes.scheduleObj = await readSchedule();
@@ -904,38 +883,44 @@ const handlers = {
                 let slotToElicit = "firstNames";
                 let speechOutput = "Who would you like to award points to?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (getInvalidNameList(this.attributes, firstNames)) {
+            } else if (getInvalidNameList(this.attributes, firstNames).length > 0) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
                 let nameOutput = '';
-                invalidNames.forEach(name => {
-                    if (invalidNames.length == 1) {
-                        nameOutput = name;
-                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                        nameOutput += `or ${name} `;
-                    } else {
-                        nameOutput += `${name}, `
-                    }
-                });
+                if (invalidNames.length > 0) {
+                    invalidNames.forEach(name => {
+                        if (invalidNames.length == 1) {
+                            nameOutput = name;
+                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                            nameOutput += `or ${name} `;
+                        } else {
+                            nameOutput += `${name}, `
+                        }
+                    });
+                }
                 let slotToElicit = 'firstNames';
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
-                let speechOutput = participationTrackerHelper(this.attributes, this.attributes.rosterObj, firstNames);
+                let speechOutput = "Awarded";
                 this.attributes.lastOutput = speechOutput;
 
-                //writing
-                let keys = {
-                    CourseNumber: this.attributes.courseNumber,
-                    SectionNumber: this.attributes.sectionNumber,
-                    NickName: speechOutput
-                };
-                let values = {
-                    ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["ParticipationPoints"] + 1)
-                };
+                let names = firstNames.split(" ");
 
-                googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
+                names.forEach((studentName) => {
+                    //writing
+                    let keys = {
+                        CourseNumber: this.attributes.courseNumber,
+                        SectionNumber: this.attributes.sectionNumber,
+                        NickName: studentName
+                    };
+                    let values = {
+                        ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][studentName]["ParticipationPoints"] + 1)
+                    };
+
+                    googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
+                });
 
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
@@ -951,36 +936,42 @@ const handlers = {
                 let speechOutput = "Who would you like to award points to?";
                 let slotToElicit = "firstNames";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (getInvalidNameList(this.attributes, firstNames)) {
+            } else if (getInvalidNameList(this.attributes, firstNames).length > 0) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
                 let nameOutput = '';
-                invalidNames.forEach(name => {
-                    if (invalidNames.length == 1) {
-                        nameOutput = name;
-                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                        nameOutput += `or ${name} `;
-                    } else {
-                        nameOutput += `${name}, `
-                    }
-                });
+                if (invalidNames.length > 0) {
+                    invalidNames.forEach(name => {
+                        if (invalidNames.length == 1) {
+                            nameOutput = name;
+                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                            nameOutput += `or ${name} `;
+                        } else {
+                            nameOutput += `${name}, `
+                        }
+                    });
+                }
                 let slotToElicit = 'firstNames';
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${this.attributes.courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                let speechOutput = participationTrackerHelper(this.attributes, this.attributes.rosterObj, firstNames);
+                let speechOutput = "Awarded";
                 this.attributes.lastOutput = speechOutput;
 
-                //writing
-                let keys = {
-                    CourseNumber: this.attributes.courseNumber,
-                    SectionNumber: this.attributes.sectionNumber,
-                    NickName: speechOutput
-                };
-                let values = {
-                    ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["ParticipationPoints"] + 1)
-                };
+                let names = firstNames.split(" ");
 
-                googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
+                names.forEach((studentName) => {
+                    //writing
+                    let keys = {
+                        CourseNumber: this.attributes.courseNumber,
+                        SectionNumber: this.attributes.sectionNumber,
+                        NickName: studentName
+                    };
+                    let values = {
+                        ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][studentName]["ParticipationPoints"] + 1)
+                    };
+
+                    googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
+                });
 
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
