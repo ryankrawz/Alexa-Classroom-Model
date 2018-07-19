@@ -173,6 +173,7 @@ async function readQuizQuestions(spreadsheetID) {
     let questionsObj = await googleSDK.readTab(spreadsheetID, "QuizQuestions");
     return questionsObj;
 }
+
 async function readFastFacts(spreadsheetID) {
     let factsObj = await googleSDK.readTab(spreadsheetID, "FastFacts");
     return factsObj;
@@ -319,6 +320,19 @@ function groupPresentHelper(attributes, roster, groupString) {
     });
     //console.log(returnObj);
     return returnObj;
+}
+
+function readTagsHelper(attributes, facts) {
+    let speechOutput = '';
+    let allTags = Object.keys(facts[attributes.courseNumber]);
+    allTags.forEach(tag => {
+        if (allTags.indexOf(tag) == allTags.length - 1) {
+            speechOutput += tag;
+        } else {
+            speechOutput += (tag + ", ");
+        }
+    });
+    return speechOutput;
 }
 
 function writeToSheets(key, tabName, scheduleObj) {
@@ -499,11 +513,11 @@ const handlers = {
         if (courseNumber || classDate) {
             if (!courseNumber) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "From which course would you like me play a briefing?";
+                let speechOutput = "From which course would you like me to add a briefing?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing ?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. For which course";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!classDate) {
                 let slotToElicit = 'classDate';
@@ -513,11 +527,16 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if(!noteContent) {
+                let slotToElicit = "noteContent";
+                let speechOutput = "What note would you like to add?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and class Date provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
-                let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
+                this.attributes.noteContent = noteContent;
+                let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
                 this.attributes.lastOutput = speechOutput;
 
                 //writing
@@ -606,25 +625,44 @@ const handlers = {
         }
     },
 
-    'ReadTags': function () {
+    'ReadTags': async function () {
         this.attributes.lastIntent = 'ReadTags';
-
-        if (!this.event.request.intent.slots.courseNumber.value) {
-            this.emit(':delegate');
-        } else if (!allQuestions.hasOwnProperty(this.event.request.intent.slots.courseNumber.value)) {
-            const slotToElicit = 'courseNumber';
-            const speechOutput = "We couldn't find that course number. Please try again.";
-            this.emit(':elicitiSlot', slotToElicit, speechOutput, speechOutput);
-        } else {
-            let speechOutput = '';
-            const courseNumber = this.event.request.intent.slots.courseNumber.value;
-            allQuestions[courseNumber].forEach(question => {
-                speechOutput += (question.tag + ", ");
-            });
-
-            this.response.speak('Your current tags are: ' + speechOutput);
+        let initialized = await initializeObjects(this.attributes, 'factsObj');
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
+        }
+        let scheduleObj = this.attributes.scheduleObj;
+        let factsObj =  this.attributes.factsObj;
+        let courseNumber = this.event.request.intent.slots.courseNumber.value;
 
+        if (courseNumber) {
+            if (!scheduleObj.hasOwnProperty(courseNumber)) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like to access?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                this.attributes.courseNumber = courseNumber;
+                let speechOutput = readTagsHelper(this.attributes, factsObj);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
+                this.emit(":responseReady");
+            }
+        } else {
+            let sectionObj = checkSchedule(scheduleObj);
+            getContext(this.attributes, sectionObj);
+            if (!sectionObj) {
+                let slotToElicit = 'courseNumber';
+                let speechOutput = "For which course number?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else {
+                let speechOutput = readTagsHelper(this.attributes, factsObj);
+                this.attributes.lastOutput = speechOutput;
+                this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
+                this.emit(":responseReady");
+            }
         }
     },
 
@@ -772,7 +810,7 @@ const handlers = {
                     NickName: speechOutput
                 };
                 let values = {
-                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"] + 1)
+                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"])
                 };
                 googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
 
@@ -799,7 +837,7 @@ const handlers = {
                     NickName: speechOutput
                 };
                 let values = {
-                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"] + 1)
+                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"])
                 };
 
                 googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
