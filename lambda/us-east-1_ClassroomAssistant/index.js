@@ -556,10 +556,9 @@ const handlers = {
         }
     },
 
-
-//force tags to lower case
-//must validate tags! Invalid tags break the skill
-//still need to integrate with readFastFacts()
+    //force tags to lower case
+    //must validate tags! Invalid tags break the skill
+    //still need to integrate with readFastFacts()
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
         let initialized = await initializeObjects(this.attributes, 'factsObj');
