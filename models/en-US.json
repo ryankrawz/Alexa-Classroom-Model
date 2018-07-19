@@ -134,6 +134,14 @@
                         }
                     ],
                     "samples": [
+                        "say a note from {courseNumber}",
+                        "say a note from course {courseNumber}",
+                        "say a briefing from course {courseNumber}",
+                        "play a note from {courseNumber}",
+                        "play a note from course {courseNumber}",
+                        "play a briefing from course {courseNumber}",
+                        "play my briefing from course {courseNumber}",
+                        "play my briefing for {courseNumber}",
                         "say note",
                         "play note",
                         "say a note",
