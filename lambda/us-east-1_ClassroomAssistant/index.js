@@ -314,7 +314,6 @@ function groupPresentHelper(attributes, roster, groupString) {
         Object.keys(roster[courseNumber]).forEach(sectionNumber => {
             Object.keys(roster[courseNumber][sectionNumber]).forEach(student => {
                 roster[courseNumber][sectionNumber][student]['CurrentGroup'] = 'none';
-                console.log(JSON.stringify(roster[courseNumber][sectionNumber][student]));
             });
         });
     });
@@ -736,8 +735,6 @@ const handlers = {
                 let speechOutput = 'How many people per group?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                let attributes = await JSON.stringify(this.attributes); // temp
-                console.log('*** all attributes: ' + attributes); // temp
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
                 Object.keys(groups).forEach(group => {
