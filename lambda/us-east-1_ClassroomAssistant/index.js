@@ -37,6 +37,7 @@ function getNames(students) {
     return names;
 }
 
+
 function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
 	return dayInitials[day];
@@ -234,7 +235,7 @@ function orderedQuizQuestion(attributes, quizQuestions) {
 }
 
 function playBriefingHelper(attributes, notes) {
-    let notesAccessed = notes[attributes.courseNumber][attributes.classDate].split(" | ");
+    let notesAccessed = notes[attributes.courseNumber][attributes.classDate]['Note'].split(" | ");
     let speechOutput = '';
     if (notesAccessed.length == 1) {
         speechOutput = notesAccessed;
@@ -346,20 +347,17 @@ function writeToSheets(key, tabName, scheduleObj) {
 
 function nullifyObjects(attributes) {
     attributes.scheduleObj = null;
-    attributes.rosterObj =  null;
+    attributes.rosterObj = null;
     attributes.briefingObj = null;
     attributes.factsObj = null;
     attributes.questionsObj = null;
 }
 
 async function initializeObjects(attributes, intentObj) {
-
     let setUp = initSheetID(attributes);
-
     if (!setUp) {
         return false;
     }
-
     let readFunctions = {
         'scheduleObj': readSchedule,
         'rosterObj': readRoster,
@@ -367,14 +365,13 @@ async function initializeObjects(attributes, intentObj) {
         'questionsObj': readQuizQuestions,
         'factsObj': readFastFacts
     };
-
-    if (!attributes.scheduleObj || !attributes[intentObj] && readFunctions[intentObj]) {
+    if ((attributes.scheduleObj == null || attributes[intentObj] == null) && readFunctions[intentObj]) {
+        console.log('*** reading in objects');
         attributes.scheduleObj = await readSchedule(attributes.spreadsheetID);
         attributes[intentObj] =  await readFunctions[intentObj](attributes.spreadsheetID);
     } else if (!readFunctions[intentObj]) {
-        console.log(`*** ${intentObj} is not a valid argument. Argument type must be string.`);
+        console.log(`*** ${intentObj} is not a valid argument. Remember that argument type must be string.`);
     }
-
     return true;
 }
 
@@ -404,7 +401,7 @@ const handlers = {
     },
 
     'AMAZON.FallbackIntent': function () {
-        let speechOutput = 'I did not understand that command.';
+        let speechOutput = 'I did not understand that command. Please try again.';
         this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
     },
@@ -416,10 +413,8 @@ const handlers = {
 
     //Custom Intents
     'PlayBriefing': async function () {
-        //console.log('*** PlayBriefing Started');
         this.attributes.lastIntent = 'PlayBriefing';
         let initialized = await initializeObjects(this.attributes, 'briefingObj');
-
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
@@ -430,13 +425,9 @@ const handlers = {
         //console.log(JSON.stringify(briefingObj));
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
-        if (courseNumber || classDate) {
-            //console.log(classDate);
-            if(!courseNumber) {
-                let slotToElicit = 'courseNumber';
-                let speechOutput = "From which course would you like me play a briefing?";
-                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj.hasOwnProperty(courseNumber)) {
+
+        if (courseNumber) {
+            if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing ?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -459,8 +450,9 @@ const handlers = {
                 this.emit(':responseReady');
             }
         } else {
-            getContext(this.attributes, checkSchedule (scheduleObj));
-            if (!checkSchedule(scheduleObj)) {
+            let sectionObj = checkSchedule(scheduleObj);
+            getContext(this.attributes, sectionObj);
+            if (!sectionObj) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput)
@@ -484,6 +476,7 @@ const handlers = {
     },
 
     'AddBriefingNote': async function () {
+
         this.attributes.lastIntent = 'AddBriefingNote';
         let initialized = await initializeObjects(this.attributes, 'briefingObj');
 
@@ -538,9 +531,6 @@ const handlers = {
         }
     },
 
-    //force tags to lower case
-    //must validate tags! Invalid tags break the skill
-    //still need to integrate with readFastFacts()
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
         let initialized = await initializeObjects(this.attributes, 'factsObj');
