@@ -37,7 +37,6 @@ function getNames(students) {
     return names;
 }
 
-
 function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
 	return dayInitials[day];
@@ -156,7 +155,7 @@ function getInvalidNameList(attributes, names) {
         }
     });
 
-    return (invalidNames.length > 0);
+    return invalidNames;
 }
 
 async function readSchedule(spreadsheetID) {
@@ -851,6 +850,13 @@ const handlers = {
     'ParticipationTracker': async function () {
         this.attributes.lastIntent = 'ParticipationTracker';
 
+        let initialized = await initializeObjects(this.attributes, 'rosterObj');
+
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
+
         if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
             //console.log('*** First time through participation tracker in this session');
             this.attributes.scheduleObj = await readSchedule();
@@ -883,16 +889,18 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (getInvalidNameList(this.attributes, firstNames)) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
-                let nameOutput = '';
-                invalidNames.forEach(name => {
-                    if (invalidNames.length == 1) {
-                        nameOutput = name;
-                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                        nameOutput += `or ${name} `;
-                    } else {
-                        nameOutput += `${name}, `
-                    }
-                });
+                if (invalidNames.length > 0) {
+                    let nameOutput = '';
+                    invalidNames.forEach(name => {
+                        if (invalidNames.length == 1) {
+                            nameOutput = name;
+                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                            nameOutput += `or ${name} `;
+                        } else {
+                            nameOutput += `${name}, `
+                        }
+                    });
+                }
                 let slotToElicit = 'firstNames';
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -930,16 +938,18 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (getInvalidNameList(this.attributes, firstNames)) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
-                let nameOutput = '';
-                invalidNames.forEach(name => {
-                    if (invalidNames.length == 1) {
-                        nameOutput = name;
-                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                        nameOutput += `or ${name} `;
-                    } else {
-                        nameOutput += `${name}, `
-                    }
-                });
+                if (invalidNames.length > 0) {
+                    let nameOutput = '';
+                    invalidNames.forEach(name => {
+                        if (invalidNames.length == 1) {
+                            nameOutput = name;
+                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                            nameOutput += `or ${name} `;
+                        } else {
+                            nameOutput += `${name}, `
+                        }
+                    });
+                }
                 let slotToElicit = 'firstNames';
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${this.attributes.courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
