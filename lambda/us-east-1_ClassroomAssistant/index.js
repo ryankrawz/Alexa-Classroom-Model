@@ -492,11 +492,11 @@ const handlers = {
         if (courseNumber || classDate) {
             if (!courseNumber) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "From which course would you like me play a briefing?";
+                let speechOutput = "From which course would you like me to add a briefing?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing ?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. For which course";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!classDate) {
                 let slotToElicit = 'classDate';
@@ -506,11 +506,16 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if(!noteContent) {
+                let slotToElicit = "noteContent";
+                let speechOutput = "What note would you like to add?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and class Date provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
-                let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}. What else can I do for you today?`;
+                this.attributes.noteContent = noteContent;
+                let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
                 this.attributes.lastOutput = speechOutput;
 
                 //writing
