@@ -178,7 +178,9 @@ async function readFastFacts() {
     return factsObj;
 }
 async function readBriefing() {
+    console.log("readBriefing called");
     let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
+    console.log("readBriefing about to return");
     return briefingObj;
 }
 
@@ -545,8 +547,9 @@ const handlers = {
 //still need to integrate with readFastFacts()
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
-        let scheduleObj = await readSchedule();
-        let factsObj =  await readFastFacts();
+        await initializeObjects(this.attributes, 'factsObj');
+        let scheduleObj = this.attributes.scheduleObj;
+        let factsObj =  this.attributes.factsObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let tag = this.event.request.intent.slots.tag.value;
 
@@ -565,7 +568,7 @@ const handlers = {
                     this.emitWithState('AMAZON.CancelIntent');
                 } else {
                     let slotToElicit = 'tag';
-                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${this.attributes.courseNumber}. What would you like me to talk about?`;
+                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${courseNumber}. What would you like me to talk about?`;
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 }
             } else {
@@ -573,6 +576,7 @@ const handlers = {
                 let speechOutput = fastFactsHelper(this.attributes, factsObj, tag.toLowerCase());
                 this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(":responseReady");
             }
         } else {
@@ -598,6 +602,7 @@ const handlers = {
                 let speechOutput = fastFactsHelper(this.attributes, factsObj, tag.toLowerCase());
                 this.attributes.lastOutput = speechOutput;
                 this.response.speak(speechOutput);
+                nullifyObjects(this.attributes);
                 this.emit(":responseReady");
             }
         }
