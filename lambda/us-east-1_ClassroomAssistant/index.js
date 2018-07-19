@@ -436,7 +436,7 @@ const handlers = {
     //Custom Intents
     'PlayBriefing': async function () {
         //console.log('*** PlayBriefing Started');
-        this.attributes.lastOutput = 'PlayBriefing';
+        this.attributes.lastIntent = 'PlayBriefing';
         let initialized = await initializeObjects(this.attributes, 'briefingObj');
 
         if (!initialized) {
@@ -503,12 +503,14 @@ const handlers = {
     },
 
     'AddBriefingNote': async function () {
-
         this.attributes.lastIntent = 'AddBriefingNote';
-        if (!this.attributes.briefingObj) {
-            this.attributes.briefingObj = await readBriefing();
-        }
+        let initialized = await initializeObjects(this.attributes, 'briefingObj');
 
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
+        let briefingObj = this.attributes.briefingObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
         let noteContent = this.event.request.intent.slots.noteContent.value;
