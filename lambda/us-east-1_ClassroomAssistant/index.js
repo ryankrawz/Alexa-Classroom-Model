@@ -385,7 +385,7 @@ async function initializeObjects(attributes, intentObj) {
         'briefingObj': readBriefing,
         'questionsObj': readQuizQuestions,
         'factsObj': readFastFacts
-    }
+    };                                  
     if (!attributes.scheduleObj || !attributes[intentObj] && readFunctions[intentObj]) {
         attributes.scheduleObj = await readSchedule();
         attributes[intentObj] =  await readFunctions[intentObj]();
