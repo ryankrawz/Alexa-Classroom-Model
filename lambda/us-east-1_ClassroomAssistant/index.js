@@ -867,12 +867,9 @@ const handlers = {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
         }
-
-        if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
-            //console.log('*** First time through participation tracker in this session');
-            this.attributes.scheduleObj = await readSchedule();
-            this.attributes.rosterObj =  await readRoster();
-        }
+        
+        let scheduleObj = await readSchedule();
+        let rosterObj = await readRoster();
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let sectionTime = this.event.request.intent.slots.sectionTime.value;
         let firstNames = this.event.request.intent.slots.firstNames.value;
