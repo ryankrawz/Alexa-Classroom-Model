@@ -748,7 +748,7 @@ const handlers = {
                     NickName: speechOutput
                 };
                 let values = {
-                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"] + 1)
+                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"])
                 };
                 googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
 
@@ -775,7 +775,7 @@ const handlers = {
                     NickName: speechOutput
                 };
                 let values = {
-                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"] + 1)
+                    BeenCalled: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][speechOutput]["BeenCalled"])
                 };
 
                 googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
