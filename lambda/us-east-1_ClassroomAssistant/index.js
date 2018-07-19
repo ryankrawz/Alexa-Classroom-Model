@@ -58,9 +58,9 @@ function convertTimeStamp(timeStamp) {
 
 function checkSchedule(scheduleObj) {
     let dayOfWeek = convertDayOfWeek(getCurrentDay());
-    console.log(dayOfWeek);
+    //console.log(dayOfWeek);
     let timeStamp = convertTimeStamp(getCurrentTime());
-    console.log(timeStamp);
+    //console.log(timeStamp);
     let courseNumbers = Object.keys(scheduleObj);
     let gracePeriod = 300/(3600 * 24);
 
@@ -71,11 +71,11 @@ function checkSchedule(scheduleObj) {
             let timeDoesMatch = false;
             let sectionObj = scheduleObj[courseNumbers[i]][sectionNumbers[j]];
             let DOWList = sectionObj['DayOfWeek'].split('');
-            console.log(DOWList);
+            //console.log(DOWList);
             let start = sectionObj['Start'];
-            console.log(start);
+            //console.log(start);
             let end = sectionObj['End'];
-            console.log(end);
+            //console.log(end);
 
             DOWList.forEach(day => {
                 if (day == dayOfWeek) {
@@ -85,8 +85,8 @@ function checkSchedule(scheduleObj) {
             if (timeStamp >= (start - gracePeriod) && timeStamp <= (end + gracePeriod)) {
                 timeDoesMatch = true;
             }
-            console.log(dayDoesMatch);
-            console.log(timeDoesMatch);
+            //.log(dayDoesMatch);
+            //console.log(timeDoesMatch);
             if (dayDoesMatch && timeDoesMatch) {
                 let returnObj = {};
                 returnObj[sectionNumbers[j]] = sectionObj;
@@ -101,21 +101,21 @@ function checkSchedule(scheduleObj) {
 function getCurrentDay() {
     let localDateTime = new Date(Date.now()).toLocaleDateString('en-US', {timeZone: 'America/New_York', hour12: false});
     let currentDay = new Date(localDateTime).getDay();
-    console.log(currentDay);
-    console.log(typeof currentDay);
+    //console.log(currentDay);
+    //console.log(typeof currentDay);
     return currentDay;
 }
 
 function getCurrentTime() {
     let currentTime = new Date(Date.now()).toLocaleTimeString('en-US', {timeZone: 'America/New_York', hour12: false});
-    console.log(currentTime);
-    console.log(typeof currentTime);
+    //console.log(currentTime);
+    //console.log(typeof currentTime);
     return currentTime;
 }
 
 //inSchedule is only one section object, with the section number as a key located at the 0th index of Object.keys(inSchedule)
 function getContext(attributes, inSchedule) {
-    console.log(inSchedule);
+    //console.log(inSchedule);
     if (inSchedule) {
         let sectionNumber = Object.keys(inSchedule)[0];
         let sectionObj = inSchedule[sectionNumber];
@@ -134,7 +134,7 @@ function isValidSectionTime(attributes, schedule, courseNumberSlot, sectionTimeS
         if (sectionObj['Start'] == sectionTime) {
             attributes.sectionNumber = Object.keys(schedule[courseNumberSlot])[Object.values(schedule[courseNumberSlot]).indexOf(sectionObj)];
             timeDoesMatch = true;
-            console.log('***valid section time provided manually');
+            //console.log('***valid section time provided manually');
         }
     });
     return timeDoesMatch;
@@ -178,15 +178,15 @@ async function readFastFacts() {
     return factsObj;
 }
 async function readBriefing() {
-    console.log("readBriefing called");
+    //console.log("readBriefing called");
     let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
-    console.log("readBriefing about to return");
+    //console.log("readBriefing about to return");
     return briefingObj;
 }
 
 function fastFactsHelper(attributes, facts, tag) {
-    console.log(JSON.stringify(facts));
-    console.log(tag);
+    //console.log(JSON.stringify(facts));
+    //console.log(tag);
     return facts[attributes.courseNumber][tag]['Answer'];
 }
 
@@ -194,7 +194,7 @@ function coldCallHelper(attributes, roster) {
     const beenCalledList = [];
     let speechOutput;
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
-    console.log(sectionObj);
+    //console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
     rosterList.forEach(student => beenCalledList.push(sectionObj[student]['BeenCalled']));
     const minim = Math.min(...beenCalledList);
@@ -213,32 +213,32 @@ function coldCallHelper(attributes, roster) {
 
 function orderedQuizQuestion(attributes, quizQuestions) {
     let courseObj = quizQuestions[attributes.courseNumber];
-    console.log(JSON.stringify(quizQuestions));
-    console.log(attributes.questionSets[attributes.courseNumber].currentQuestionNumber);
+    //console.log(JSON.stringify(quizQuestions));
+    //console.log(attributes.questionSets[attributes.courseNumber].currentQuestionNumber);
     if (!attributes.questionSets) {
-        console.log('*** making a questionSets attribute');
+        //console.log('*** making a questionSets attribute');
         attributes.questionSets = {};
         attributes.questionSets[attributes.courseNumber] = {};
         attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
     } else if (!attributes.questionSets[attributes.courseNumber]) {
-        console.log('*** making a questionSets[attributes.courseNumber] attribute');
+        //console.log('*** making a questionSets[attributes.courseNumber] attribute');
         attributes.questionSets[attributes.courseNumber] = {};
         attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 0;
     }
     attributes.questionSets[attributes.courseNumber].currentQuestionNumber++;
     if (courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber.toString()] == undefined) {
-        console.log('*** we reached the end of the current question list, resetting back to the first question');
+        //console.log('*** we reached the end of the current question list, resetting back to the first question');
         attributes.questionSets[attributes.courseNumber].currentQuestionNumber = 1;
     }
-    console.log(`*** got the current question: ${courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question']}`);
+    //console.log(`*** got the current question: ${courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question']}`);
     return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
 }
 
 function participationTrackerHelper(attributes, roster, names) {
     let speechOutput = 'Awarded';
-    console.log('*** roster object: ' + roster);
-    console.log('*** course number object: ' + roster[attributes.courseNumber]);
-    console.log('*** section number object: ' + roster[attributes.courseNumber][attributes.sectionNumber]);
+    //console.log('*** roster object: ' + roster);
+    //console.log('*** course number object: ' + roster[attributes.courseNumber]);
+    //console.log('*** section number object: ' + roster[attributes.courseNumber][attributes.sectionNumber]);
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
     let rosterList = Object.keys(sectionObj);
     let nameList = names.split(' ');                                                               
@@ -254,7 +254,7 @@ function participationTrackerHelper(attributes, roster, names) {
 }
 
 function playBriefingHelper(attributes, notes) {
-    let notesAccessed = notes[attributes.courseNumber][attributes.classDate];
+    let notesAccessed = notes[attributes.courseNumber][attributes.classDate].split(" | ");
     let speechOutput = '';
     if (notesAccessed.length == 1) {
         speechOutput = notesAccessed;
@@ -271,7 +271,7 @@ function groupPresentHelper(attributes, roster, groupString) {
     let groupCount = parseInt(groupString);
     let presentList = [];
     let students = Object.keys(roster[attributes.courseNumber][attributes.sectionNumber]);
-    console.log(students);
+    //console.log(students);
 
     // Searches existing presentation list for the student's name, returns true if name is not in list
     function studentNotInList(student, presenters) {
@@ -320,16 +320,16 @@ function groupPresentHelper(attributes, roster, groupString) {
                 presentList.shift();
             }
             groupList.push(eachGroup);
-            console.log(eachGroup);
+            //console.log(eachGroup);
             eachGroup = [];
         }
-        console.log(groupList);
+        //console.log(groupList);
         for (let n = 0; n < groupList.length; n++) {
             returnObj[k.toString()] = groupList[n];
             k++;
         }
     }
-    console.log(returnObj);
+    //console.log(returnObj);
     return returnObj;
 }
 
@@ -380,7 +380,8 @@ async function initializeObjects(attributes, intentObj) {
         'briefingObj': readBriefing,
         'questionsObj': readQuizQuestions,
         'factsObj': readFastFacts
-    }
+    };
+
     if (!attributes.scheduleObj || !attributes[intentObj] && readFunctions[intentObj]) {
         attributes.scheduleObj = await readSchedule();
         attributes[intentObj] =  await readFunctions[intentObj]();
@@ -388,6 +389,7 @@ async function initializeObjects(attributes, intentObj) {
         console.log(`*** ${intentObj} is not a valid argument. Argument type must be string.`);
     }
 }
+
 const handlers = {
     'LaunchRequest': function () {
         const speechOutput = 'This is the Classroom Assistant skill.';
@@ -426,16 +428,16 @@ const handlers = {
 
     //Custom Intents
     'PlayBriefing': async function () {
-        console.log('*** PlayBriefing Started');
+        //console.log('*** PlayBriefing Started');
         this.attributes.lastOutput = 'PlayBriefing';
         await initializeObjects(this.attributes, 'briefingObj');
         let briefingObj = this.attributes.briefingObj;
         let scheduleObj = this.attributes.scheduleObj;
-        console.log(JSON.stringify(briefingObj));
+        //console.log(JSON.stringify(briefingObj));
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
         if (courseNumber || classDate) {
-            console.log(classDate);
+            //console.log(classDate);
             if(!courseNumber) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "From which course would you like me play a briefing?";
@@ -453,7 +455,7 @@ const handlers = {
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number and class date provided manually');
+                //console.log('*** valid course number and class date provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
                 let speechOutput = playBriefingHelper(this.attributes, briefingObj);
@@ -464,7 +466,7 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule (scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
+            if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput)
@@ -486,7 +488,6 @@ const handlers = {
             }
         }
     },
-
 
     'AddBriefingNote': async function () {
 
@@ -517,7 +518,7 @@ const handlers = {
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number and class Date provided manually');
+                //console.log('*** valid course number and class Date provided manually');
                 this.attributes.courseNumber = courseNumber;
                 this.attributes.classDate = classDate;
                 let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.date}. What else can I do for you today?`;
@@ -581,7 +582,7 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
+            if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -661,7 +662,7 @@ const handlers = {
                 let speechOutput = 'How many people per group?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number, section number, and group count provided manually');
+                //console.log('*** valid course number, section number, and group count provided manually');
                 this.attributes.courseNumber = courseNumber;
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
@@ -679,7 +680,7 @@ const handlers = {
                 let slotToElicit = 'groupNumber';
                 let speechOutput = 'How many people per group?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (checkSchedule(scheduleObj) == false) {
+            } else if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -699,7 +700,7 @@ const handlers = {
 
     'ColdCall': async function () {
         this.attributes.lastIntent = 'ColdCall';
-        console.log('*** Starting ColdCall');
+        //console.log('*** Starting ColdCall');
         await initializeObjects(this.attributes, 'rosterObj');
         let scheduleObj = this.attributes.scheduleObj;
         let rosterObj = this.attributes.rosterObj;
@@ -724,7 +725,7 @@ const handlers = {
                 let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to cold call from?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number and section number provided manually');
+                //console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
                 let speechOutput = coldCallHelper(this.attributes, rosterObj);
                 this.attributes.lastOutput = speechOutput;
@@ -746,13 +747,13 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule(scheduleObj));
-            if (checkSchedule(scheduleObj) == false) {
-                console.log('*** not in a class');
+            if (!checkSchedule(scheduleObj)) {
+                //console.log('*** not in a class');
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** we\'re in a class');
+                //console.log('*** we\'re in a class');
                 let speechOutput = coldCallHelper(this.attributes, rosterObj);
                 this.attributes.lastOutput = speechOutput;
 
@@ -797,8 +798,8 @@ const handlers = {
             }
         } else {
                 getContext(this.attributes, checkSchedule(scheduleObj));
-                if (checkSchedule(scheduleObj) == false) {
-                    console.log('*** not in a course');
+                if (!checkSchedule(scheduleObj)) {
+                    //console.log('*** not in a course');
                     let slotToElicit = 'courseNumber';
                     let speechOutput = "For which course number?";
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -816,7 +817,7 @@ const handlers = {
         this.attributes.lastIntent = 'ParticipationTracker';
 
         if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
-            console.log('*** First time through participation tracker in this session');
+            //console.log('*** First time through participation tracker in this session');
             this.attributes.scheduleObj = await readSchedule();
             this.attributes.rosterObj =  await readRoster();
         }
@@ -861,7 +862,7 @@ const handlers = {
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                console.log('*** valid course number and section number provided manually');
+                //console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
                 let speechOutput = participationTrackerHelper(this.attributes, this.attributes.rosterObj, firstNames);
                 this.attributes.lastOutput = speechOutput;
@@ -884,7 +885,7 @@ const handlers = {
             }
         } else {
             getContext(this.attributes, checkSchedule(this.attributes.scheduleObj));
-            if (checkSchedule(this.attributes.scheduleObj) == false) {
+            if (!checkSchedule(this.attributes.scheduleObj)) {
                 let slotToElicit = 'courseNumber';
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
