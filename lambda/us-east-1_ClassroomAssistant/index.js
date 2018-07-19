@@ -233,25 +233,6 @@ function orderedQuizQuestion(attributes, quizQuestions) {
     return courseObj[attributes.questionSets[attributes.courseNumber].currentQuestionNumber]['Question'];
 }
 
-function participationTrackerHelper(attributes, roster, names) {
-    let speechOutput = 'Awarded';
-    //console.log('*** roster object: ' + roster);
-    //console.log('*** course number object: ' + roster[attributes.courseNumber]);
-    //console.log('*** section number object: ' + roster[attributes.courseNumber][attributes.sectionNumber]);
-    let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
-    let rosterList = Object.keys(sectionObj);
-    let nameList = names.split(' ');                                                               
-    for (let i = 0; i < nameList.length; i++) {
-        for (let j = 0; j < rosterList.length; j++) {
-            if (nameList[i] === rosterList[j]) {
-                sectionObj[rosterList[j]][Object.keys(sectionObj[rosterList[j]])[3]]++;
-                // Need to integrate writing to sheets now for points
-            }
-        }
-    }
-    return speechOutput;
-}
-
 function playBriefingHelper(attributes, notes) {
     let notesAccessed = notes[attributes.courseNumber][attributes.classDate].split(" | ");
     let speechOutput = '';
