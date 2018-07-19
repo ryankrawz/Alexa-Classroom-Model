@@ -57,7 +57,6 @@ function convertTimeStamp(timeStamp) {
 }
 
 function checkSchedule(scheduleObj) {
-    console.log(JSON.stringify(scheduleObj));
     let dayOfWeek = convertDayOfWeek(getCurrentDay());
     //console.log(dayOfWeek);
     let timeStamp = convertTimeStamp(getCurrentTime());
@@ -157,7 +156,7 @@ function getInvalidNameList(attributes, names) {
         }
     });
 
-    return (invalidNames.length > 0);
+    return invalidNames;
 }
 
 async function readSchedule(spreadsheetID) {
@@ -404,11 +403,6 @@ const handlers = {
 
     //Required Intents
     'AMAZON.HelpIntent': function () {
-        let helpOutputs = {
-            'LaunchRequest': null,
-            'AMAZON.FallbackIntent': null,
-
-        }
         const speechOutput = 'This is the Classroom Assistant skill.';
         this.emit(':tell', speechOutput);
     },
@@ -444,9 +438,10 @@ const handlers = {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
         }
+
         let briefingObj = this.attributes.briefingObj;
         let scheduleObj = this.attributes.scheduleObj;
-        console.log(JSON.stringify(scheduleObj));
+        //console.log(JSON.stringify(briefingObj));
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
 
@@ -502,10 +497,13 @@ const handlers = {
     'AddBriefingNote': async function () {
 
         this.attributes.lastIntent = 'AddBriefingNote';
-        if (!this.attributes.briefingObj) {
-            this.attributes.briefingObj = await readBriefing();
-        }
+        let initialized = await initializeObjects(this.attributes, 'briefingObj');
 
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
+        let briefingObj = this.attributes.briefingObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let classDate = this.event.request.intent.slots.classDate.value;
         let noteContent = this.event.request.intent.slots.noteContent.value;
@@ -844,6 +842,13 @@ const handlers = {
     'ParticipationTracker': async function () {
         this.attributes.lastIntent = 'ParticipationTracker';
 
+        let initialized = await initializeObjects(this.attributes, 'rosterObj');
+
+        if (!initialized) {
+            this.response.speak("Please wait for your administrator to set up Google Sheets access.");
+            this.emit(':responseReady');
+        }
+
         if (!this.attributes.scheduleObj || !this.attributes.rosterObj) {
             //console.log('*** First time through participation tracker in this session');
             this.attributes.scheduleObj = await readSchedule();
@@ -876,16 +881,18 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (getInvalidNameList(this.attributes, firstNames)) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
-                let nameOutput = '';
-                invalidNames.forEach(name => {
-                    if (invalidNames.length == 1) {
-                        nameOutput = name;
-                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                        nameOutput += `or ${name} `;
-                    } else {
-                        nameOutput += `${name}, `
-                    }
-                });
+                if (invalidNames.length > 0) {
+                    let nameOutput = '';
+                    invalidNames.forEach(name => {
+                        if (invalidNames.length == 1) {
+                            nameOutput = name;
+                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                            nameOutput += `or ${name} `;
+                        } else {
+                            nameOutput += `${name}, `
+                        }
+                    });
+                }
                 let slotToElicit = 'firstNames';
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -923,16 +930,18 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (getInvalidNameList(this.attributes, firstNames)) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
-                let nameOutput = '';
-                invalidNames.forEach(name => {
-                    if (invalidNames.length == 1) {
-                        nameOutput = name;
-                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                        nameOutput += `or ${name} `;
-                    } else {
-                        nameOutput += `${name}, `
-                    }
-                });
+                if (invalidNames.length > 0) {
+                    let nameOutput = '';
+                    invalidNames.forEach(name => {
+                        if (invalidNames.length == 1) {
+                            nameOutput = name;
+                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                            nameOutput += `or ${name} `;
+                        } else {
+                            nameOutput += `${name}, `
+                        }
+                    });
+                }
                 let slotToElicit = 'firstNames';
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${this.attributes.courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
