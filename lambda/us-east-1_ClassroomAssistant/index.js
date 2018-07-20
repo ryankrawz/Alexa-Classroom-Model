@@ -361,32 +361,83 @@ async function initializeObjects(attributes, intentObj) {
 
 const handlers = {
     'LaunchRequest': function () {
-        const speechOutput = 'This is the Classroom Assistant skill.';
+        this.attributes.lastIntent = 'LaunchRequest';
+        const speechOutput = "Hello, and welcome to the [invocation name] skill! What can I do for you?";
+        this.attributes.lastOutput = speechOutput;
         this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
     },
 
-    //Required Intents
     'AMAZON.HelpIntent': function () {
-        const speechOutput = 'This is the Classroom Assistant skill.';
-        this.emit(':tell', speechOutput);
+        let helpOutputs = {
+            'Default': null,
+            'LaunchRequest': null,
+            'FallbackIntent': null,
+            'PlayBriefing': null,
+            'AddBriefingNote': null,
+            'FastFacts': null,
+            'ReadTags': null,
+            'GroupPresent': null,
+            'ColdCall': null,
+            'QuizQuestion': null,
+            'ParticipationTracker': null,
+        };
+        let speechOutput;
+        if (!this.attributes.lastIntent) {
+            speechOutput = helpOutputs['Default'];
+        } else {
+            speechOutput = helpOutputs[this.attributes.lastIntent];
+        }
+        this.response.speak(speechOutput);
+        this.emit(':responseReady');
     },
 
     'AMAZON.CancelIntent': function () {
-        const speechOutput = 'Goodbye!';
+        const allOutputs = [
+            'See you next time.',
+            'See you later.',
+            'Till next time.',
+            'Have a nice day.',
+            'Goodbye.',
+            'May the force be with you.',
+            'Bye for now.',
+            'Take care.',
+            'Talk to you later.'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
+        this.response.speak(speechOutput);
         nullifyObjects(this.attributes);
-        this.emit(':tell', speechOutput);
+        this.emit(':responseReady');
     },
 
     'AMAZON.StopIntent': function () {
-        const speechOutput = 'See you later!';
+        const allOutputs = [
+            'See you next time.',
+            'See you later.',
+            'Till next time.',
+            'Have a nice day.',
+            'Goodbye.',
+            'May the force be with you.',
+            'Bye for now.',
+            'Take care.',
+            'Talk to you later.'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
+        this.response.speak(speechOutput);
         nullifyObjects(this.attributes);
-        this.emit(':tell', speechOutput);
+        this.emit(':responseReady');
     },
 
     'AMAZON.FallbackIntent': function () {
-        let speechOutput = 'I did not understand that command. Please try again.';
+        const allOutputs = [
+            'I didn\'t quite catch that. Could you tell me again?',
+            'I did\'t understand that command. Could you say it again?',
+            'Sorry, I missed what you said. Could you repeat that?',
+            'Oops, I didn\'t get that. Could you try again?'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
         this.response.speak(speechOutput).listen(speechOutput);
+        nullifyObjects(this.attributes);
         this.emit(':responseReady');
     },
 
@@ -413,7 +464,7 @@ const handlers = {
         if (courseNumber) {
             if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Do you have another course in mind?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!classDate) {
                 let slotToElicit = 'classDate';
@@ -994,7 +1045,13 @@ const handlers = {
     },
 
     'RepeatIntent': function () {
-        this.response.speak(this.attributes.lastOutput);
+        let speechOutput;
+        if (!this.attributes.lastOutput) {
+            speechOutput = "I'm sorry, I don't have anything to repeat yet. What can I do for you?"
+        } else {
+            speechOutput = this.attributes.lastOutput;
+        }
+        this.response.speak(speechOutput);
         this.emit(':responseReady');
     }
 };
