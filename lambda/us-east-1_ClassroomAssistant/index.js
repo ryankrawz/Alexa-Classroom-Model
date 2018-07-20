@@ -377,7 +377,7 @@ const handlers = {
             'AddBriefingNote': null,
             'FastFacts': null,
             'ReadTags': null,
-            'GroupPresent': null,
+            'GroupPresent': 'If you'd like to make presentation groups, you can tell Alexa how many students per group. She will ask you for the course number and section time. Then Alexa will create randomized groups of that size using that section's roster from Google Sheets.',
             'ColdCall': null,
             'QuizQuestion': null,
             'ParticipationTracker': null,
