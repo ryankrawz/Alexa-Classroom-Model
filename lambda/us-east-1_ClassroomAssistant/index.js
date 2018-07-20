@@ -361,7 +361,7 @@ async function initializeObjects(attributes, intentObj) {
 
 const handlers = {
     'LaunchRequest': function () {
-        const speechOutput = 'This is the Classroom Assistant skill.';
+        const speechOutput = 'Welcome to {invocation name}. What can I do for you?';
         this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
     },
@@ -373,20 +373,51 @@ const handlers = {
     },
 
     'AMAZON.CancelIntent': function () {
-        const speechOutput = 'Goodbye!';
+        const allOutputs = [
+            'See you next time.',
+            'See you later.',
+            'Till next time.',
+            'Have a nice day.',
+            'Goodbye.',
+            'May the force be with you.',
+            'Bye for now.',
+            'Take care.',
+            'Talk to you later.'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
+        this.response.speak(speechOutput);
         nullifyObjects(this.attributes);
-        this.emit(':tell', speechOutput);
+        this.emit(':responseReady');
     },
 
     'AMAZON.StopIntent': function () {
-        const speechOutput = 'See you later!';
+        const allOutputs = [
+            'See you next time.',
+            'See you later.',
+            'Till next time.',
+            'Have a nice day.',
+            'Goodbye.',
+            'May the force be with you.',
+            'Bye for now.',
+            'Take care.',
+            'Talk to you later.'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
+        this.response.speak(speechOutput);
         nullifyObjects(this.attributes);
-        this.emit(':tell', speechOutput);
+        this.emit(':responseReady');
     },
 
     'AMAZON.FallbackIntent': function () {
-        let speechOutput = 'I did not understand that command. Please try again.';
+        const allOutputs = [
+            'I didn\'t quite catch that. Could you tell me again?',
+            'I did\'t understand that command. Could you say it again?',
+            'Sorry, I missed what you said. Could you repeat that?',
+            'Oops, I didn\'t get that. Could you try again?'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
         this.response.speak(speechOutput).listen(speechOutput);
+        nullifyObjects(this.attributes);
         this.emit(':responseReady');
     },
 
@@ -413,7 +444,7 @@ const handlers = {
         if (courseNumber) {
             if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Do you have another course in mind?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!classDate) {
                 let slotToElicit = 'classDate';
