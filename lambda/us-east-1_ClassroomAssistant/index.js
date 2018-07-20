@@ -378,7 +378,7 @@ const handlers = {
             'FastFacts': null,
             'ReadTags': null,
             'GroupPresent': null,
-            'ColdCall': null,
+            'ColdCall': "If you'd like me to call on a random student from the class, just say something like, 'cold call'. I will then automatically determine if you are currently in a class and ask you for a course number if you aren't.",
             'QuizQuestion': null,
             'ParticipationTracker': null,
         };
