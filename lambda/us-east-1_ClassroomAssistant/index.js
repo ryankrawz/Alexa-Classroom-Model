@@ -377,9 +377,9 @@ const handlers = {
             'AddBriefingNote': null,
             'FastFacts': null,
             'ReadTags': null,
-            'GroupPresent': "If you'd like to make presentation groups, you can tell me how many students per group. She will ask you for the course number and section time. Then me will create randomized groups of that size using that section's roster from Google Sheets.",
+            'GroupPresent': "If you'd like to make presentation groups, you can tell me how many students per group. She will ask you for the course number and section time. ",
             'ColdCall': null,
-            'QuizQuestion': "If you'd like to ",
+            'QuizQuestion': "If you'd like to hear a question, you can say, say a question. She will ask you for the course number. Once the course number is provided,   ",
             'ParticipationTracker': null,
         };
         let speechOutput;
