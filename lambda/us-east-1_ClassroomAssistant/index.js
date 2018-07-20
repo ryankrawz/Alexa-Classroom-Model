@@ -37,7 +37,6 @@ function getNames(students) {
     return names;
 }
 
-
 function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
 	return dayInitials[day];
@@ -178,6 +177,7 @@ async function readFastFacts(spreadsheetID) {
     let factsObj = await googleSDK.readTab(spreadsheetID, "FastFacts");
     return factsObj;
 }
+
 async function readBriefing(spreadsheetID) {
     //console.log("readBriefing called");
     let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
