@@ -328,37 +328,6 @@ function readTagsHelper(attributes, facts) {
     return speechOutput;
 }
 
-function writeToSheets(key, tabName, scheduleObj) {
-    //TO DO: add first two rows for the headers and kinds
-    let values = [];
-
-    //this could be done recursively, but I'm going to use some conditionals and loops
-    let keys = Object.keys(scheduleObj);
-    keys.forEach(key => {
-        let seckeys = Object.keys(scheduleObj[key]);
-        if (typeof scheduleObj[key][seckeys[0]] === "object") {
-            seckeys.forEach(seckey => {
-                let tertkeys = Object.keys(scheduleObj[key][seckey]);
-                if (typeof scheduleObj[key][seckey][tertkeys[0]] === "object") {
-                    tertkeys.forEach(tertkey => {
-                        let row = [key, seckey, tertkey];
-                        row = row.concat(Object.keys(scheduleObj[key][seckey][tertkey]));
-                        values.push(row);
-                    });
-                } else {
-                    let row = [key, seckey];
-                    row = row.concat(Object.values(scheduleObj[key][seckey]));
-                    values.push(row);
-                }
-            });
-        } else {
-            let row = Object.values(scheduleObj[key]);
-            values.push(row)
-        }
-    });
-    googleSDK.writeTab(key, tabName, values);
-}
-
 function nullifyObjects(attributes) {
     attributes.scheduleObj = null;
     attributes.rosterObj = null;
@@ -443,13 +412,13 @@ const handlers = {
         if (courseNumber) {
             if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing ?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!classDate) {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate) || briefingObj[courseNumber][classDate]['Note'] == "-") {
+            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate) || briefingObj[courseNumber][classDate]['Note'] == ' ') {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);

@@ -210,7 +210,7 @@ exports.readTab = async function (key, tabName) {
                         sval = rows[row].values[col].effectiveValue.stringValue;
                     }
                     catch (e) {
-                        sval =  "";
+                        sval =  " ";
                     }
                     latestObj[kval] = sval;
                 } else if (kind == 'number') {
@@ -219,7 +219,7 @@ exports.readTab = async function (key, tabName) {
                         nval = rows[row].values[col].effectiveValue.numberValue;
                     }
                     catch (e) {
-                        nval =  "";
+                        nval =  " ";
                     }
                     latestObj[kval] = nval;
                 } else {
@@ -230,6 +230,7 @@ exports.readTab = async function (key, tabName) {
     } catch (err) {
         console.log("ERROR: " + err);
     }
+
     console.log("Returning from readTab");
     return scheduleObj;
 };
