@@ -23,7 +23,7 @@ exports.handler = function (event, context, callback) {
     alexa.execute();
 };
 
-function initSheetID(context) {
+async function initSheetID(context) {
     if (!context.spreadsheetID || context.spreadsheetID === "Not a Real ID") {
         context.spreadsheetID = "Not a Real ID";
         return false;
@@ -337,7 +337,8 @@ function nullifyObjects(attributes) {
 }
 
 async function initializeObjects(attributes, intentObj) {
-    let setUp = initSheetID(attributes);
+    let setUp = await initSheetID(attributes);
+    console.log('***' + setUp);
     if (!setUp) {
         return false;
     }
