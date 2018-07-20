@@ -507,7 +507,7 @@ const handlers = {
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!briefingObj.hasOwnProperty(courseNumber)) {
             let slotToElicit = 'courseNumber';
-            let speechOutput = "I'm sorry, I don't have that course number on record. For which course";
+            let speechOutput = "I'm sorry, I don't have that course number on record. For which course?";
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!classDate) {
             let slotToElicit = 'classDate';
