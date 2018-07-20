@@ -361,15 +361,36 @@ async function initializeObjects(attributes, intentObj) {
 
 const handlers = {
     'LaunchRequest': function () {
-        const speechOutput = 'Welcome to {invocation name}. What can I do for you?';
+        this.attributes.lastIntent = 'LaunchRequest';
+        const speechOutput = "Hello, and welcome to the [invocation name] skill! What can I do for you?";
+        this.attributes.lastOutput = speechOutput;
         this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
     },
 
     //Required Intents
     'AMAZON.HelpIntent': function () {
-        const speechOutput = 'This is the Classroom Assistant skill.';
-        this.emit(':tell', speechOutput);
+        let helpOutputs = {
+            'Default': null,
+            'LaunchRequest': null,
+            'FallbackIntent': null,
+            'PlayBriefing': null,
+            'AddBriefingNote': null,
+            'FastFacts': null,
+            'ReadTags': null,
+            'GroupPresent': null,
+            'ColdCall': null,
+            'QuizQuestion': null,
+            'ParticipationTracker': null,
+        }
+        let speechOutput;
+        if (!this.attributes.lastIntent) {
+            speechOutput = helpOutputs['Default'];
+        } else {
+            speechOutput = helpOutputs[this.attributes.lastIntent];
+        }
+        this.response.speak(speechOutput);
+        this.emit(':responseReady');
     },
 
     'AMAZON.CancelIntent': function () {
@@ -1025,7 +1046,13 @@ const handlers = {
     },
 
     'RepeatIntent': function () {
-        this.response.speak(this.attributes.lastOutput);
+        let speechOutput;
+        if (!this.attributes.lastOutput) {
+            speechOutput = "I'm sorry, I don't have anything to repeat yet. What can I do for you?"
+        } else {
+            speechOutput = this.attributes.lastOutput;
+        }
+        this.response.speak(speechOutput);
         this.emit(':responseReady');
     }
 };
