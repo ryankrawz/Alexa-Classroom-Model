@@ -449,7 +449,7 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate) || briefingObj[courseNumber][classDate]['Note'] == "-") {
+            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate) || briefingObj[courseNumber][classDate]['Note'] == ' ') {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
