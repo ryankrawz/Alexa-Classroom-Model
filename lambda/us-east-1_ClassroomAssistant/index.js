@@ -338,6 +338,7 @@ function nullifyObjects(attributes) {
 
 async function initializeObjects(attributes, intentObj) {
     let setUp = await initSheetID(attributes);
+    console.log('***' + setUp);
     if (!setUp) {
         return false;
     }
