@@ -37,7 +37,6 @@ function getNames(students) {
     return names;
 }
 
-
 function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
 	return dayInitials[day];
@@ -178,6 +177,7 @@ async function readFastFacts(spreadsheetID) {
     let factsObj = await googleSDK.readTab(spreadsheetID, "FastFacts");
     return factsObj;
 }
+
 async function readBriefing(spreadsheetID) {
     //console.log("readBriefing called");
     let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
@@ -377,9 +377,9 @@ const handlers = {
             'AddBriefingNote': null,
             'FastFacts': null,
             'ReadTags': null,
-            'GroupPresent': null,
+            'GroupPresent': "If you'd like to make presentation groups, you can tell me how many students per group. She will ask you for the course number and section time. Then me will create randomized groups of that size using that section's roster from Google Sheets.",
             'ColdCall': null,
-            'QuizQuestion': null,
+            'QuizQuestion': "If you'd like to ",
             'ParticipationTracker': null,
         };
         let speechOutput;
