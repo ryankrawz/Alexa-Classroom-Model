@@ -311,13 +311,6 @@ function groupPresentHelper(attributes, roster, groupString) {
             k++;
         }
     }
-    Object.keys(roster).forEach(courseNumber => {
-        Object.keys(roster[courseNumber]).forEach(sectionNumber => {
-            Object.keys(roster[courseNumber][sectionNumber]).forEach(student => {
-                roster[courseNumber][sectionNumber][student]['CurrentGroup'] = 'none';
-            });
-        });
-    });
     //console.log(returnObj);
     return returnObj;
 }
