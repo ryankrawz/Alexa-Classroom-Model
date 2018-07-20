@@ -419,9 +419,13 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate) || briefingObj[courseNumber][classDate]['Note'] == ' ') {
+            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            } else if (briefingObj[courseNumber][classDate]['Note'] == ' ') {
+                let slotToElicit = 'classDate';
+                let speechOutput = "I'm sorry, I don't have any notes for that date. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and class date provided manually');
@@ -444,11 +448,15 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj[this.attributes.courseNumber].hasOwnProperty(classDate) || briefingObj[this.attributes.courseNumber][classDate]['Note'] == ' ') {
+            } else if (!briefingObj[this.attributes.courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else {
+            } else if (briefingObj[this.attributes.courseNumber][classDate]['Note'] == ' ') {
+                let slotToElicit = 'classDate';
+                let speechOutput = "I'm sorry, I don't have any notes for that date. For which date?";
+                this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
+            }else {
                 this.attributes.classDate = classDate;
                 const speechOutput = playBriefingHelper(this.attributes, briefingObj);
                 this.attributes.lastOutput = speechOutput;
@@ -473,11 +481,11 @@ const handlers = {
 
         if (!courseNumber) {
             let slotToElicit = 'courseNumber';
-            let speechOutput = "From which course would you like me to add a briefing?";
+            let speechOutput = "For which course would you like me to add a briefing?";
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!briefingObj.hasOwnProperty(courseNumber)) {
             let slotToElicit = 'courseNumber';
-            let speechOutput = "I'm sorry, I don't have that course number on record. For which course";
+            let speechOutput = "I'm sorry, I don't have that course number on record. For which course?";
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!classDate) {
             let slotToElicit = 'classDate';
@@ -498,8 +506,10 @@ const handlers = {
             this.attributes.noteContent = noteContent;
             let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
             this.attributes.lastOutput = speechOutput;
-            if (this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"]) {
+            if (this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] != ' ') {
                 noteContent = " | " + noteContent;
+            } else {
+                this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] = '';
             }
             //writing
             let keys = {
