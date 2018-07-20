@@ -37,7 +37,6 @@ function getNames(students) {
     return names;
 }
 
-
 function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
 	return dayInitials[day];
@@ -178,6 +177,7 @@ async function readFastFacts(spreadsheetID) {
     let factsObj = await googleSDK.readTab(spreadsheetID, "FastFacts");
     return factsObj;
 }
+
 async function readBriefing(spreadsheetID) {
     //console.log("readBriefing called");
     let briefingObj = await googleSDK.readTab(spreadsheetID, "ClassroomBriefing");
@@ -377,8 +377,8 @@ const handlers = {
             'AddBriefingNote': null,
             'FastFacts': null,
             'ReadTags': null,
-            'GroupPresent': null,
-            'ColdCall': "If you'd like me to call on a random student from the class, just say something like, 'cold call'. I will then automatically determine if you are currently in a class and ask you for a course number if you aren't.",
+            'ColdCall': "If you'd like me to call on a random student from the class, just say something like, 'cold call'. If you are currently in a class, I'll call on a random student from the class roster. If you aren't, I'll prompt you for a course number.",
+            'GroupPresent': "If you'd like to make presentation groups, you can tell me how many students per group. If you're currently in a class, I will create randomized groups of that size from the class roster. If you aren't, I'll prompt you for a course number and section time.",
             'QuizQuestion': null,
             'ParticipationTracker': null,
         };
@@ -393,22 +393,51 @@ const handlers = {
     },
 
     'AMAZON.CancelIntent': function () {
-        const speechOutput = 'Goodbye!';
+        const allOutputs = [
+            'See you next time.',
+            'See you later.',
+            'Till next time.',
+            'Have a nice day.',
+            'Goodbye.',
+            'May the force be with you.',
+            'Bye for now.',
+            'Take care.',
+            'Talk to you later.'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
+        this.response.speak(speechOutput);
         nullifyObjects(this.attributes);
-        this.emit(':tell', speechOutput);
+        this.emit(':responseReady');
     },
 
     'AMAZON.StopIntent': function () {
-        const speechOutput = 'See you later!';
+        const allOutputs = [
+            'See you next time.',
+            'See you later.',
+            'Till next time.',
+            'Have a nice day.',
+            'Goodbye.',
+            'May the force be with you.',
+            'Bye for now.',
+            'Take care.',
+            'Talk to you later.'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
+        this.response.speak(speechOutput);
         nullifyObjects(this.attributes);
-        this.emit(':tell', speechOutput);
+        this.emit(':responseReady');
     },
 
     'AMAZON.FallbackIntent': function () {
-        this.attributes.lastIntent = 'AMAZON.FallbackIntent';
-        let speechOutput = 'I did not understand that command. Please try again.';
-        this.attributes.lastOutput = speechOutput;
+        const allOutputs = [
+            'I didn\'t quite catch that. Could you tell me again?',
+            'I did\'t understand that command. Could you say it again?',
+            'Sorry, I missed what you said. Could you repeat that?',
+            'Oops, I didn\'t get that. Could you try again?'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
         this.response.speak(speechOutput).listen(speechOutput);
+        nullifyObjects(this.attributes);
         this.emit(':responseReady');
     },
 
@@ -435,7 +464,7 @@ const handlers = {
         if (courseNumber) {
             if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to play a briefing?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Do you have another course in mind?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!classDate) {
                 let slotToElicit = 'classDate';
@@ -890,7 +919,7 @@ const handlers = {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
         }
-
+        
         let scheduleObj = await readSchedule();
         let rosterObj = await readRoster();
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
