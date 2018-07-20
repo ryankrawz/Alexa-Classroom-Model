@@ -368,7 +368,6 @@ const handlers = {
         this.emit(':responseReady');
     },
 
-    //Required Intents
     'AMAZON.HelpIntent': function () {
         let helpOutputs = {
             'Default': null,
@@ -382,7 +381,7 @@ const handlers = {
             'ColdCall': null,
             'QuizQuestion': null,
             'ParticipationTracker': null,
-        }
+        };
         let speechOutput;
         if (!this.attributes.lastIntent) {
             speechOutput = helpOutputs['Default'];
