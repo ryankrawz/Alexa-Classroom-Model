@@ -235,15 +235,16 @@ function orderedQuizQuestion(attributes, quizQuestions) {
 }
 
 function playBriefingHelper(attributes, notes) {
+    console.log(JSON.stringify(notes));
     let notesAccessed = notes[attributes.courseNumber][attributes.classDate]['Note'].split(" | ");
+    console.log(notesAccessed);
     let speechOutput = '';
     if (notesAccessed.length == 1) {
         speechOutput = notesAccessed;
     } else {
         notesAccessed.forEach(note => {
-            speechOutput += '<break time = "1s"/>' + `Note ${notesAccessed.indexOf(note) + 1}: "${note}" `;
+            speechOutput += '<break time = "1s"/>' + `Note ${notesAccessed.indexOf(note) + 1}: ${note} `;
         });
-        speechOutput += '<break time = "1s"/>' + " What else can I do for you today?"
     }
     return speechOutput;
 }
@@ -455,7 +456,7 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
+            } else if (!briefingObj[courseNumber].hasOwnProperty(classDate) || briefingObj[courseNumber][classDate]['Note'] == "-") {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -480,7 +481,7 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 let speechOutput = 'For which date?';
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!briefingObj[this.attributes.courseNumber].hasOwnProperty(classDate)) {
+            } else if (!briefingObj[this.attributes.courseNumber].hasOwnProperty(classDate) || briefingObj[this.attributes.courseNumber][classDate]['Note'] == "-") {
                 let slotToElicit = 'classDate';
                 let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -496,10 +497,8 @@ const handlers = {
     },
 
     'AddBriefingNote': async function () {
-
         this.attributes.lastIntent = 'AddBriefingNote';
         let initialized = await initializeObjects(this.attributes, 'briefingObj');
-
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
