@@ -362,7 +362,7 @@ async function initializeObjects(attributes, intentObj) {
 const handlers = {
     'LaunchRequest': function () {
         this.attributes.lastIntent = 'LaunchRequest';
-        const speechOutput = "Hello, and welcome to the [invocation name] skill! What can I do for you?";
+        const speechOutput = "Hello, and welcome to [invocation name]! What can I do for you?";
         this.attributes.lastOutput = speechOutput;
         this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
@@ -379,7 +379,7 @@ const handlers = {
             'ReadTags': null,
             'GroupPresent': "If you'd like to make presentation groups, you can tell me how many students per group. She will ask you for the course number and section time. ",
             'ColdCall': null,
-            'QuizQuestion': "If you'd like to hear a question, you can say, say a question. She will ask you for the course number. Once the course number is provided,   ",
+            'QuizQuestion': "If you'd like to hear a question, you can say, say a question. She will ask you for the course number. Once the course number is provided, ",
             'ParticipationTracker': null,
         };
         let speechOutput;
@@ -435,7 +435,8 @@ const handlers = {
             'Sorry, I missed what you said. Could you repeat that?',
             'Oops, I didn\'t get that. Could you try again?'
         ];
-        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
+        let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
+        speechOutput += ' Say the word "help" if you\'re having trouble.';
         this.response.speak(speechOutput).listen(speechOutput);
         nullifyObjects(this.attributes);
         this.emit(':responseReady');
@@ -464,7 +465,7 @@ const handlers = {
         if (courseNumber) {
             if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Do you have another course in mind?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!classDate) {
                 let slotToElicit = 'classDate';
@@ -472,11 +473,11 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
+                let speechOutput = "I'm sorry, I don't have that class date on record. Which date would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (briefingObj[courseNumber][classDate]['Note'] == ' ') {
                 let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have any notes for that date. For which date?";
+                let speechOutput = "I'm sorry, I don't have any notes for that date. Which date would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and class date provided manually');
@@ -501,11 +502,11 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!briefingObj[this.attributes.courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
+                let speechOutput = "I'm sorry, I don't have that class date on record. Which date would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (briefingObj[this.attributes.courseNumber][classDate]['Note'] == ' ') {
                 let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have any notes for that date. For which date?";
+                let speechOutput = "I'm sorry, I don't have any notes for that date. Which date would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             }else {
                 this.attributes.classDate = classDate;
@@ -532,11 +533,11 @@ const handlers = {
 
         if (!courseNumber) {
             let slotToElicit = 'courseNumber';
-            let speechOutput = "For which course would you like me to add a briefing?";
+            let speechOutput = "For which course?";
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!briefingObj.hasOwnProperty(courseNumber)) {
             let slotToElicit = 'courseNumber';
-            let speechOutput = "I'm sorry, I don't have that course number on record. For which course?";
+            let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!classDate) {
             let slotToElicit = 'classDate';
@@ -544,7 +545,7 @@ const handlers = {
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
             let slotToElicit = 'classDate';
-            let speechOutput = "I'm sorry, I don't have that class date on record. For which date?";
+            let speechOutput = "I'm sorry, I don't have that class date on record. Which date would you like?";
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if(!noteContent) {
             let slotToElicit = "noteContent";
@@ -593,11 +594,11 @@ const handlers = {
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like to access?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!tag) {
                 let slotToElicit = 'tag';
-                let speechOutput = "What would you like me to talk about?";
+                let speechOutput = "What should I talk about?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!factsObj[courseNumber][tag.toLowerCase()]) {
                 if (tag.toLowerCase() == 'cancel' || tag.toLowerCase() == 'stop' ||
@@ -605,7 +606,7 @@ const handlers = {
                     this.emitWithState('AMAZON.CancelIntent');
                 } else {
                     let slotToElicit = 'tag';
-                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${courseNumber}. What would you like me to talk about?`;
+                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${courseNumber}. What should I talk about?`;
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 }
             } else {
@@ -624,7 +625,7 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!tag) {
                 let slotToElicit = 'tag';
-                let speechOutput = "What would you like me to talk about?";
+                let speechOutput = "What should I talk about?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!factsObj[this.attributes.courseNumber].hasOwnProperty(tag.toLowerCase())) {
                 if (tag.toLowerCase() == 'cancel' || tag.toLowerCase() == 'stop' ||
@@ -632,7 +633,7 @@ const handlers = {
                     this.emitWithState('AMAZON.CancelIntent');
                 } else {
                     let slotToElicit = 'tag';
-                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${this.attributes.courseNumber}. What would you like me to talk about?`;
+                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${this.attributes.courseNumber}. What should I talk about?`;
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 }
             } else {
@@ -659,7 +660,7 @@ const handlers = {
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like to access?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.courseNumber = courseNumber;
@@ -708,7 +709,7 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to make groups?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!sectionTime) {
                 let slotToElicit = 'sectionTime';
@@ -716,7 +717,7 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like?`;
+                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which course would you like?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!groupNumberString) {
                 let slotToElicit = 'groupNumber';
@@ -805,7 +806,7 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to cold call?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!sectionTime) {
                 let slotToElicit = 'sectionTime';
@@ -813,7 +814,7 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to cold call from?`;
+                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and section number provided manually');
@@ -883,7 +884,7 @@ const handlers = {
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course should I ask a question?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.courseNumber = courseNumber;
@@ -933,7 +934,7 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!this.attributes.scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. From which course would you like me to add points ?";
+                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!sectionTime) {
                 let slotToElicit = 'sectionTime';
@@ -941,11 +942,11 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!isValidSectionTime(this.attributes, this.attributes.scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like me to add points?`;
+                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!firstNames) {
                 let slotToElicit = "firstNames";
-                let speechOutput = "Who would you like to award points to?";
+                let speechOutput = "Who is getting points?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (getInvalidNameList(this.attributes, firstNames).length > 0) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
@@ -997,7 +998,7 @@ const handlers = {
                 let speechOutput = "For which course number?";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!firstNames) {
-                let speechOutput = "Who would you like to award points to?";
+                let speechOutput = "Who is getting points?";
                 let slotToElicit = "firstNames";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (getInvalidNameList(this.attributes, firstNames).length > 0) {
