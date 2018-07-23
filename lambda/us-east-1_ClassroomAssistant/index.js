@@ -427,10 +427,9 @@ const handlers = {
 
     'AMAZON.FallbackIntent': function () {
         const allOutputs = [
-            'I didn\'t quite catch that. Could you tell me again?',
-            'I did\'t understand that command. Could you say it again?',
-            'Sorry, I missed what you said. Could you repeat that?',
-            'Oops, I didn\'t get that. Could you try again?'
+            'I didn\'t quite catch that. Start over and make sure what you\'re saying is correct.',
+            'I did\'t understand that command. Begin again and try your best to be articulate.',
+            'Oops, I didn\'t get that. Start from the beginning and follow my prompts closely.'
         ];
         let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
         speechOutput += ' Say the word "help" if you\'re having trouble.';
