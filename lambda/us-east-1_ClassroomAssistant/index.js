@@ -140,21 +140,21 @@ function isValidSectionTime(attributes, schedule, courseNumberSlot, sectionTimeS
 }
 
 function getInvalidNameList(attributes, names) {
+    console.log(names);
+    let nameList = capitalizeNames(names.split(' '));
+    console.log(nameList);
     let roster = attributes.rosterObj;
     let courseNumber = attributes.courseNumber;
     let sectionObj = roster[courseNumber][attributes.sectionNumber];
-    console.log(names);
-    let nameList = names.split(' ');
-    console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
     let invalidNames = [];
-
     nameList.forEach(name => {
-        if (rosterList.indexOf(name) === -1) {
+        if (name == 'and' || name == 'or') {
+            nameList.splice(indexOf(name), 1);
+        } else if (rosterList.indexOf(name) == -1) {
             invalidNames.push(name);
         }
     });
-
     return invalidNames;
 }
 
@@ -374,6 +374,14 @@ function generateGoodbye() {
         return allOutputs[Math.floor(Math.random() * allOutputs.length)];
 }
 
+function capitalizeNames(names) {
+    let capitalNames = [];
+    names.forEach(name => {
+        capitalNames.push(name.charAt(0).toUpperCase() + name.slice(1));
+    });
+    return capitalNames;
+}
+
 const handlers = {
     'LaunchRequest': function () {
         this.attributes.lastIntent = 'LaunchRequest';
@@ -385,18 +393,15 @@ const handlers = {
 
     'AMAZON.HelpIntent': function () {
         let helpOutputs = {
-            'Default': "You have not accessed the skill yet. Please look at the user documentation if you do not know how to open this skill.",
             'LaunchRequest': "You have opened the Eagle Expert skill. Please say another command to continue.",
-            'FallbackIntent': "You have opened the Eagle Expert skill. Please say another command to continue.",
-            'PlayBriefing': "If you'd like to hear one of your saved notes please say something like 'play my note'.",
-            'AddBriefingNote': "If you'd like me to add a briefing note please say something like 'add a new note'.",
-            'FastFacts': "If you'd like me to recite one of your fast facts please say something like 'read off' and then the name of your tag. If you would like to hear a list of your tags please say 'read off my tags.'",
-            'ReadTags': "If you'd like me to read off your tags for the Fast Facts skill say something like 'read off my tags'.",
-            'ColdCall': "If you'd like me to call on a random student from the class, just say something like, 'cold call'. If you are currently in a class, I'll call on a random student from the class roster. If you aren't, I'll prompt you for a course number.",
-            'GroupPresent': "If you'd like to make presentation groups, you can tell me how many students per group. If you're currently in a class, I will create randomized groups of that size from the class roster. If you aren't, I'll prompt you for a course number and section time.",
-            'QuizQuestion': "If you'd like to hear a question from your list of questions say something like, 'give me a question.'",
-            'ParticipationTracker': "If you'd like me to add participation points for a student, say something like 'give this student a point.' Be sure to say the name of a student in the correct class.",
-
+            'FallbackIntent': "If you're having trouble finding the right command, please consult the user documentation. Otherwise, it's possible that Alexa is just isn't hearing you properly.",
+            'PlayBriefing': "If you'd like to hear one of your saved notes please say something like, 'play my note'.",
+            'AddBriefingNote': "If you'd like me to add a briefing note please say something like, 'add a new note'.",
+            'FastFacts': "If you'd like me to recite one of your fast facts, please say something like, 'talk about', and then the name of your tag. If you would like to hear a list of your tags, please say, 'read off my tags.'",
+            'ReadTags': "If you'd like me to read off your tags for the Fast Facts skill, say something like, 'read off my tags'.",
+            'ColdCall': "If you'd like me to call on a random student from the class, just say something like, 'call on a student'.",
+            'GroupPresent': "If you'd like to make presentation groups, just say something like, 'you can tell me how many students per group.",
+            'QuizQuestion': "If you'd like to hear a question from your list of questions say something like, 'give me a question.'"
         };
         let speechOutput;
         if (!this.attributes.lastIntent) {
@@ -905,16 +910,11 @@ const handlers = {
 
     'ParticipationTracker': async function () {
         this.attributes.lastIntent = 'ParticipationTracker';
-
         let initialized = await initializeObjects(this.attributes, 'rosterObj');
-
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
         }
-        
-        let scheduleObj = await readSchedule();
-        let rosterObj = await readRoster();
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let sectionTime = this.event.request.intent.slots.sectionTime.value;
         let firstNames = this.event.request.intent.slots.firstNames.value;
@@ -943,27 +943,25 @@ const handlers = {
             } else if (getInvalidNameList(this.attributes, firstNames).length > 0) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
                 let nameOutput = '';
-                if (invalidNames.length > 0) {
-                    invalidNames.forEach(name => {
-                        if (invalidNames.length == 1) {
-                            nameOutput = name;
-                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                            nameOutput += `or ${name} `;
-                        } else {
-                            nameOutput += `${name}, `
-                        }
-                    });
-                }
+                invalidNames.forEach(name => {
+                    if (invalidNames.length == 1) {
+                        nameOutput = name;
+                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                        nameOutput += `or ${name} `;
+                    } else {
+                        nameOutput += `${name}, `
+                    }
+                });
                 let slotToElicit = 'firstNames';
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
-                let speechOutput = "Awarded";
+                let speechOutput = "Your points have been awarded.";
                 this.attributes.lastOutput = speechOutput;
 
-                let names = firstNames.split(" ");
+                let names = capitalizeNames(firstNames.split(" "));
 
                 names.forEach((studentName) => {
                     //writing
@@ -996,26 +994,22 @@ const handlers = {
             } else if (getInvalidNameList(this.attributes, firstNames).length > 0) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
                 let nameOutput = '';
-                if (invalidNames.length > 0) {
-                    invalidNames.forEach(name => {
-                        if (invalidNames.length == 1) {
-                            nameOutput = name;
-                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                            nameOutput += `or ${name} `;
-                        } else {
-                            nameOutput += `${name}, `
-                        }
-                    });
-                }
+                invalidNames.forEach(name => {
+                    if (invalidNames.length == 1) {
+                        nameOutput = name;
+                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                        nameOutput += `or ${name} `;
+                    } else {
+                        nameOutput += `${name}, `
+                    }
+                });
                 let slotToElicit = 'firstNames';
                 let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${this.attributes.courseNumber}. Who would you like to award points to?`;
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                let speechOutput = "Awarded";
+                let speechOutput = "Your points have been awarded.";
                 this.attributes.lastOutput = speechOutput;
-
-                let names = firstNames.split(" ");
-
+                let names = capitalizeNames(firstNames.split(" "));
                 names.forEach((studentName) => {
                     //writing
                     let keys = {
@@ -1026,10 +1020,8 @@ const handlers = {
                     let values = {
                         ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][studentName]["ParticipationPoints"] + 1)
                     };
-
                     googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
                 });
-
                 this.response.speak(speechOutput);
                 nullifyObjects(this.attributes);
                 this.emit(':responseReady');
