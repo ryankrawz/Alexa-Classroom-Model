@@ -247,6 +247,10 @@
                         }
                     ],
                     "samples": [
+                        "to cold call",
+                        "to call on someone",
+                        "call on someone",
+                        "to call on a student",
                         "say a student name from {sectionTime}",
                         "cold call from my {sectionTime}",
                         "call on a student from my {sectionTime}",
