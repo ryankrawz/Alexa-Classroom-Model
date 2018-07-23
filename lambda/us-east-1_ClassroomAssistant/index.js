@@ -41,7 +41,7 @@ function convertDayOfWeek(day) {
 	let dayInitials = ['U', 'M', 'T', 'W', 'R', 'F', 'A'];
 	return dayInitials[day];
 }
-
+    
 function convertTimeStamp(timeStamp) {
 	let timeList = timeStamp.split(':').map(time => parseInt(time));
 	let timeFraction;
