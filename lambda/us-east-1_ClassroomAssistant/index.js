@@ -1170,7 +1170,7 @@ const handlers = {
             } else {
                 //console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
-                let speechOutput = 'Points have been awarded.';
+                let speechOutput = 'Your points have been awarded.';
                 this.attributes.lastOutput = speechOutput;
 
                 let names = firstNames.split(" ");
@@ -1237,7 +1237,7 @@ const handlers = {
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                let speechOutput = 'Points have been awarded.';
+                let speechOutput = 'Your points have been awarded.';
                 this.attributes.lastOutput = speechOutput;
 
                 let names = firstNames.split(" ");
