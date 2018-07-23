@@ -486,18 +486,7 @@
                             ]
                         }
                     ],
-                    "samples": [
-                        "points",
-                        "award points",
-                        "set points",
-                        "give points",
-                        "tally participation for {firstNames}",
-                        "points for {firstNames}",
-                        "points to {firstNames}",
-                        "give {firstNames} points",
-                        "award {firstNames}",
-                        "count participation for {firstNames}"
-                    ]
+                    "samples": []
                 }
             ],
             "types": []

@@ -140,18 +140,17 @@ function isValidSectionTime(attributes, schedule, courseNumberSlot, sectionTimeS
 }
 
 function getInvalidNameList(attributes, names) {
-    console.log(names);
-    let nameList = capitalizeNames(names.split(' '));
-    console.log(nameList);
     let roster = attributes.rosterObj;
     let courseNumber = attributes.courseNumber;
     let sectionObj = roster[courseNumber][attributes.sectionNumber];
+    console.log(names);
+    let nameList = names.split(' ');
+    console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
     let invalidNames = [];
+
     nameList.forEach(name => {
-        if (name == 'and' || name == 'or') {
-            nameList.splice(indexOf(name), 1);
-        } else if (rosterList.indexOf(name) == -1) {
+        if (rosterList.indexOf(name) === -1) {
             invalidNames.push(name);
         }
     });
@@ -374,18 +373,15 @@ function generateGoodbye() {
         return allOutputs[Math.floor(Math.random() * allOutputs.length)];
 }
 
-function capitalizeNames(names) {
-    let capitalNames = [];
-    names.forEach(name => {
-        capitalNames.push(name.charAt(0).toUpperCase() + name.slice(1));
-    });
-    return capitalNames;
-}
-
 const handlers = {
     'LaunchRequest': function () {
         this.attributes.lastIntent = 'LaunchRequest';
-        const speechOutput = "Hello, and welcome to [invocation name]! What can I do for you?";
+        const allOutputs = [
+            'Hello, and welcome to [invocation name]. What can I do for you?',
+            'This is [invocation name]. How can I help you today?',
+            'Greetings from [invocation name]. How may I assist you?'
+        ];
+        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
         this.attributes.lastOutput = speechOutput;
         this.response.speak(speechOutput).listen(speechOutput);
         this.emit(':responseReady');
@@ -427,10 +423,9 @@ const handlers = {
 
     'AMAZON.FallbackIntent': function () {
         const allOutputs = [
-            'I didn\'t quite catch that. Could you tell me again?',
-            'I did\'t understand that command. Could you say it again?',
-            'Sorry, I missed what you said. Could you repeat that?',
-            'Oops, I didn\'t get that. Could you try again?'
+            'I didn\'t quite catch that. Start over and make sure what you\'re saying is correct.',
+            'I didn\'t understand that command. Begin again and try your best to be articulate.',
+            'Oops, I didn\'t get that. Start from the beginning and follow my prompts closely.'
         ];
         let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
         speechOutput += ' Say the word "help" if you\'re having trouble.';
@@ -462,19 +457,40 @@ const handlers = {
         if (courseNumber) {
             if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have course, ${courseNumber} on record. Which course number would you like?`,
+                    `Looks like I don't have course, ${courseNumber}. Can you try another course number?`,
+                    `Oops, I'm missing course, ${courseNumber} from the record. Is there another course number you would like?`,
+                    `I'm sorry, course, ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!classDate) {
                 let slotToElicit = 'classDate';
-                let speechOutput = 'For which date?';
+                const allOutputs = [
+                    'For which date?',
+                    'Which date would you like?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have that class date on record. Which date would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have, ${classDate} on record for course, ${courseNumber}. Which date would you like?`,
+                    `Looks like I don't have, ${classDate} for course, ${courseNumber}. Can you try another date?`,
+                    `Oops, I'm missing, ${classDate} from the record for course, ${courseNumber}. Is there another date you would like?`,
+                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course, ${courseNumber}. Do you have another date in mind?`
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (briefingObj[courseNumber][classDate]['Note'] == ' ') {
                 let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have any notes for that date. Which date would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have any notes for, ${classDate}. Which date would you like?`,
+                    `Oops, there aren't any notes stored for, ${classDate}. Could you try another date?`,
+                    `I just checked, ${classDate} and there aren't any notes. Is there another date you would like?`
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and class date provided manually');
@@ -491,21 +507,40 @@ const handlers = {
             getContext(this.attributes, sectionObj);
             if (!sectionObj) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "For which course number?";
+                const allOutputs = [
+                    'For which course number?',
+                    'What is the course number?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput)
             } else if (!classDate){
                 let slotToElicit = 'classDate';
-                let speechOutput = 'For which date?';
+                const allOutputs = [
+                    'For which date?',
+                    'Which date would you like?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!briefingObj[this.attributes.courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have that class date on record. Which date would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have, ${classDate} on record for course, ${this.attributes.courseNumber}. Which date would you like?`,
+                    `Looks like I don't have, ${classDate} for course, ${this.attributes.courseNumber}. Can you try another date?`,
+                    `Oops, I'm missing, ${classDate} from the record for course, ${this.attributes.courseNumber}. Is there another date you would like?`,
+                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course, ${this.attributes.courseNumber}. Do you have another date in mind?`
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (briefingObj[this.attributes.courseNumber][classDate]['Note'] == ' ') {
                 let slotToElicit = 'classDate';
-                let speechOutput = "I'm sorry, I don't have any notes for that date. Which date would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have any notes for, ${classDate}. Which date would you like?`,
+                    `Oops, there aren't any notes stored for, ${classDate}. Could you try another date?`,
+                    `I just checked, ${classDate} and there aren't any notes. Is there another date you would like?`
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            }else {
+            } else {
                 this.attributes.classDate = classDate;
                 const speechOutput = playBriefingHelper(this.attributes, briefingObj);
                 this.attributes.lastOutput = speechOutput;
@@ -530,30 +565,55 @@ const handlers = {
 
         if (!courseNumber) {
             let slotToElicit = 'courseNumber';
-            let speechOutput = "For which course?";
+            const allOutputs = [
+                'For which course number?',
+                'What is the course number?',
+            ];
+            const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!briefingObj.hasOwnProperty(courseNumber)) {
             let slotToElicit = 'courseNumber';
-            let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
+            const allOutputs = [
+                `I'm sorry, I don't have course, ${courseNumber} on record. Which course number would you like?`,
+                `Looks like I don't have course, ${courseNumber}. Can you try another course number?`,
+                `Oops, I'm missing course, ${courseNumber} from the record. Is there another course number you would like?`,
+                `I'm sorry, course, ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+            ];
+            let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!classDate) {
             let slotToElicit = 'classDate';
-            let speechOutput = 'For which date?';
+            const allOutputs = [
+                'For which date?',
+                'Which date would you like?',
+            ];
+            const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
             let slotToElicit = 'classDate';
-            let speechOutput = "I'm sorry, I don't have that class date on record. Which date would you like?";
+            const allOutputs = [
+                `I'm sorry, I don't have, ${classDate} on record for course, ${courseNumber}. Which date would you like?`,
+                `Looks like I don't have, ${classDate} for course, ${courseNumber}. Can you try another date?`,
+                `Oops, I'm missing, ${classDate} from the record for course, ${courseNumber}. Is there another date you would like?`,
+                `I'm sorry, ${classDate} doesn't seem to exist in the record for course, ${courseNumber}. Do you have another date in mind?`
+            ];
+            const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else if(!noteContent) {
             let slotToElicit = "noteContent";
-            let speechOutput = "What note would you like to add?";
+            const allOutputs = [
+                'What note would you like to add?',
+                'What should the note say?',
+                'What is the note you\'re adding?'
+            ];
+            const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
         } else {
             //console.log('*** valid course number and class Date provided manually');
             this.attributes.courseNumber = courseNumber;
             this.attributes.classDate = classDate;
             this.attributes.noteContent = noteContent;
-            let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
+            let speechOutput = `Great, I've added your note for course, ${this.attributes.courseNumber} on, ${this.attributes.classDate}.`;
             this.attributes.lastOutput = speechOutput;
             if (this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] != ' ') {
                 noteContent = " | " + noteContent;
@@ -591,11 +651,22 @@ const handlers = {
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have course, ${courseNumber} on record. Which course number would you like?`,
+                    `Looks like I don't have course, ${courseNumber}. Can you try another course number?`,
+                    `Oops, I'm missing course, ${courseNumber} from the record. Is there another course number you would like?`,
+                    `I'm sorry, course, ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                ];
+                let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!tag) {
                 let slotToElicit = 'tag';
-                let speechOutput = "What should I talk about?";
+                const allOutputs = [
+                    'What should I talk about?',
+                    'What would you like me to discuss?',
+                    'What can I tell you about?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!factsObj[courseNumber][tag.toLowerCase()]) {
                 if (tag.toLowerCase() == 'cancel' || tag.toLowerCase() == 'stop' ||
@@ -603,7 +674,13 @@ const handlers = {
                     this.emitWithState('AMAZON.CancelIntent');
                 } else {
                     let slotToElicit = 'tag';
-                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${courseNumber}. What should I talk about?`;
+                    const allOutputs = [
+                        `I'm sorry, I don't have the tag, ${tag} on record for course, ${courseNumber}. Which tag would you like?`,
+                        `Looks like I don't have the tag, ${tag} for course, ${courseNumber}. Can you try another tag?`,
+                        `Oops, I'm missing the tag, ${tag} from the record for course, ${courseNumber}. Is there another tag you would like?`,
+                        `I'm sorry, the tag, ${tag} doesn't seem to exist in the record for course, ${courseNumber}. Do you have another tag in mind?`
+                    ];
+                    const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 }
             } else {
@@ -618,11 +695,20 @@ const handlers = {
             getContext(this.attributes, checkSchedule(scheduleObj));
             if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "For which course number?";
+                const allOutputs = [
+                    'For which course number?',
+                    'What is the course number?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!tag) {
                 let slotToElicit = 'tag';
-                let speechOutput = "What should I talk about?";
+                const allOutputs = [
+                    'What should I talk about?',
+                    'What would you like me to discuss?',
+                    'What can I tell you about?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!factsObj[this.attributes.courseNumber].hasOwnProperty(tag.toLowerCase())) {
                 if (tag.toLowerCase() == 'cancel' || tag.toLowerCase() == 'stop' ||
@@ -630,7 +716,13 @@ const handlers = {
                     this.emitWithState('AMAZON.CancelIntent');
                 } else {
                     let slotToElicit = 'tag';
-                    let speechOutput = `I'm sorry, that tag doesn't exist for course ${this.attributes.courseNumber}. What should I talk about?`;
+                    const allOutputs = [
+                        `I'm sorry, I don't have the tag, ${tag} on record for course, ${this.attributes.courseNumber}. Which tag would you like?`,
+                        `Looks like I don't have the tag, ${tag} for course, ${this.attributes.courseNumber}. Can you try another tag?`,
+                        `Oops, I'm missing the tag, ${tag} from the record for course, ${this.attributes.courseNumber}. Is there another tag you would like?`,
+                        `I'm sorry, the tag, ${tag} doesn't seem to exist in the record for course, ${this.attributes.courseNumber}. Do you have another tag in mind?`
+                    ];
+                    const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 }
             } else {
@@ -657,7 +749,13 @@ const handlers = {
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have course, ${courseNumber} on record. Which course number would you like?`,
+                    `Looks like I don't have course, ${courseNumber}. Can you try another course number?`,
+                    `Oops, I'm missing course, ${courseNumber} from the record. Is there another course number you would like?`,
+                    `I'm sorry, course, ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                ];
+                let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.courseNumber = courseNumber;
@@ -672,7 +770,11 @@ const handlers = {
             getContext(this.attributes, sectionObj);
             if (!sectionObj) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "For which course number?";
+                const allOutputs = [
+                    'For which course number?',
+                    'What is the course number?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 let speechOutput = readTagsHelper(this.attributes, factsObj);
@@ -702,23 +804,49 @@ const handlers = {
         if (courseNumber || sectionTime) {
             if (!courseNumber) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "From which course would you like me to make groups";
+                const allOutputs = [
+                    'For which course number?',
+                    'What is the course number?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have course, ${courseNumber} on record. Which course number would you like?`,
+                    `Looks like I don't have course, ${courseNumber}. Can you try another course number?`,
+                    `Oops, I'm missing course, ${courseNumber} from the record. Is there another course number you would like?`,
+                    `I'm sorry, course, ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                ];
+                let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!sectionTime) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = "From which section time?";
+                const allOutputs = [
+                    'For which section time?',
+                    'Which section time would you like?',
+                    'What is the section time?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which course would you like?`;
+                const allOutputs = [
+                    `I'm sorry, I don't have a section at, ${sectionTime} on record for course, ${courseNumber}. Which section time would you like?`,
+                    `Looks like I don't have a section at, ${sectionTime} for course, ${courseNumber}. Can you try another section time?`,
+                    `Oops, I'm missing the section at, ${sectionTime} from the record for course, ${courseNumber}. Is there another section time you would like?`,
+                    `I'm sorry, the section at, ${sectionTime} doesn't seem to exist in the record for course, ${courseNumber}. Do you have another section time in mind?`
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!groupNumberString) {
                 let slotToElicit = 'groupNumber';
-                let speechOutput = 'How many people per group?';
+                const allOutputs = [
+                    'How many people per group?',
+                    'How many people are in each group?',
+                    'What is the number of people per group?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.courseNumber = courseNumber;
@@ -749,11 +877,20 @@ const handlers = {
             getContext(this.attributes, checkSchedule(scheduleObj));
             if (!checkSchedule(scheduleObj)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "For which course number?";
+                const allOutputs = [
+                    'For which course number?',
+                    'What is the course number?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!groupNumberString) {
                 let slotToElicit = 'groupNumber';
-                let speechOutput = 'How many people per group?';
+                const allOutputs = [
+                    'How many people per group?',
+                    'How many people are in each group?',
+                    'What is the number of people per group?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
@@ -803,15 +940,32 @@ const handlers = {
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have course, ${courseNumber} on record. Which course number would you like?`,
+                    `Looks like I don't have course, ${courseNumber}. Can you try another course number?`,
+                    `Oops, I'm missing course, ${courseNumber} from the record. Is there another course number you would like?`,
+                    `I'm sorry, course, ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                ];
+                let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!sectionTime) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = "From which section time?";
+                const allOutputs = [
+                    'For which section time?',
+                    'Which section time would you like?',
+                    'What is the section time?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like?`;
+                const allOutputs = [
+                    `I'm sorry, I don't have a section at, ${sectionTime} on record for course, ${courseNumber}. Which section time would you like?`,
+                    `Looks like I don't have a section at, ${sectionTime} for course, ${courseNumber}. Can you try another section time?`,
+                    `Oops, I'm missing the section at, ${sectionTime} from the record for course, ${courseNumber}. Is there another section time you would like?`,
+                    `I'm sorry, the section at, ${sectionTime} doesn't seem to exist in the record for course, ${courseNumber}. Do you have another section time in mind?`
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and section number provided manually');
@@ -839,7 +993,11 @@ const handlers = {
             if (!checkSchedule(scheduleObj)) {
                 //console.log('*** not in a class');
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "For which course number?";
+                const allOutputs = [
+                    'For which course number?',
+                    'What is the course number?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** we\'re in a class');
@@ -881,7 +1039,13 @@ const handlers = {
         if (courseNumber) {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have course, ${courseNumber} on record. Which course number would you like?`,
+                    `Looks like I don't have course, ${courseNumber}. Can you try another course number?`,
+                    `Oops, I'm missing course, ${courseNumber} from the record. Is there another course number you would like?`,
+                    `I'm sorry, course, ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                ];
+                let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 this.attributes.courseNumber = courseNumber;
@@ -896,7 +1060,11 @@ const handlers = {
                 if (!checkSchedule(scheduleObj)) {
                     //console.log('*** not in a course');
                     let slotToElicit = 'courseNumber';
-                    let speechOutput = "For which course number?";
+                    const allOutputs = [
+                        'For which course number?',
+                        'What is the course number?',
+                    ];
+                    const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
                 } else {
                     let speechOutput = orderedQuizQuestion(this.attributes, questionsObj);
@@ -915,6 +1083,9 @@ const handlers = {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
         }
+        
+        let scheduleObj = this.attributes.scheduleObj;
+        let rosterObj = this.attributes.rosterObj;
         let courseNumber = this.event.request.intent.slots.courseNumber.value;
         let sectionTime = this.event.request.intent.slots.sectionTime.value;
         let firstNames = this.event.request.intent.slots.firstNames.value;
@@ -922,46 +1093,81 @@ const handlers = {
         if (courseNumber || sectionTime) {
             if (!courseNumber) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "From which course would you like me to add points?";
+                const allOutputs = [
+                    'For which course number?',
+                    'What is the course number?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!this.attributes.scheduleObj.hasOwnProperty(courseNumber)) {
+            } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "I'm sorry, I don't have that course number on record. Which course would you like?";
+                const allOutputs = [
+                    `I'm sorry, I don't have course, ${courseNumber} on record. Which course number would you like?`,
+                    `Looks like I don't have course, ${courseNumber}. Can you try another course number?`,
+                    `Oops, I'm missing course, ${courseNumber} from the record. Is there another course number you would like?`,
+                    `I'm sorry, course, ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                ];
+                let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!sectionTime) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = "From which section time?";
+                const allOutputs = [
+                    'For which section time?',
+                    'Which section time would you like?',
+                    'What is the section time?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
-            } else if (!isValidSectionTime(this.attributes, this.attributes.scheduleObj, courseNumber, sectionTime)) {
+            } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
-                let speechOutput = `I'm sorry, I don't have that section time on record for course ${courseNumber}. Which section time would you like?`;
+                const allOutputs = [
+                    `I'm sorry, I don't have a section at, ${sectionTime} on record for course, ${courseNumber}. Which section time would you like?`,
+                    `Looks like I don't have a section at, ${sectionTime} for course, ${courseNumber}. Can you try another section time?`,
+                    `Oops, I'm missing the section at, ${sectionTime} from the record for course, ${courseNumber}. Is there another section time you would like?`,
+                    `I'm sorry, the section at, ${sectionTime} doesn't seem to exist in the record for course, ${courseNumber}. Do you have another section time in mind?`
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!firstNames) {
                 let slotToElicit = "firstNames";
-                let speechOutput = "Who is getting points?";
+                const allOutputs = [
+                    'Who is getting points?',
+                    'Who is going to receive points?',
+                    'Who should I award points to?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (getInvalidNameList(this.attributes, firstNames).length > 0) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
                 let nameOutput = '';
-                invalidNames.forEach(name => {
-                    if (invalidNames.length == 1) {
-                        nameOutput = name;
-                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                        nameOutput += `or ${name} `;
-                    } else {
-                        nameOutput += `${name}, `
-                    }
-                });
+                if (invalidNames.length > 0) {
+                    invalidNames.forEach(name => {
+                        if (name == 'cancel' || name == 'stop' ||
+                            name == 'alexa stop' || name == 'alexa cancel') {
+                            this.emitWithState('AMAZON.CancelIntent');
+                        } else if (invalidNames.length == 1) {
+                            nameOutput = name;
+                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                            nameOutput += `or ${name} `;
+                        } else {
+                            nameOutput += `${name}, `
+                        }
+                    });
+                }
                 let slotToElicit = 'firstNames';
-                let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who would you like to award points to?`;
+                const allOutputs = [
+                    `I'm sorry, I don't have, ${nameOutput} on record for course, ${courseNumber}. Who is getting points?`,
+                    `Looks like I don't have, ${nameOutput} for course, ${courseNumber}. Who should I award points to?`,
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
                 //console.log('*** valid course number and section number provided manually');
                 this.attributes.courseNumber = courseNumber;
-                let speechOutput = "Your points have been awarded.";
+                let speechOutput = 'Your points have been awarded.';
                 this.attributes.lastOutput = speechOutput;
 
-                let names = capitalizeNames(firstNames.split(" "));
+                let names = firstNames.split(" ");
 
                 names.forEach((studentName) => {
                     //writing
@@ -971,7 +1177,7 @@ const handlers = {
                         NickName: studentName
                     };
                     let values = {
-                        ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][studentName]["ParticipationPoints"] + 1)
+                        ParticipationPoints: (rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][studentName]["ParticipationPoints"] + 1)
                     };
 
                     googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
@@ -982,34 +1188,54 @@ const handlers = {
                 this.emit(':responseReady');
             }
         } else {
-            getContext(this.attributes, checkSchedule(this.attributes.scheduleObj));
+            getContext(this.attributes, checkSchedule(scheduleObj));
             if (!checkSchedule(this.attributes.scheduleObj)) {
                 let slotToElicit = 'courseNumber';
-                let speechOutput = "For which course number?";
+                const allOutputs = [
+                    'For which course number?',
+                    'What is the course number?',
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (!firstNames) {
-                let speechOutput = "Who is getting points?";
+                const allOutputs = [
+                    'Who is getting points?',
+                    'Who is going to receive points?',
+                    'Who should I award points to?'
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 let slotToElicit = "firstNames";
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else if (getInvalidNameList(this.attributes, firstNames).length > 0) {
                 let invalidNames = getInvalidNameList(this.attributes, firstNames);
                 let nameOutput = '';
-                invalidNames.forEach(name => {
-                    if (invalidNames.length == 1) {
-                        nameOutput = name;
-                    } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
-                        nameOutput += `or ${name} `;
-                    } else {
-                        nameOutput += `${name}, `
-                    }
-                });
+                if (invalidNames.length > 0) {
+                    invalidNames.forEach(name => {
+                        if (name == 'cancel' || name == 'stop' ||
+                            name == 'alexa stop' || name == 'alexa cancel') {
+                            this.emitWithState('AMAZON.CancelIntent');
+                        } else if (invalidNames.length == 1) {
+                            nameOutput = name;
+                        } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
+                            nameOutput += `or ${name} `;
+                        } else {
+                            nameOutput += `${name}, `
+                        }
+                    });
+                }
                 let slotToElicit = 'firstNames';
-                let speechOutput = `I'm sorry, I don't have ${nameOutput} on record for course ${this.attributes.courseNumber}. Who would you like to award points to?`;
+                const allOutputs = [
+                    `I'm sorry, I don't have, ${nameOutput} on record for course, ${this.attributes.courseNumber}. Who is getting points?`,
+                    `Looks like I don't have, ${nameOutput} for course, ${this.attributes.courseNumber}. Who should I award points to?`,
+                ];
+                const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
             } else {
-                let speechOutput = "Your points have been awarded.";
+                let speechOutput = 'Your points have been awarded.';
                 this.attributes.lastOutput = speechOutput;
-                let names = capitalizeNames(firstNames.split(" "));
+
+                let names = firstNames.split(" ");
+
                 names.forEach((studentName) => {
                     //writing
                     let keys = {
@@ -1018,7 +1244,7 @@ const handlers = {
                         NickName: studentName
                     };
                     let values = {
-                        ParticipationPoints: (this.attributes.rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][studentName]["ParticipationPoints"] + 1)
+                        ParticipationPoints: (rosterObj[this.attributes.courseNumber][this.attributes.sectionNumber][studentName]["ParticipationPoints"] + 1)
                     };
                     googleSDK.writeTab(this.attributes.spreadsheetID, "Roster", keys, values);
                 });
