@@ -1148,7 +1148,10 @@ const handlers = {
                 let nameOutput = '';
                 if (invalidNames.length > 0) {
                     invalidNames.forEach(name => {
-                        if (invalidNames.length == 1) {
+                        if (name == 'cancel' || name == 'stop' ||
+                            name == 'alexa stop' || name == 'alexa cancel') {
+                            this.emitWithState('AMAZON.CancelIntent');
+                        } else if (invalidNames.length == 1) {
                             nameOutput = name;
                         } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
                             nameOutput += `or ${name} `;
@@ -1214,7 +1217,10 @@ const handlers = {
                 let nameOutput = '';
                 if (invalidNames.length > 0) {
                     invalidNames.forEach(name => {
-                        if (invalidNames.length == 1) {
+                        if (name == 'cancel' || name == 'stop' ||
+                            name == 'alexa stop' || name == 'alexa cancel') {
+                            this.emitWithState('AMAZON.CancelIntent');
+                        } else if (invalidNames.length == 1) {
                             nameOutput = name;
                         } else if (invalidNames.indexOf(name) == invalidNames.length - 1) {
                             nameOutput += `or ${name} `;
