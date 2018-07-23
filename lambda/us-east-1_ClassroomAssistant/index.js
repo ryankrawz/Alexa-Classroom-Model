@@ -371,8 +371,8 @@ const handlers = {
     'AMAZON.HelpIntent': function () {
         let helpOutputs = {
             'Default': "You have not accessed the skill yet. Please look at the user documentation if you do not know how to open this skill.",
-            'LaunchRequest': null,
-            'FallbackIntent': null,
+            'LaunchRequest': "You have opened the Eagle Expert skill. Please say another command to continue.",
+            'FallbackIntent': "You have opened the Eagle Expert skill. Please say another command to continue.",
             'PlayBriefing': "If you'd like to hear one of your saved notes please say something like 'play my note'.",
             'AddBriefingNote': "If you'd like me to add a briefing note please say something like 'add a new note'.",
             'FastFacts': "If you'd like me to recite one of your fast facts please say something like 'read off' and then the name of your tag. If you would like to hear a list of your tags please say 'read off my tags.'",
