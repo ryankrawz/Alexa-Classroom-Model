@@ -359,6 +359,21 @@ async function initializeObjects(attributes, intentObj) {
     return true;
 }
 
+function generateGoodbye() {
+    const allOutputs = [
+            'See you next time.',
+            'See you later.',
+            'Till next time.',
+            'Have a nice day.',
+            'Goodbye.',
+            'May the force be with you.',
+            'Bye for now.',
+            'Take care.',
+            'Talk to you later.'
+        ];
+        return allOutputs[Math.floor(Math.random() * allOutputs.length)];
+}
+
 const handlers = {
     'LaunchRequest': function () {
         this.attributes.lastIntent = 'LaunchRequest';
@@ -393,37 +408,13 @@ const handlers = {
     },
 
     'AMAZON.CancelIntent': function () {
-        const allOutputs = [
-            'See you next time.',
-            'See you later.',
-            'Till next time.',
-            'Have a nice day.',
-            'Goodbye.',
-            'May the force be with you.',
-            'Bye for now.',
-            'Take care.',
-            'Talk to you later.'
-        ];
-        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
-        this.response.speak(speechOutput);
+        this.response.speak(generateGoodbye());
         nullifyObjects(this.attributes);
         this.emit(':responseReady');
     },
 
     'AMAZON.StopIntent': function () {
-        const allOutputs = [
-            'See you next time.',
-            'See you later.',
-            'Till next time.',
-            'Have a nice day.',
-            'Goodbye.',
-            'May the force be with you.',
-            'Bye for now.',
-            'Take care.',
-            'Talk to you later.'
-        ];
-        const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
-        this.response.speak(speechOutput);
+        this.response.speak(generateGoodbye());
         nullifyObjects(this.attributes);
         this.emit(':responseReady');
     },
