@@ -385,17 +385,18 @@ const handlers = {
 
     'AMAZON.HelpIntent': function () {
         let helpOutputs = {
-            'Default': null,
-            'LaunchRequest': null,
-            'FallbackIntent': null,
-            'PlayBriefing': null,
-            'AddBriefingNote': null,
-            'FastFacts': null,
-            'ReadTags': null,
+            'Default': "You have not accessed the skill yet. Please look at the user documentation if you do not know how to open this skill.",
+            'LaunchRequest': "You have opened the Eagle Expert skill. Please say another command to continue.",
+            'FallbackIntent': "You have opened the Eagle Expert skill. Please say another command to continue.",
+            'PlayBriefing': "If you'd like to hear one of your saved notes please say something like 'play my note'.",
+            'AddBriefingNote': "If you'd like me to add a briefing note please say something like 'add a new note'.",
+            'FastFacts': "If you'd like me to recite one of your fast facts please say something like 'read off' and then the name of your tag. If you would like to hear a list of your tags please say 'read off my tags.'",
+            'ReadTags': "If you'd like me to read off your tags for the Fast Facts skill say something like 'read off my tags'.",
             'ColdCall': "If you'd like me to call on a random student from the class, just say something like, 'cold call'. If you are currently in a class, I'll call on a random student from the class roster. If you aren't, I'll prompt you for a course number.",
             'GroupPresent': "If you'd like to make presentation groups, you can tell me how many students per group. If you're currently in a class, I will create randomized groups of that size from the class roster. If you aren't, I'll prompt you for a course number and section time.",
-            'QuizQuestion': null,
-            'ParticipationTracker': null,
+            'QuizQuestion': "If you'd like to hear a question from your list of questions say something like, 'give me a question.'",
+            'ParticipationTracker': "If you'd like me to add participation points for a student, say something like 'give this student a point.' Be sure to say the name of a student in the correct class.",
+
         };
         let speechOutput;
         if (!this.attributes.lastIntent) {
