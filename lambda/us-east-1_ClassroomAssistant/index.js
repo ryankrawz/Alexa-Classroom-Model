@@ -428,7 +428,7 @@ const handlers = {
     'AMAZON.FallbackIntent': function () {
         const allOutputs = [
             'I didn\'t quite catch that. Start over and make sure what you\'re saying is correct.',
-            'I did\'t understand that command. Begin again and try your best to be articulate.',
+            'I didn\'t understand that command. Begin again and try your best to be articulate.',
             'Oops, I didn\'t get that. Start from the beginning and follow my prompts closely.'
         ];
         let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
