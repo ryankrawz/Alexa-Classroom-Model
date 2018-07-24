@@ -459,9 +459,9 @@ const handlers = {
             if (!briefingObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
-                    `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `Looks like I don't have course ${courseNumber}. Which course number would you like?`,
-                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like??`
+                    `I'm sorry, I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `Looks like I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which course number would you like?`,
+                    `I'm sorry, course <say-as interpret-as="spell-out">${courseNumber}</say-as> doesn't seem to exist. Which course number would you like??`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -476,9 +476,9 @@ const handlers = {
             } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
                 const allOutputs = [
-                    `I'm sorry, I don't have ${classDate} on record for course ${courseNumber}. Which date would you like?`,
-                    `Looks like I don't have ${classDate} for course ${courseNumber}. Which date would you like?`,
-                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course ${courseNumber}. Which date would you like?`
+                    `I'm sorry, I don't have ${classDate} on record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which date would you like?`,
+                    `Looks like I don't have ${classDate} for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which date would you like?`,
+                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which date would you like?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -572,9 +572,9 @@ const handlers = {
         } else if (!briefingObj.hasOwnProperty(courseNumber)) {
             let slotToElicit = 'courseNumber';
             const allOutputs = [
-                `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                `Looks like I don't have course ${courseNumber}. Which course number would you like?`,
-                `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like?`
+                `I'm sorry, I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                `Looks like I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which course number would you like?`,
+                `I'm sorry, course <say-as interpret-as="spell-out">${courseNumber}</say-as> doesn't seem to exist. Which course number would you like?`
             ];
             let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -589,9 +589,9 @@ const handlers = {
         } else if (!briefingObj[courseNumber].hasOwnProperty(classDate)) {
             let slotToElicit = 'classDate';
             const allOutputs = [
-                `I'm sorry, I don't have ${classDate} on record for course ${courseNumber}. Which date would you like?`,
-                `Looks like I don't have ${classDate} for course ${courseNumber}. Which date would you like?`,
-                `I'm sorry, ${classDate} doesn't seem to exist for course ${courseNumber}. Which date would you like?`
+                `I'm sorry, I don't have ${classDate} on record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which date would you like?`,
+                `Looks like I don't have ${classDate} for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which date would you like?`,
+                `I'm sorry, ${classDate} doesn't seem to exist for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which date would you like?`
             ];
             const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -609,7 +609,7 @@ const handlers = {
             this.attributes.courseNumber = courseNumber;
             this.attributes.classDate = classDate;
             this.attributes.noteContent = noteContent;
-            let speechOutput = `Great, I've added your note for course ${this.attributes.courseNumber} on ${this.attributes.classDate}.`;
+            let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
             this.attributes.lastOutput = speechOutput;
             if (this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] != ' ') {
                 noteContent = " | " + noteContent;
@@ -648,9 +648,9 @@ const handlers = {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
-                    `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `Looks like I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like?`
+                    `I'm sorry, I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `Looks like I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `I'm sorry, course <say-as interpret-as="spell-out">${courseNumber}</say-as> doesn't seem to exist. Which course number would you like?`
                 ];
                 let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -670,9 +670,9 @@ const handlers = {
                 } else {
                     let slotToElicit = 'tag';
                     const allOutputs = [
-                        `I'm sorry, I don't have the tag ${tag} on record for course ${courseNumber}. Which tag would you like?`,
-                        `Looks like I don't have the tag ${tag} for course ${courseNumber}. Which tag would you like?`,
-                        `I'm sorry, the tag ${tag} doesn't seem to exist for course ${courseNumber}. Which tag would you like?`
+                        `I'm sorry, I don't have the tag ${tag} on record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which tag would you like?`,
+                        `Looks like I don't have the tag ${tag} for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which tag would you like?`,
+                        `I'm sorry, the tag ${tag} doesn't seem to exist for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which tag would you like?`
                     ];
                     const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -711,9 +711,9 @@ const handlers = {
                 } else {
                     let slotToElicit = 'tag';
                     const allOutputs = [
-                        `I'm sorry, I don't have the tag ${tag} on record for course ${this.attributes.courseNumber}. Which tag would you like?`,
-                        `Looks like I don't have the tag ${tag} for course ${this.attributes.courseNumber}. Which tag would you like?`,
-                        `I'm sorry, the tag ${tag} doesn't seem to exist in the record for course ${this.attributes.courseNumber}. Which tag would you like?`
+                        `I'm sorry, I don't have the tag ${tag} on record for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Which tag would you like?`,
+                        `Looks like I don't have the tag ${tag} for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Which tag would you like?`,
+                        `I'm sorry, the tag ${tag} doesn't seem to exist in the record for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Which tag would you like?`
                     ];
                     const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -743,9 +743,9 @@ const handlers = {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
-                    `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `Looks like I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like?`
+                    `I'm sorry, I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `Looks like I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `I'm sorry, course <say-as interpret-as="spell-out">${courseNumber}</say-as> doesn't seem to exist. Which course number would you like?`
                 ];
                 let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -805,9 +805,9 @@ const handlers = {
             } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
-                    `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `Looks like I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like?`
+                    `I'm sorry, I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `Looks like I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `I'm sorry, course <say-as interpret-as="spell-out">${courseNumber}</say-as> doesn't seem to exist. Which course number would you like?`
                 ];
                 let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -823,9 +823,9 @@ const handlers = {
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
                 const allOutputs = [
-                    `I'm sorry, I don't have a section at ${sectionTime} on record for course ${courseNumber}. Which section time would you like?`,
-                    `Looks like I don't have a section at ${sectionTime} for course ${courseNumber}. Which section time would you like?`,
-                    `I'm sorry, the section at ${sectionTime} doesn't seem to exist for course ${courseNumber}. Which section time would you like?`
+                    `I'm sorry, I don't have a section at ${sectionTime} on record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`,
+                    `Looks like I don't have a section at ${sectionTime} for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`,
+                    `I'm sorry, the section at ${sectionTime} doesn't seem to exist for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -931,9 +931,9 @@ const handlers = {
             } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
-                    `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `Looks like I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like?`
+                    `I'm sorry, I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `Looks like I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `I'm sorry, course <say-as interpret-as="spell-out">${courseNumber}</say-as> doesn't seem to exist. Which course number would you like?`
                 ];
                 let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -949,9 +949,9 @@ const handlers = {
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
                 const allOutputs = [
-                    `I'm sorry, I don't have a section at ${sectionTime} on record for course ${courseNumber}. Which section time would you like?`,
-                    `Looks like I don't have a section at ${sectionTime} for course ${courseNumber}. Which section time would you like?`,
-                    `I'm sorry, the section at ${sectionTime} doesn't seem to exist for course ${courseNumber}. Which section time would you like?`
+                    `I'm sorry, I don't have a section at ${sectionTime} on record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`,
+                    `Looks like I don't have a section at ${sectionTime} for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`,
+                    `I'm sorry, the section at ${sectionTime} doesn't seem to exist for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -1028,9 +1028,9 @@ const handlers = {
             if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
-                    `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `Looks like I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like?`
+                    `I'm sorry, I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `Looks like I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `I'm sorry, course <say-as interpret-as="spell-out">${courseNumber}</say-as> doesn't seem to exist. Which course number would you like?`
                 ];
                 let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -1089,9 +1089,9 @@ const handlers = {
             } else if (!scheduleObj.hasOwnProperty(courseNumber)) {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
-                    `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `Looks like I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like?`
+                    `I'm sorry, I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `Looks like I don't have course <say-as interpret-as="spell-out">${courseNumber}</say-as> on record. Which course number would you like?`,
+                    `I'm sorry, course <say-as interpret-as="spell-out">${courseNumber}</say-as> doesn't seem to exist. Which course number would you like?`
                 ];
                 let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -1107,9 +1107,9 @@ const handlers = {
             } else if (!isValidSectionTime(this.attributes, scheduleObj, courseNumber, sectionTime)) {
                 let slotToElicit = 'sectionTime';
                 const allOutputs = [
-                    `I'm sorry, I don't have a section at ${sectionTime} on record for course ${courseNumber}. Which section time would you like?`,
-                    `Looks like I don't have a section at ${sectionTime} for course ${courseNumber}. Which section time would you like?`,
-                    `I'm sorry, the section at ${sectionTime} doesn't seem to exist in the record for course ${courseNumber}. Which section time would you like?`
+                    `I'm sorry, I don't have a section at ${sectionTime} on record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`,
+                    `Looks like I don't have a section at ${sectionTime} for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`,
+                    `I'm sorry, the section at ${sectionTime} doesn't seem to exist in the record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Which section time would you like?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -1141,8 +1141,8 @@ const handlers = {
                 }
                 let slotToElicit = 'firstNames';
                 const allOutputs = [
-                    `I'm sorry, I don't have ${nameOutput} on record for course ${courseNumber}. Who is getting points?`,
-                    `Looks like I don't have ${nameOutput} for course ${courseNumber}. Who should I award points to?`,
+                    `I'm sorry, I don't have ${nameOutput} on record for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Who is getting points?`,
+                    `Looks like I don't have ${nameOutput} for course <say-as interpret-as="spell-out">${courseNumber}</say-as>. Who should I award points to?`,
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -1210,8 +1210,8 @@ const handlers = {
                 }
                 let slotToElicit = 'firstNames';
                 const allOutputs = [
-                    `I'm sorry, I don't have ${nameOutput} on record for course ${this.attributes.courseNumber}. Who is getting points?`,
-                    `Looks like I don't have ${nameOutput} for course ${this.attributes.courseNumber}. Who should I award points to?`,
+                    `I'm sorry, I don't have ${nameOutput} on record for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Who is getting points?`,
+                    `Looks like I don't have ${nameOutput} for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Who should I award points to?`,
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
