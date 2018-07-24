@@ -54,15 +54,9 @@
                         }
                     ],
                     "samples": [
-                        "provide an answer for {tag} from course {courseNumber}",
-                        "provide an answer for {tag} from {courseNumber}",
                         "provide an answer for {tag}",
                         "provide an answer for course {courseNumber}",
                         "provide an answer for {courseNumber}",
-                        "talk about the {tag} from course {courseNumber}",
-                        "talk about {tag} from course {courseNumber}",
-                        "talk about the {tag} from {courseNumber}",
-                        "talk about {tag} from {courseNumber}",
                         "discuss something from course {courseNumber}",
                         "discuss something from {courseNumber}",
                         "talk about something from course {courseNumber}",
