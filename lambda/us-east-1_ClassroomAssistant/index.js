@@ -523,9 +523,9 @@ const handlers = {
             } else if (!briefingObj[this.attributes.courseNumber].hasOwnProperty(classDate)) {
                 let slotToElicit = 'classDate';
                 const allOutputs = [
-                    `I'm sorry, I don't have ${classDate} on record for course ${this.attributes.courseNumber}. Which date would you like?`,
-                    `Looks like I don't have ${classDate} for course ${this.attributes.courseNumber}. Can you try another date?`,
-                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course ${this.attributes.courseNumber}. Do you have another date in mind?`
+                    `I'm sorry, I don't have ${classDate} on record for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Which date would you like?`,
+                    `Looks like I don't have ${classDate} for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Can you try another date?`,
+                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Do you have another date in mind?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
