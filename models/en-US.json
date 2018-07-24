@@ -1,7 +1,7 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "classroom assistant",
+            "invocationName": "my assistant",
             "intents": [
                 {
                     "name": "AMAZON.FallbackIntent",
