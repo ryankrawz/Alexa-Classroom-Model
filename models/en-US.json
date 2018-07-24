@@ -54,6 +54,24 @@
                         }
                     ],
                     "samples": [
+                        "provide an answer for {tag} from course {courseNumber}",
+                        "provide an answer for {tag} from {courseNumber}",
+                        "provide an answer for {tag}",
+                        "provide an answer for course {courseNumber}",
+                        "provide an answer for {courseNumber}",
+                        "talk about the {tag} from course {courseNumber}",
+                        "talk about {tag} from course {courseNumber}",
+                        "talk about the {tag} from {courseNumber}",
+                        "talk about {tag} from {courseNumber}",
+                        "discuss something from course {courseNumber}",
+                        "discuss something from {courseNumber}",
+                        "talk about something from course {courseNumber}",
+                        "talk about something from {courseNumber}",
+                        "give me an answer from course {courseNumber}",
+                        "give me an answer from {courseNumber}",
+                        "provide an answer from course {courseNumber}",
+                        "provide an answer from {courseNumber}",
+                        "give me an answer",
                         "provide an answer",
                         "discuss something",
                         "talk about something",
@@ -436,6 +454,7 @@
                         }
                     ],
                     "samples": [
+                        "make groups",
                         "make groups of {groupNumber} for my {sectionTime}",
                         "For my {sectionTime} make groups of {groupNumber}",
                         "For my {sectionTime} make groups",
