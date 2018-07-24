@@ -426,7 +426,7 @@ const handlers = {
         this.attributes.lastIntent = 'AMAZON.FallbackIntent';
         const allOutputs = [
             'I didn\'t quite catch that. Start over and make sure what you\'re saying is correct.',
-            ' I\'m sorry, I didn\'t understand that command. Begin again and try your best to be articulate.',
+            'I\'m sorry, I didn\'t understand that command. Begin again and try your best to be articulate.',
             'Oops, I didn\'t get that. Start from the beginning and follow my prompts closely.'
         ];
         let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
@@ -461,8 +461,8 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
                     `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                    `Looks like I don't have course ${courseNumber}. Can you try another course number?`,
-                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                    `Looks like I don't have course ${courseNumber}. Which course number would you like?`,
+                    `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like??`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -478,8 +478,8 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 const allOutputs = [
                     `I'm sorry, I don't have ${classDate} on record for course ${courseNumber}. Which date would you like?`,
-                    `Looks like I don't have ${classDate} for course ${courseNumber}. Can you try another date?`,
-                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course ${courseNumber}. Do you have another date in mind?`
+                    `Looks like I don't have ${classDate} for course ${courseNumber}. Which date would you like?`,
+                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course ${courseNumber}. Which date would you like?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -487,8 +487,8 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 const allOutputs = [
                     `I'm sorry, I don't have any notes for ${classDate}. Which date would you like?`,
-                    `Oops, there aren't any notes stored for ${classDate}. Could you try another date?`,
-                    `I just checked ${classDate} and there aren't any notes. Is there another date you would like?`
+                    `Oops, there aren't any notes stored for ${classDate}. Which date would you like?`,
+                    `I just checked ${classDate} and there aren't any notes. Which date would you like?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -525,8 +525,8 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 const allOutputs = [
                     `I'm sorry, I don't have ${classDate} on record for course ${this.attributes.courseNumber}. Which date would you like?`,
-                    `Looks like I don't have ${classDate} for course ${this.attributes.courseNumber}. Can you try another date?`,
-                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course ${this.attributes.courseNumber}. Do you have another date in mind?`
+                    `Looks like I don't have ${classDate} for course ${this.attributes.courseNumber}. Which date would you like?`,
+                    `I'm sorry, ${classDate} doesn't seem to exist in the record for course ${this.attributes.courseNumber}. Which date would you like?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -534,8 +534,8 @@ const handlers = {
                 let slotToElicit = 'classDate';
                 const allOutputs = [
                     `I'm sorry, I don't have any notes for ${classDate}. Which date would you like?`,
-                    `Oops, there aren't any notes stored for ${classDate}. Could you try another date?`,
-                    `I just checked ${classDate} and there aren't any notes. Is there another date you would like?`
+                    `Oops, there aren't any notes stored for ${classDate}. Which date would you like?`,
+                    `I just checked ${classDate} and there aren't any notes. Which date would you like?`
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -574,8 +574,8 @@ const handlers = {
             let slotToElicit = 'courseNumber';
             const allOutputs = [
                 `I'm sorry, I don't have course ${courseNumber} on record. Which course number would you like?`,
-                `Looks like I don't have course ${courseNumber}. Can you try another course number?`,
-                `I'm sorry, course ${courseNumber} doesn't seem to exist. Do you have another course number in mind?`
+                `Looks like I don't have course ${courseNumber}. Which course number would you like?`,
+                `I'm sorry, course ${courseNumber} doesn't seem to exist. Which course number would you like?`
             ];
             let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
