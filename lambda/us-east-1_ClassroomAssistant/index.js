@@ -262,38 +262,31 @@ function groupPresentHelper(attributes, roster, groupString) {
     // Divides student names into groups based on groupNumber
     let k = 1;
     let returnObj = {};
-    if (groupCount === 1) {
-        for (let l = 0; l < presentList.length; l++) {
-            returnObj[k.toString()] = presentList[l];
-            k++;
-        }
-    } else {
-        let groups;
-        let eachGroup = [];
-        const groupList = [];
+    let groups;
+    let eachGroup = [];
+    const groupList = [];
 
-        if (students.length % groupCount === 0) {
-            groups = students.length / groupCount;
-        } else {
-            groups = Math.floor(students.length / groupCount) + 1;
-        }
-        for (let l = 0; l < groups; l++) {
-            for (let m = 0; m < groupCount; m++) {
-                if (presentList.length === 0) {
-                    break;
-                }
-                eachGroup.push(presentList[0]);
-                presentList.shift();
+    if (students.length % groupCount === 0) {
+        groups = students.length / groupCount;
+    } else {
+        groups = Math.floor(students.length / groupCount) + 1;
+    }
+    for (let l = 0; l < groups; l++) {
+        for (let m = 0; m < groupCount; m++) {
+            if (presentList.length === 0) {
+                break;
             }
-            groupList.push(eachGroup);
-            //console.log(eachGroup);
-            eachGroup = [];
+            eachGroup.push(presentList[0]);
+            presentList.shift();
         }
-        //console.log(groupList);
-        for (let n = 0; n < groupList.length; n++) {
-            returnObj[k.toString()] = groupList[n];
-            k++;
-        }
+        groupList.push(eachGroup);
+        //console.log(eachGroup);
+        eachGroup = [];
+    }
+    //console.log(groupList);
+    for (let n = 0; n < groupList.length; n++) {
+        returnObj[k.toString()] = groupList[n];
+        k++;
     }
     //console.log(returnObj);
     return returnObj;

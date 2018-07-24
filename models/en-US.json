@@ -1,7 +1,7 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "eagle bot",
+            "invocationName": "classroom assistant",
             "intents": [
                 {
                     "name": "AMAZON.FallbackIntent",
@@ -492,6 +492,7 @@
                         }
                     ],
                     "samples": [
+                        "assign groups {groupNumber}",
                         "assign groups of {groupNumber} for course {courseNumber} at {sectionTime}",
                         "assign groups of {groupNumber} for course {courseNumber}",
                         "assign groups of {groupNumber} for {courseNumber}",
