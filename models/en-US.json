@@ -263,6 +263,7 @@
                         }
                     ],
                     "samples": [
+                        "add brieing for {classDate}",
                         "add a new note for course {courseNumber} on {classDate}",
                         "add a new note for {courseNumber} on {classDate}",
                         "add a note for course {courseNumber} for {classDate}",
