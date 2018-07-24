@@ -1,12 +1,3 @@
-// This is the master skill for all Alexa Skills
-
-/*
-todo:
-- Refactor intents to use data from Sheets
-- Implement Writing to Sheets
-- Outsource sheet schema to a JSON file, column names are currently hardcoded
-*/
-
 'use strict';
 
 const Alexa = require("alexa-sdk");
@@ -29,12 +20,6 @@ async function initSheetID(context) {
         return false;
     }
     return true;
-}
-
-function getNames(students) {
-    let names = [];
-    students.forEach(student => names.push(student.name));
-    return names;
 }
 
 function convertDayOfWeek(day) {
@@ -84,7 +69,7 @@ function checkSchedule(scheduleObj) {
             if (timeStamp >= (start - gracePeriod) && timeStamp <= (end + gracePeriod)) {
                 timeDoesMatch = true;
             }
-            //.log(dayDoesMatch);
+            //console.log(dayDoesMatch);
             //console.log(timeDoesMatch);
             if (dayDoesMatch && timeDoesMatch) {
                 let returnObj = {};
