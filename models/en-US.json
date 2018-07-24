@@ -1,7 +1,7 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "eagle expert",
+            "invocationName": "eagle bot",
             "intents": [
                 {
                     "name": "AMAZON.FallbackIntent",
