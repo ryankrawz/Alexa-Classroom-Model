@@ -698,7 +698,7 @@ const handlers = {
                     const allOutputs = [
                         `I'm sorry, I don't have the tag ${tag} on record for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Which tag would you like?`,
                         `Looks like I don't have the tag ${tag} for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Which tag would you like?`,
-                        `I'm sorry, the tag ${tag} doesn't seem to exist in the record for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Which tag would you like?`
+                        `I'm sorry, the tag ${tag} doesn't seem to exist for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as>. Which tag would you like?`
                     ];
                     const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
