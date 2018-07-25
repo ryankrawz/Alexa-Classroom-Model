@@ -539,7 +539,7 @@ const handlers = {
             let slotToElicit = 'courseNumber';
             const allOutputs = [
                 'For which course number?',
-                'What is the course number?',
+                'What is the course number?'
             ];
             const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
             this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -583,7 +583,7 @@ const handlers = {
             this.attributes.courseNumber = courseNumber;
             this.attributes.classDate = classDate;
             this.attributes.noteContent = noteContent;
-            let speechOutput = `Great, I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
+            let speechOutput = `I've added your note for course <say-as interpret-as="spell-out">${this.attributes.courseNumber}</say-as> on ${this.attributes.classDate}.`;
             this.attributes.lastOutput = speechOutput;
             if (this.attributes.briefingObj[this.attributes.courseNumber][this.attributes.classDate]["Note"] != ' ') {
                 noteContent = " | " + noteContent;
@@ -665,7 +665,7 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
                     'For which course number?',
-                    'What is the course number?',
+                    'What is the course number?'
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -738,7 +738,7 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
                     'For which course number?',
-                    'What is the course number?',
+                    'What is the course number?'
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -772,7 +772,7 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
                     'For which course number?',
-                    'What is the course number?',
+                    'What is the course number?'
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -843,7 +843,7 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
                     'For which course number?',
-                    'What is the course number?',
+                    'What is the course number?'
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -957,7 +957,7 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
                     'For which course number?',
-                    'What is the course number?',
+                    'What is the course number?'
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -1023,7 +1023,7 @@ const handlers = {
                     let slotToElicit = 'courseNumber';
                     const allOutputs = [
                         'For which course number?',
-                        'What is the course number?',
+                        'What is the course number?'
                     ];
                     const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                     this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -1056,7 +1056,7 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
                     'For which course number?',
-                    'What is the course number?',
+                    'What is the course number?'
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
@@ -1152,7 +1152,7 @@ const handlers = {
                 let slotToElicit = 'courseNumber';
                 const allOutputs = [
                     'For which course number?',
-                    'What is the course number?',
+                    'What is the course number?'
                 ];
                 const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
                 this.emit(':elicitSlot', slotToElicit, speechOutput, speechOutput);
