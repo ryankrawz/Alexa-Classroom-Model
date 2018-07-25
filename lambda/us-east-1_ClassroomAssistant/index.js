@@ -179,9 +179,10 @@ function coldCallHelper(attributes, roster) {
     const beenCalledList = [];
     let speechOutput;
     let sectionObj = roster[attributes.courseNumber][attributes.sectionNumber];
-    //console.log(sectionObj);
+    console.log(sectionObj);
     let rosterList = Object.keys(sectionObj);
     rosterList.forEach(student => beenCalledList.push(sectionObj[student]['BeenCalled']));
+    console.log(beenCalledList);
     const minim = Math.min(...beenCalledList);
     while (true) {
         let randomIndex = Math.floor(Math.random() * rosterList.length);
@@ -821,7 +822,7 @@ const handlers = {
                 let groups = groupPresentHelper(this.attributes, rosterObj, groupNumberString);
                 let speechOutput = '';
                 Object.keys(groups).forEach(group => {
-                    speechOutput += `Group ${group}: ${groups[group].toString()}` + '<break time = "1s"/>';
+                    speechOutput += `Group ${group}: ${groups[group].toString()} ` + '<break time = "1s"/>';
                 });
                 Object.keys(groups).forEach(group => {
                     groups[group].forEach(student => {
