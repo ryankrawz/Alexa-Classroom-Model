@@ -356,9 +356,9 @@ const handlers = {
     'LaunchRequest': function () {
         this.attributes.lastIntent = 'LaunchRequest';
         const allOutputs = [
-            'Hello, and welcome to [invocation name]. What can I do for you?',
-            'This is [invocation name]. How can I help you today?',
-            'Greetings from [invocation name]. How may I assist you?'
+            'Hello, and welcome to your classroom assistant skill. What can I do for you?',
+            'This is your classroom assistant. How can I help you today?',
+            'Greetings from your classroom assistant. How may I assist you?'
         ];
         const speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
         this.attributes.lastOutput = speechOutput;
@@ -368,7 +368,7 @@ const handlers = {
 
     'AMAZON.HelpIntent': function () {
         let helpOutputs = {
-            'LaunchRequest': "You have opened the Eagle Expert skill. Please say another command to continue.",
+            'LaunchRequest': "You have opened the classroom assistant skill. Please say another command to continue.",
             'AMAZON.FallbackIntent': "If you're having trouble finding the right command, please consult the user documentation. Otherwise, it's possible that I'm just not hearing you properly.",
             'PlayBriefing': "If you'd like to hear one of your saved notes, just say something like, 'play my note'.",
             'AddBriefingNote': "If you'd like me to add a briefing note, just say something like, 'add a note'.",
@@ -403,12 +403,7 @@ const handlers = {
 
     'AMAZON.FallbackIntent': function () {
         this.attributes.lastIntent = 'AMAZON.FallbackIntent';
-        const allOutputs = [
-            'I didn\'t quite catch that. Start over and make sure what you\'re saying is correct.',
-            'I\'m sorry, I didn\'t understand that command. Begin again and try your best to be articulate.'
-        ];
-        let speechOutput = allOutputs[Math.floor(Math.random() * allOutputs.length)];
-        speechOutput += ' Say the word "help" if you\'re having trouble.';
+        let speechOutput = "Sorry, I didn't understand that command. Say the word [help] if you're having trouble.";
         this.response.speak(speechOutput).listen(speechOutput);
         nullifyObjects(this.attributes);
         this.emit(':responseReady');
