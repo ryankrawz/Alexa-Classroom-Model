@@ -219,7 +219,7 @@ exports.readTab = async function (key, tabName) {
                         nval = rows[row].values[col].effectiveValue.numberValue;
                     }
                     catch (e) {
-                        nval =  " ";
+                        nval =  0;
                     }
                     latestObj[kval] = nval;
                 } else {
