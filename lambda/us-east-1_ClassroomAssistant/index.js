@@ -14,9 +14,23 @@ exports.handler = function (event, context, callback) {
     alexa.execute();
 };
 
-async function initSheetID(context) {
-    if (!context.spreadsheetID || context.spreadsheetID === "Not a Real ID") {
-        context.spreadsheetID = "Not a Real ID";
+async function initSheetID(attributes, session) {
+    let currentUserId = session.user.userId;
+    let profData = {
+        greenwell: {
+            userId: "amzn1.ask.account.AGN3GNHPLVSKB7LWETPV3CWYTL3DQCLQ4BWYG2OJEEA3T4EWWEJWINZGQN7G2EVWNPWSW2EK3GLU3EMJ464UWZ54YNBVI5NVK4UXGYKOVXJGAHILE4Z3234O2JN5M4XBUI7M4WFNMOBQUO7G7MUWZRJIOP6CJPYDGLTJ6EPTXGBZ43D6EFKHH3AUMKFXTMSQKOHZEHR6AUOJX3Y",
+            sheetId: "1f_zgHHi8ZbS6j0WsIQpbkcpvhNamT2V48GuLc0odyJ0"
+        }
+    };
+    if (!attributes.spreadsheetID || attributes.spreadsheetID == "No professor data on record.") {
+        let profs = Object.keys(profData);
+        for (let i = 0; i < profs.length; i++) {
+            if (profData[profs[i]].userId == currentUserId) {
+                attributes.spreadsheetID = profData[profs[i]].sheetId;
+                return true;
+            }
+        }
+        attributes.spreadsheetID = "No professor data on record.";
         return false;
     }
     return true;
@@ -279,8 +293,8 @@ function nullifyObjects(attributes) {
     attributes.questionsObj = null;
 }
 
-async function initializeObjects(attributes, intentObj) {
-    let setUp = await initSheetID(attributes);
+async function initializeObjects(context, intentObj) {
+    let setUp = await initSheetID(context.attributes, context.event.session);
     if (!setUp) {
         return false;
     }
@@ -291,9 +305,9 @@ async function initializeObjects(attributes, intentObj) {
         'questionsObj': readQuizQuestions,
         'factsObj': readFastFacts
     };
-    if ((attributes.scheduleObj == null || attributes[intentObj] == null) && readFunctions[intentObj]) {
-        attributes.scheduleObj = await readSchedule(attributes.spreadsheetID);
-        attributes[intentObj] =  await readFunctions[intentObj](attributes.spreadsheetID);
+    if ((context.attributes.scheduleObj == null || context.attributes[intentObj] == null) && readFunctions[intentObj]) {
+        context.attributes.scheduleObj = await readSchedule(context.attributes.spreadsheetID);
+        context.attributes[intentObj] =  await readFunctions[intentObj](context.attributes.spreadsheetID);
     }
     return true;
 }
@@ -377,7 +391,7 @@ const handlers = {
 
     'PlayBriefing': async function () {
         this.attributes.lastIntent = 'PlayBriefing';
-        let initialized = await initializeObjects(this.attributes, 'briefingObj');
+        let initialized = await initializeObjects(this, 'briefingObj');
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
@@ -483,7 +497,7 @@ const handlers = {
 
     'AddBriefingNote': async function () {
         this.attributes.lastIntent = 'AddBriefingNote';
-        let initialized = await initializeObjects(this.attributes, 'briefingObj');
+        let initialized = await initializeObjects(this, 'briefingObj');
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
@@ -564,7 +578,7 @@ const handlers = {
 
     'FastFacts': async function () {
         this.attributes.lastIntent = 'FastFacts';
-        let initialized = await initializeObjects(this.attributes, 'factsObj');
+        let initialized = await initializeObjects(this, 'factsObj');
 
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
@@ -661,7 +675,7 @@ const handlers = {
 
     'ReadTags': async function () {
         this.attributes.lastIntent = 'ReadTags';
-        let initialized = await initializeObjects(this.attributes, 'factsObj');
+        let initialized = await initializeObjects(this, 'factsObj');
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
@@ -712,7 +726,7 @@ const handlers = {
     'GroupPresent': async function () {
         this.attributes.lastIntent = 'GroupPresent';
 
-        let initialized = await initializeObjects(this.attributes, 'rosterObj');
+        let initialized = await initializeObjects(this, 'rosterObj');
 
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
@@ -843,8 +857,9 @@ const handlers = {
     },
 
     'ColdCall': async function () {
+        console.log(`*** sessionObj: ${this.event.session.user.userId}`);
         this.attributes.lastIntent = 'ColdCall';
-        let initialized = await initializeObjects(this.attributes, 'rosterObj');
+        let initialized = await initializeObjects(this, 'rosterObj');
 
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
@@ -941,7 +956,7 @@ const handlers = {
     'QuizQuestion': async function () {
         this.attributes.lastIntent = 'QuizQuestion';
 
-        let initialized = await initializeObjects(this.attributes, 'questionsObj');
+        let initialized = await initializeObjects(this, 'questionsObj');
 
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
@@ -991,7 +1006,7 @@ const handlers = {
 
     'ParticipationTracker': async function () {
         this.attributes.lastIntent = 'ParticipationTracker';
-        let initialized = await initializeObjects(this.attributes, 'rosterObj');
+        let initialized = await initializeObjects(this, 'rosterObj');
         if (!initialized) {
             this.response.speak("Please wait for your administrator to set up Google Sheets access.");
             this.emit(':responseReady');
