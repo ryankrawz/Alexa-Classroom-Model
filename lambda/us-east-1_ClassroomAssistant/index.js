@@ -16,6 +16,7 @@ exports.handler = function (event, context, callback) {
 
 async function initSheetID(attributes, session) {
     let currentUserId = session.user.userId;
+    console.log(`*** userId: ${currentUserId}`);
     let profData = {
         greenwell: {
             userId: "amzn1.ask.account.AGN3GNHPLVSKB7LWETPV3CWYTL3DQCLQ4BWYG2OJEEA3T4EWWEJWINZGQN7G2EVWNPWSW2EK3GLU3EMJ464UWZ54YNBVI5NVK4UXGYKOVXJGAHILE4Z3234O2JN5M4XBUI7M4WFNMOBQUO7G7MUWZRJIOP6CJPYDGLTJ6EPTXGBZ43D6EFKHH3AUMKFXTMSQKOHZEHR6AUOJX3Y",
